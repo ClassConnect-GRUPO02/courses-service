@@ -1,0 +1,99 @@
+import { Request, Response } from 'express';
+import * as courseService from '../service/service';
+import logger from '../logger/logger';
+import { CourseNotFoundError } from '../models/errors';
+import { getCourseById } from '../database/database';
+import { StatusCodes } from 'http-status-codes';
+
+export const getCourses = (req: Request, res: Response): void => {
+  try {
+      const courses = courseService.getAllCourses();
+      res.status(StatusCodes.OK).json({ data: courses });
+  } catch (error) {
+      handleUnknownError(res, error);
+  }
+};
+
+export const getCourse = (req: Request, res: Response): void => {
+  try {
+      const { id } = req.params;
+      const course = courseService.getCourse(id);
+      res.status(StatusCodes.OK).json(course);
+  } catch (error) {
+      if (error instanceof CourseNotFoundError) {
+        handleCourseNotFoundError(error, req, res);
+      } else {
+          res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+      }
+  }
+};
+
+export const addCourse = (req: Request, res: Response): void => {
+  try {
+      const course = req.body;
+      if (!course || !course.title || !course.description) {
+          handleInvalidRequestError(res, 'Invalid course data');
+          return;
+      }
+      const createdCourse = courseService.createCourse(course);
+      res.status(StatusCodes.CREATED).json({ data: createdCourse });
+      logger.info('Course added successfully');
+  } catch (error) {
+      handleUnknownError(res, error);
+  }
+};
+
+export const deleteCourse = (req: Request, res: Response): void => {
+  try {
+      const { id } = req.params;
+      const courseId = parseInt(id, 10);
+      if (isNaN(courseId)) {
+          handleInvalidRequestError(res, id);
+          return;
+      }
+      courseService.removeCourse(id);
+      res.status(StatusCodes.NO_CONTENT).send();
+      logger.info(`Course with ID ${id} deleted successfully`);
+  } catch (error) {
+    if (error instanceof CourseNotFoundError) {
+      handleCourseNotFoundError(error, req, res);
+    } else {
+      handleUnknownError(res, error);
+    }
+  }
+};
+
+
+const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
+  res.status(error.status).json({
+      type: error.type,
+      title: 'Course Not Found',
+      detail: error.detail,
+      instance: req.originalUrl
+  });
+};
+
+const handleInvalidRequestError = (res: Response, detail: string): void => {
+  const errorResponse = {
+      type: 'https://example.com/bad-request',
+      title: 'Invalid Request',
+      status: StatusCodes.BAD_REQUEST,
+      detail,
+      instance: res.req.originalUrl,
+  };
+  res.status(StatusCodes.BAD_REQUEST).json(errorResponse);
+  logger.debug('Invalid Request');
+};
+
+const handleUnknownError = (res: Response, error: unknown): void => {
+  const errorResponse = {
+      type: 'https://example.com/internal-server-error',
+      title: 'Internal Server Error',
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      detail: 'An unexpected error occurred.',
+      instance: res.req.originalUrl,
+  };
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errorResponse);
+  logger.error('Internal Server Error:', error);
+};
+
