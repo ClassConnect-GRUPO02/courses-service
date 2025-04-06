@@ -30,3 +30,8 @@ export const deleteCourse = (id: string): Course => {
   delete courses[id];
   return course;
 };
+
+export const resetDatabase = (): void => {
+  Object.keys(courses).forEach((key) => delete courses[key]);
+  lastId = 0;
+};
