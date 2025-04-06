@@ -2,10 +2,12 @@ import request from 'supertest';
 import app from './main';
 import { StatusCodes } from 'http-status-codes';
 import { resetDatabase } from './database/database'; // Importa la función de reinicio
+import dotenv from 'dotenv';
 
-
-const BASE_URL = 'http://localhost:3000';
-
+dotenv.config();
+const HOST = process.env.HOST || 'localhost';
+const PORT = process.env.PORT || 3000;
+const BASE_URL = `http://${HOST}:${PORT}`;
 
 describe('E2E Tests for Courses API', () => {
   beforeEach(async () => {
