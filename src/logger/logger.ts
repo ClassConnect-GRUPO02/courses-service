@@ -1,4 +1,7 @@
 import { createLogger, format, transports } from 'winston';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const logger = createLogger({
     level: process.env.ENVIRONMENT === 'development' ? 'debug' : 'info',
