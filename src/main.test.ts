@@ -1,7 +1,6 @@
 import request from 'supertest';
 import app from './main';
 import { StatusCodes } from 'http-status-codes';
-import { resetDatabase } from './database/database'; // Importa la función de reinicio
 import dotenv from 'dotenv';
 
 dotenv.config();
