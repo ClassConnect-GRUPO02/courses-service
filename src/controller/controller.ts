@@ -44,8 +44,8 @@ export const addCourse = (req: Request, res: Response): void => {
       !course.instructor ||
       !course.instructor.name ||
       !course.instructor.profile ||
-      !course.capacity ||
-      !course.enrolled ||
+      course.capacity === undefined ||
+      course.enrolled === undefined ||
       !course.category ||
       !course.level ||
       !course.modality ||
