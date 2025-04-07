@@ -32,6 +32,8 @@ export const addCourse = (req: Request, res: Response): void => {
   try {
     const course: Course = req.body;
 
+    console.log('BODY RECIBIDO:', JSON.stringify(course, null, 2));
+
     if (
       !course ||
       !course.name ||
