@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as courseService from '../service/service';
 import logger from '../logger/logger';
-import { CourseNotFoundError } from '../models/errors';
+import { CourseNotFoundError, CourseCreationError } from '../models/errors';
 import { StatusCodes } from 'http-status-codes';
 import { Course } from '../models/course';
 
@@ -30,37 +30,21 @@ export const getCourse = async (req: Request, res: Response): Promise<void> => {
 
 export const addCourse = async (req: Request, res: Response): Promise<void> => {
   try {
-    const course: Course = req.body;
+    const courseData: Course = req.body;
 
-    console.log('BODY RECIBIDO:', JSON.stringify(course, null, 2));
-
-    if (
-      !course ||
-      !course.name ||
-      !course.description ||
-      !course.shortDescription ||
-      !course.startDate ||
-      !course.endDate ||
-      !course.instructor ||
-      !course.instructor.name ||
-      !course.instructor.profile ||
-      course.capacity === undefined ||
-      course.enrolled === undefined ||
-      !course.category ||
-      !course.level ||
-      !course.modality ||
-      !course.prerequisites ||
-      !course.imageUrl
-    ) {
-      handleInvalidRequestError(res, 'Missing required course fields');
-      return;
-    }
+    console.log('BODY RECIBIDO:', JSON.stringify(courseData, null, 2));
+    const course = new Course(courseData);
 
     const createdCourse = await courseService.createCourse(course);
     res.status(StatusCodes.CREATED).json({ data: createdCourse });
     logger.info('Course added successfully');
   } catch (error) {
-    handleUnknownError(res, error);
+    if (error instanceof CourseCreationError) {
+      handleInvalidRequestError(res, error.message);
+      return;
+    } else {
+      handleUnknownError(res, error);
+    }
   }
 };
 

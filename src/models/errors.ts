@@ -21,3 +21,9 @@ export class CourseNotFoundError extends AppError {
       );
   }
 }
+
+export class CourseCreationError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
