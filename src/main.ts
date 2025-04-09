@@ -1,6 +1,8 @@
 import express from 'express';
 import router from './router/router';
 import dotenv from 'dotenv';
+import { error } from 'winston';
+import { errorHandler } from './errorHandler/errorHandler';
 
 dotenv.config();
 
@@ -10,6 +12,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(router);
+app.use(errorHandler);
 
 app.listen(Number(PORT),HOST, () => {
   console.log(`Servidor corriendo en http://${HOST}:${PORT}`);

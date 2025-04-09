@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { Course } from '../models/course';
 import { v4 as uuidv4 } from 'uuid';
+import { CourseNotFoundError } from '../models/errors';
 
 const prisma = new PrismaClient();
 
@@ -34,7 +35,7 @@ export const getCourseById = async (id: string): Promise<Course> => {
   });
 
   if (!course) {
-    throw new Error(`Course with ID ${id} not found`);
+    throw new CourseNotFoundError(`Course with ID ${id} not found`);
   }
 
   return {
@@ -108,5 +109,55 @@ export const deleteCourse = async (id: string): Promise<Course> => {
     modality: deleted.modality as Course['modality'],
     prerequisites: deleted.prerequisites.split(','),
     imageUrl: deleted.imageUrl,
+  };
+};
+
+export const updateCourse = async (id: string, updateData: Partial<Course>): Promise<Course> => {
+  const existingCourse = await prisma.course.findUnique({ where: { id } });
+
+  if (!existingCourse) {
+    throw new CourseNotFoundError(`Course with ID ${id} not found`);
+  }
+
+  const updated = await prisma.course.update({
+    where: { id },
+    data: {
+      name: updateData.name ?? existingCourse.name,
+      description: updateData.description ?? existingCourse.description,
+      shortDescription: updateData.shortDescription ?? existingCourse.shortDescription,
+      startDate: updateData.startDate ? new Date(updateData.startDate) : existingCourse.startDate,
+      endDate: updateData.endDate ? new Date(updateData.endDate) : existingCourse.endDate,
+      instructorName: updateData.instructor?.name ?? existingCourse.instructorName,
+      instructorProfile: updateData.instructor?.profile ?? existingCourse.instructorProfile,
+      capacity: updateData.capacity ?? existingCourse.capacity,
+      enrolled: updateData.enrolled ?? existingCourse.enrolled,
+      category: updateData.category ?? existingCourse.category,
+      level: updateData.level ?? existingCourse.level,
+      modality: updateData.modality ?? existingCourse.modality,
+      prerequisites: updateData.prerequisites
+        ? updateData.prerequisites.join(',')
+        : existingCourse.prerequisites,
+      imageUrl: updateData.imageUrl ?? existingCourse.imageUrl,
+    },
+  });
+
+  return {
+    id: updated.id,
+    name: updated.name,
+    description: updated.description,
+    shortDescription: updated.shortDescription,
+    startDate: updated.startDate.toISOString(),
+    endDate: updated.endDate.toISOString(),
+    instructor: {
+      name: updated.instructorName,
+      profile: updated.instructorProfile,
+    },
+    capacity: updated.capacity,
+    enrolled: updated.enrolled,
+    category: updated.category,
+    level: updated.level as Course['level'],
+    modality: updated.modality as Course['modality'],
+    prerequisites: updated.prerequisites.split(','),
+    imageUrl: updated.imageUrl,
   };
 };
