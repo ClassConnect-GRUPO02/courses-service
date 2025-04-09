@@ -1,18 +1,21 @@
-# Use Node.js LTS as the base image
+# Usa Node.js LTS con Alpine como base
 FROM node:18-alpine
 
-# Create and use the working directory
+# Crea y usa el directorio de trabajo
 WORKDIR /app
 
-# Copy package files and install only production dependencies
+# Copia package.json y package-lock.json y instala solo dependencias de producción
 COPY package*.json ./
 RUN npm install --omit=dev
 
-# Copy compiled code and other files
+# Copia todo el código fuente y archivos restantes
 COPY . .
 
-# Expone el puerto 3000 (coincide con tu main.ts)
+# Asegura permisos de ejecución del script de entrada
+RUN chmod +x ./entrypoint.sh
+
+# Expone el puerto de la app (ajustar si es necesario)
 EXPOSE 3000
 
-# Comando para ejecutar la app (versión compilada)
-CMD ["node", "dist/main.js"]
+# Usa el script de entrada
+CMD ["./entrypoint.sh"]
