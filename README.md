@@ -6,6 +6,14 @@
 
 ## Run
 
-`npm run dev` For development mode
+`docker compose up` to run the API and the database
 
-`npm start` For production
+## See database content
+
+mysql -u root -p
+
+USE courses_db;
+
+SHOW TABLES;
+
+SELECT * FROM Course;
