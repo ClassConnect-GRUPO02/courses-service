@@ -1,34 +1,30 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import * as courseService from '../service/service';
 import logger from '../logger/logger';
 import { CourseNotFoundError, CourseCreationError } from '../models/errors';
 import { StatusCodes } from 'http-status-codes';
 import { Course } from '../models/course';
 
-export const getCourses = async (req: Request, res: Response): Promise<void> => {
+export const getCourses = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const courses = await courseService.getAllCourses();
     res.status(StatusCodes.OK).json({ data: courses });
   } catch (error) {
-    handleUnknownError(res, error);
+    next(error);
   }
 };
 
-export const getCourse = async (req: Request, res: Response): Promise<void> => {
+export const getCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
     const course = await courseService.getCourse(id);
     res.status(StatusCodes.OK).json(course);
   } catch (error) {
-    if (error instanceof CourseNotFoundError) {
-      handleCourseNotFoundError(error, req, res);
-    } else {
-      handleUnknownError(res, error);
-    }
+    next(error);
   }
 };
 
-export const addCourse = async (req: Request, res: Response): Promise<void> => {
+export const addCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const courseData: Course = req.body;
 
@@ -39,16 +35,11 @@ export const addCourse = async (req: Request, res: Response): Promise<void> => {
     res.status(StatusCodes.CREATED).json({ data: createdCourse });
     logger.info('Course added successfully');
   } catch (error) {
-    if (error instanceof CourseCreationError) {
-      handleInvalidRequestError(res, error.message);
-      return;
-    } else {
-      handleUnknownError(res, error);
-    }
+    next(error);
   }
 };
 
-export const deleteCourse = async (req: Request, res: Response): Promise<void> => {
+export const deleteCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -61,11 +52,7 @@ export const deleteCourse = async (req: Request, res: Response): Promise<void> =
     res.status(StatusCodes.NO_CONTENT).send();
     logger.info(`Course with ID ${id} deleted successfully`);
   } catch (error) {
-    if (error instanceof CourseNotFoundError) {
-      handleCourseNotFoundError(error, req, res);
-    } else {
-      handleUnknownError(res, error);
-    }
+    next(error);
   }
 };
 
