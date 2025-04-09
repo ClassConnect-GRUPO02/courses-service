@@ -1,0 +1,27 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Course {
+  id                 String   @id
+  name               String
+  description        String
+  shortDescription   String
+  startDate          DateTime
+  endDate            DateTime
+  instructorName     String
+  instructorProfile  String
+  capacity           Int
+  enrolled           Int
+  category           String
+  level              String
+  modality           String
+  prerequisites      String   // Se guarda como "js,html,css"
+  imageUrl           String
+}
