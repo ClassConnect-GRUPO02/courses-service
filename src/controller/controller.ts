@@ -56,6 +56,18 @@ export const deleteCourse = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+export const updateCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const courseData: Partial<Course> = req.body;
+    const updatedCourse = courseService.updateCourse(id, courseData);
+    res.status(StatusCodes.OK).json({ data: updatedCourse });
+    logger.info(`Course with ID ${id} updated successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
   res.status(error.status).json({
     type: error.type,

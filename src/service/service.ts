@@ -1,5 +1,6 @@
 import { Course } from '../models/course';
 import * as database from '../database/database';
+import { CourseNotFoundError } from '../models/errors';
 
 export const getAllCourses = async (): Promise<Course[]> => {
   return await database.getCourses();
@@ -15,4 +16,12 @@ export const createCourse = async (course: Course): Promise<Course> => {
 
 export const removeCourse = async (id: string): Promise<Course> => {
   return await database.deleteCourse(id);
+};
+
+export const updateCourse = (id: string, updateData: Partial<Course>): Promise<Course> => {
+  const existingCourse = database.getCourseById(id);
+
+  const updatedCourse = { ...existingCourse, ...updateData, id }; // mantener el mismo ID
+
+  return database.updateCourse(id, updatedCourse);
 };
