@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh 
 
 echo "Esperando a que la base de datos esté disponible en $DB_HOST:$DB_PORT..."
 
