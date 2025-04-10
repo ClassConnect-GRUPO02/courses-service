@@ -8,7 +8,23 @@ const prisma = new PrismaClient();
 export const getCourses = async (): Promise<Course[]> => {
   const coursesFromDB = await prisma.course.findMany();
 
-  return coursesFromDB.map((course) => ({
+  return coursesFromDB.map((course: {
+    id: string;
+    name: string;
+    description: string;
+    shortDescription: string;
+    startDate: Date;
+    endDate: Date;
+    instructorName: string;
+    instructorProfile: string;
+    capacity: number;
+    enrolled: number;
+    category: string;
+    level: string;
+    modality: string;
+    prerequisites: string;
+    imageUrl: string;
+  }): Course => ({
     id: course.id,
     name: course.name,
     description: course.description,
