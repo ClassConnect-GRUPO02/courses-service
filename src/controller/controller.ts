@@ -28,7 +28,7 @@ export const addCourse = async (req: Request, res: Response, next: NextFunction)
   try {
     const courseData: Course = req.body;
 
-    console.log('BODY RECIBIDO:', JSON.stringify(courseData, null, 2));
+    logger.debug('BODY RECIBIDO:', JSON.stringify(courseData, null, 2));
     const course = new Course(courseData);
 
     const createdCourse = await courseService.createCourse(course);
