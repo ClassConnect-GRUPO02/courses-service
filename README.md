@@ -1,12 +1,8 @@
 # Courses-service
 
-## Install dependencies
-
-`npm install`
-
 ## Run
 
-`docker compose up` to run the API and the database
+`docker compose up` install dependencies, run the API and the database
 
 ## See database content
 
