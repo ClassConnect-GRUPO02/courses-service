@@ -6,10 +6,11 @@ WORKDIR /app
 
 # Copia package.json y package-lock.json y instala solo dependencias de producción
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm install
 
 # Copia todo el código fuente y archivos restantes
 COPY . .
+RUN npm run build
 
 # Asegura permisos de ejecución del script de entrada
 RUN chmod +x ./entrypoint.sh
