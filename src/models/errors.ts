@@ -27,3 +27,9 @@ export class CourseCreationError extends Error {
     super(message);
   }
 }
+
+export class ModuleCreationError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}

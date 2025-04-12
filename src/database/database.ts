@@ -177,3 +177,4 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
     imageUrl: updated.imageUrl,
   };
 };
+

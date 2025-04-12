@@ -1,4 +1,5 @@
 import { CourseCreationError } from "../models/errors";
+import { Module } from "./module";
 
 export class Course {
   id: string;
