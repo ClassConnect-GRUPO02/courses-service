@@ -9,7 +9,7 @@ router.post('/courses', courseController.addCourse);
 router.delete('/courses/:id', courseController.deleteCourse);
 router.patch('/courses/:id', courseController.updateCourse);
 
-// router.post('/courses/:id/modules', courseController.addModule); // Add module to course
+router.post('/courses/:id/modules', courseController.addModuleToCourse); // Add module to course
 // router.delete('/courses/:id/modules/:moduleId', courseController.deleteModule); // Delete module from course
 // router.get('/courses/:id/modules', courseController.getModules); // Get all modules from course
 // router.get('/courses/:id/modules/:moduleId', courseController.getModule); // Get module by ID inside course

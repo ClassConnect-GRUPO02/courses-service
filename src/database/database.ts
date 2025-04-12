@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { Course } from '../models/course';
 import { v4 as uuidv4 } from 'uuid';
 import { CourseNotFoundError } from '../models/errors';
+import { Module } from '../models/module';
 
 const prisma = new PrismaClient();
 
@@ -178,3 +179,26 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
   };
 };
 
+
+export const addModuleToCourse = async (courseId: string, module: any): Promise<Module> => {
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+  });
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+  const newModule = await prisma.module.create({
+    data: {
+      id: uuidv4(),
+      name: module.name,
+      description: module.description,
+      url: module.url,
+      order: module.order,
+      courseId: courseId,
+    },
+  });
+  return {
+    ...newModule,
+    id: newModule.id,
+  };
+};

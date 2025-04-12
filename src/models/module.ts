@@ -15,7 +15,7 @@ export class Module {
     if (data.order === undefined) throw new ModuleCreationError('The "order" field is required.');
     if (!data.courseId) throw new ModuleCreationError('The "courseId" field is required.');
 
-    this.id = data.id || ''; // Id is not needed because it will be asigned after
+    this.id = ''; // Id is not needed because it will be asigned after
     this.name = data.name;
     this.description = data.description;
     this.url = data.url;

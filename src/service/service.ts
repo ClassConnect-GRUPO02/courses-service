@@ -1,6 +1,7 @@
 import { Course } from '../models/course';
 import * as database from '../database/database';
 import { CourseNotFoundError } from '../models/errors';
+import { Module } from '../models/module';
 
 export const getAllCourses = async (): Promise<Course[]> => {
   return await database.getCourses();
@@ -25,3 +26,13 @@ export const updateCourse = (id: string, updateData: Partial<Course>): Promise<C
 
   return database.updateCourse(id, updatedCourse);
 };
+
+export const addModuleToCourse = async (courseId: string, module: Module): Promise<Module> => {
+  const course = await database.getCourseById(courseId);
+
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found.`);
+  }
+
+  return await database.addModuleToCourse(courseId, module);
+}

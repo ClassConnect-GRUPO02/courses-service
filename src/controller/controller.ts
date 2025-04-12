@@ -4,6 +4,7 @@ import logger from '../logger/logger';
 import { CourseNotFoundError, CourseCreationError } from '../models/errors';
 import { StatusCodes } from 'http-status-codes';
 import { Course } from '../models/course';
+import { Module } from '../models/module';
 
 export const getCourses = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -63,6 +64,19 @@ export const updateCourse = async (req: Request, res: Response, next: NextFuncti
     const updatedCourse = courseService.updateCourse(id, courseData);
     res.status(StatusCodes.OK).json({ data: updatedCourse });
     logger.info(`Course with ID ${id} updated successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addModuleToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const moduleData = req.body;
+    const module = new Module(moduleData);
+    const createdModule = await courseService.addModuleToCourse(id, module);
+    res.status(StatusCodes.CREATED).json({ data: createdModule });
+    logger.info(`Module added to course with ID ${id} successfully`);
   } catch (error) {
     next(error);
   }
