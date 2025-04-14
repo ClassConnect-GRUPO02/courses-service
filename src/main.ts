@@ -5,7 +5,11 @@ import dotenv from 'dotenv';
 import { error } from 'winston';
 import { errorHandler } from './errorHandler/errorHandler';
 
-dotenv.config();
+if (process.env.NODE_ENV === 'test') {
+  dotenv.config({ path: '.env.test' });
+} else {
+  dotenv.config();
+}
 
 const app = express();
 const HOST = process.env.HOST || 'localhost';

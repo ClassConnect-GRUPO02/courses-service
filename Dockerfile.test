@@ -1,0 +1,25 @@
+# Usa Node.js LTS con Alpine como base
+FROM node:18-alpine
+
+ENV NODE_ENV=test
+
+# Instala netcat (necesario para esperar la DB)
+RUN apk add --no-cache netcat-openbsd
+
+# Crea y usa el directorio de trabajo
+WORKDIR /app
+
+# Copia package.json y package-lock.json e instala dependencias
+COPY package*.json ./
+RUN npm install
+
+# Copia todo el código fuente y archivos restantes
+COPY . .
+
+RUN npx prisma generate
+
+# Build del proyecto
+RUN npm run build
+
+# Comando para ejecutar los tests
+CMD ["npm", "test"]
