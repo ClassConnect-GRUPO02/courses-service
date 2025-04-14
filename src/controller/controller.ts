@@ -69,6 +69,8 @@ export const updateCourse = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+// -------------------------- MODULES --------------------------
+
 export const addModuleToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
@@ -107,6 +109,21 @@ export const getModules = async (req: Request, res: Response, next: NextFunction
     next(error);
   }
 };
+
+export const getModule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { courseId, moduleId } = req.params;
+    if (!courseId || !moduleId) {
+      handleInvalidRequestError(res, 'Invalid course or module ID');
+      return;
+    }
+    const module = await courseService.getModuleById(courseId, moduleId);
+    res.status(StatusCodes.OK).json({ data: module });
+    logger.info(`Module with ID ${moduleId} retrieved from course with ID ${courseId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}
 
 const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
   res.status(error.status).json({
