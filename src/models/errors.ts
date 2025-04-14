@@ -33,3 +33,13 @@ export class ModuleCreationError extends Error {
     super(message);
   }
 }
+
+export class ModuleNotFoundError extends AppError {
+  constructor(moduleID: string) {
+    super(
+      'ModuleNotFoundError',
+      404,
+      `Module with ID ${moduleID} not found`
+    );
+  }
+}

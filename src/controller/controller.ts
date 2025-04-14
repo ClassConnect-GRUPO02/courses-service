@@ -82,6 +82,21 @@ export const addModuleToCourse = async (req: Request, res: Response, next: NextF
   }
 };
 
+export const deleteModule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { courseId, moduleId } = req.params;
+    if (!courseId || !moduleId) {
+      handleInvalidRequestError(res, 'Invalid course or module ID');
+      return;
+    }
+    await courseService.removeModule(courseId, moduleId);
+    res.status(StatusCodes.NO_CONTENT).send();
+    logger.info(`Module with ID ${moduleId} deleted from course with ID ${courseId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
   res.status(error.status).json({
     type: error.type,

@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { Course } from '../models/course';
 import { v4 as uuidv4 } from 'uuid';
-import { CourseNotFoundError } from '../models/errors';
+import { CourseNotFoundError, ModuleNotFoundError } from '../models/errors';
 import { Module } from '../models/module';
 
 const prisma = new PrismaClient();
@@ -179,7 +179,9 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
   };
 };
 
-
+// Adds a new module to a course
+// Throws an error if the course is not found
+// Returns the created Module object
 export const addModuleToCourse = async (courseId: string, module: any): Promise<Module> => {
   const course = await prisma.course.findUnique({
     where: { id: courseId },
@@ -202,3 +204,56 @@ export const addModuleToCourse = async (courseId: string, module: any): Promise<
     id: newModule.id,
   };
 };
+
+// Retrieves all modules for a given course ID
+// Returns an array of Module objects
+export const getModulesByCourseId = async (courseId: string): Promise<Module[]> => {
+  const modules = await prisma.module.findMany({
+    where: { courseId },
+  });
+
+  return modules.map((module) => ({
+    id: module.id,
+    name: module.name,
+    description: module.description,
+    url: module.url,
+    order: module.order,
+    courseId: module.courseId,
+  }));
+}
+
+// Deletes a module by its ID, throwing an error if the module is not found
+export const deleteModule = async (courseId: string, moduleId: string): Promise<void> => {
+  const module = await prisma.module.findFirst({
+    where: {
+      id: moduleId,
+      courseId: courseId,
+    },
+  });
+
+  if (!module) {
+    throw new ModuleNotFoundError(`Module with ID ${moduleId} not found in course ${courseId}`);
+  }
+
+  await prisma.module.delete({
+    where: { id: moduleId },
+  });
+};
+
+// Retrieves a module by its ID within a specific course
+// Throws an error if the module is not found
+// Returns the Module object
+export const getModuleById = async (courseId: string, moduleId: string): Promise<Module> => {
+  const module = await prisma.module.findFirst({
+    where: {
+      id: moduleId,
+      courseId: courseId,
+    },
+  });
+
+  if (!module) {
+    throw new ModuleNotFoundError(`Module with ID ${moduleId} not found in course ${courseId}`);
+  }
+
+  return module;
+}
