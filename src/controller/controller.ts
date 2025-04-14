@@ -97,6 +97,17 @@ export const deleteModule = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+export const getModules = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const modules = await courseService.getModules(id);
+    res.status(StatusCodes.OK).json({ data: modules });
+    logger.info(`Modules retrieved for course with ID ${id} successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
   res.status(error.status).json({
     type: error.type,
