@@ -1,12 +1,11 @@
 import request from 'supertest';
-import app from '../main';
+import app from '../app';
 import { StatusCodes } from 'http-status-codes';
 
 describe('E2E Tests for Courses API', () => {
   let createdCourseId: string;
 
   const newCourse = {
-    id: "test-course-001",
     name: "Curso de Prueba",
     description: "Aprendé TypeScript desde cero",
     shortDescription: "TS para principiantes",
@@ -50,17 +49,24 @@ describe('E2E Tests for Courses API', () => {
     });
   });
 
-  describe('PUT /courses/:id', () => {
+  describe('PATCH /courses/:id', () => {
     it('should update the course by ID', async () => {
       const response = await request(app)
-        .put(`/courses/${createdCourseId}`)
+        .patch(`/courses/${createdCourseId}`)
         .send(updatedData);
-
+  
+      // Verificamos que el status de la respuesta sea correcto
       expect(response.status).toBe(StatusCodes.OK);
-      expect(response.body.data.name).toBe(updatedData.name);
-      expect(response.body.data.capacity).toBe(updatedData.capacity);
-      expect(response.body.data.level).toBe(updatedData.level);
-    });
+      console.log('Response body:', response.body);
+  
+      // Verificamos que el curso actualizado tenga los valores esperados
+      expect(response.body.data).toMatchObject({
+        id: createdCourseId,
+        name: updatedData.name,
+        capacity: updatedData.capacity,
+        level: updatedData.level,
+      });
+    });  
 
     it('should return 404 when trying to update non-existing course', async () => {
       const response = await request(app)
@@ -86,7 +92,7 @@ describe('E2E Tests for Courses API', () => {
     });
 
     it('should return 404 when deleting a non-existing course', async () => {
-      const response = await request(app).delete(`/courses/${createdCourseId}`);
+      const response = await request(app).delete(`/courses/99999999`);
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });
   });

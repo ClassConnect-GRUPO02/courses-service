@@ -48,7 +48,15 @@ export const deleteCourse = async (req: Request, res: Response, next: NextFuncti
       return;
     }
 
-    await courseService.removeCourse(id);
+    const deletedCourse = await courseService.removeCourse(id);
+
+    if (!deletedCourse || Object.keys(deletedCourse).length === 0) {
+      res.status(StatusCodes.NOT_FOUND).json({ error: `Course with ID ${id} not found` });
+      return;
+    } else {
+      logger.debug('Course deleted:', deletedCourse);
+    }
+
     res.status(StatusCodes.NO_CONTENT).send();
     logger.info(`Course with ID ${id} deleted successfully`);
   } catch (error) {
@@ -60,13 +68,16 @@ export const updateCourse = async (req: Request, res: Response, next: NextFuncti
   try {
     const { id } = req.params;
     const courseData: Partial<Course> = req.body;
-    const updatedCourse = courseService.updateCourse(id, courseData);
+
+    const updatedCourse = await courseService.updateCourse(id, courseData);
+
     res.status(StatusCodes.OK).json({ data: updatedCourse });
     logger.info(`Course with ID ${id} updated successfully`);
   } catch (error) {
     next(error);
   }
 };
+
 
 const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
   res.status(error.status).json({
