@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
  import { StatusCodes } from 'http-status-codes';
  import { CourseCreationError, CourseNotFoundError } from '../models/errors';
  
- export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction): void => {
+ export const errorHandler = (err: unknown, req: Request, res: Response): void => {
    if (err instanceof CourseCreationError) {
      res.status(StatusCodes.BAD_REQUEST).json({
        type: 'https://example.com/bad-request',

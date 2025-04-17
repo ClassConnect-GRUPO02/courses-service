@@ -57,7 +57,6 @@ describe('E2E Tests for Courses API', () => {
   
       // Verificamos que el status de la respuesta sea correcto
       expect(response.status).toBe(StatusCodes.OK);
-      console.log('Response body:', response.body);
   
       // Verificamos que el curso actualizado tenga los valores esperados
       expect(response.body.data).toMatchObject({
@@ -70,7 +69,7 @@ describe('E2E Tests for Courses API', () => {
 
     it('should return 404 when trying to update non-existing course', async () => {
       const response = await request(app)
-        .put('/courses/non-existent-id')
+        .patch('/courses/99999999')
         .send({ name: "Fake update" });
 
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
