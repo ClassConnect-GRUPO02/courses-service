@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import router from './router/router';
 import dotenv from 'dotenv';
 import { error } from 'winston';
@@ -9,6 +10,8 @@ dotenv.config();
 const app = express();
 const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || 3000;
+
+app.use(cors());
 
 app.use(express.json());
 app.use(router);
