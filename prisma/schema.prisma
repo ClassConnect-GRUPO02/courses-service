@@ -24,4 +24,15 @@ model Course {
   modality           String
   prerequisites      String   // Se guarda como "js,html,css"
   imageUrl           String
+  modules            Module[]
+}
+
+model Module {
+  id                String   @id
+  name              String
+  description       String
+  url               String
+  order             Int
+  course           Course @relation(fields: [courseId], references: [id])
+  courseId         String
 }

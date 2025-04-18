@@ -3,6 +3,7 @@ import * as courseService from '../service/service';
 import logger from '../logger/logger';
 import { StatusCodes } from 'http-status-codes';
 import { Course } from '../models/course';
+import { Module } from '../models/module';
 
 export const getCourses = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -82,6 +83,61 @@ export const updateCourse = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+// -------------------------- MODULES --------------------------
+
+export const addModuleToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const moduleData = req.body;
+    const module = new Module(moduleData);
+    const createdModule = await courseService.addModuleToCourse(id, module);
+    res.status(StatusCodes.CREATED).json({ data: createdModule });
+    logger.info(`Module added to course with ID ${id} successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteModule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { courseId, moduleId } = req.params;
+    if (!courseId || !moduleId) {
+      handleInvalidRequestError(res, 'Invalid course or module ID');
+      return;
+    }
+    await courseService.removeModule(courseId, moduleId);
+    res.status(StatusCodes.NO_CONTENT).send();
+    logger.info(`Module with ID ${moduleId} deleted from course with ID ${courseId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getModules = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const modules = await courseService.getModules(id);
+    res.status(StatusCodes.OK).json({ data: modules });
+    logger.info(`Modules retrieved for course with ID ${id} successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getModule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { courseId, moduleId } = req.params;
+    if (!courseId || !moduleId) {
+      handleInvalidRequestError(res, 'Invalid course or module ID');
+      return;
+    }
+    const module = await courseService.getModuleById(courseId, moduleId);
+    res.status(StatusCodes.OK).json({ data: module });
+    logger.info(`Module with ID ${moduleId} retrieved from course with ID ${courseId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}
 
 /*const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
   res.status(error.status).json({

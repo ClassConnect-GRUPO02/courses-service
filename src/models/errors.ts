@@ -27,3 +27,19 @@ export class CourseCreationError extends Error {
     super(message);
   }
 }
+
+export class ModuleCreationError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class ModuleNotFoundError extends AppError {
+  constructor(moduleID: string) {
+    super(
+      'ModuleNotFoundError',
+      404,
+      `Module with ID ${moduleID} not found`
+    );
+  }
+}

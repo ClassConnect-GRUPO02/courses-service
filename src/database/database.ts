@@ -1,7 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { Course } from '../models/course';
 import { v4 as uuidv4 } from 'uuid';
-import { CourseNotFoundError } from '../models/errors';
+import { CourseNotFoundError, ModuleNotFoundError } from '../models/errors';
+import { Module } from '../models/module';
 
 const prisma = new PrismaClient();
 
@@ -177,3 +178,78 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
     imageUrl: updated.imageUrl,
   };
 };
+
+// Adds a new module to a course
+// Throws an error if the course is not found
+// Returns the created Module object
+export const addModuleToCourse = async (courseId: string, module: any): Promise<Module | null> => {
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+  });
+  if (!course) {
+    return null;
+  }
+  const newModule = await prisma.module.create({
+    data: {
+      id: uuidv4(),
+      name: module.name,
+      description: module.description,
+      url: module.url,
+      order: module.order,
+      courseId: courseId,
+    },
+  });
+  return {
+    ...newModule,
+    id: newModule.id,
+  };
+};
+
+// Retrieves all modules for a given course ID
+// Returns an array of Module objects
+export const getModulesByCourseId = async (courseId: string): Promise<Module[]> => {
+  const modules = await prisma.module.findMany({
+    where: { courseId },
+  });
+
+  return modules.map((module) => ({
+    id: module.id,
+    name: module.name,
+    description: module.description,
+    url: module.url,
+    order: module.order,
+    courseId: module.courseId,
+  }));
+}
+
+// Deletes a module by its ID returning true if it was found and deleted, false otherwise
+export const deleteModule = async (courseId: string, moduleId: string): Promise<boolean> => {
+  const module = await prisma.module.findFirst({
+    where: {
+      id: moduleId,
+      courseId: courseId,
+    },
+  });
+
+  if (!module) {
+    return false;
+  }
+
+  await prisma.module.delete({
+    where: { id: moduleId },
+  });
+  
+  return true;
+};
+
+
+// Retrieves a module by its ID within a specific course
+// Returns the Module object or null if it's not found
+export const getModuleById = async (courseId: string, moduleId: string): Promise<Module | null> => {
+  return await prisma.module.findFirst({
+    where: {
+      id: moduleId,
+      courseId: courseId,
+    },
+  });
+}
