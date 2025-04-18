@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { Course } from '../models/course';
 import { v4 as uuidv4 } from 'uuid';
-import { CourseNotFoundError, ModuleNotFoundError } from '../models/errors';
+import { CourseNotFoundError } from '../models/errors';
 import { Module } from '../models/module';
 
 const prisma = new PrismaClient();

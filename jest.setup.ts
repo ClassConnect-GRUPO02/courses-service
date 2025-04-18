@@ -1,6 +1,5 @@
-import { get, Server } from 'http';
+import { Server } from 'http';
 import app from './src/app';
-import { addModuleToCourse, getModulesByCourseId } from './src/database/database';
 
 let server: Server;
 
