@@ -182,7 +182,7 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
 // Adds a new module to a course
 // Throws an error if the course is not found
 // Returns the created Module object
-export const addModuleToCourse = async (courseId: string, module: any): Promise<Module | null> => {
+export const addModuleToCourse = async (courseId: string, module: Module): Promise<Module | null> => {
   const course = await prisma.course.findUnique({
     where: { id: courseId },
   });

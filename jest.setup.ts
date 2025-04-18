@@ -1,5 +1,6 @@
 import { Server } from 'http';
 import app from './src/app';
+import { Module } from './src/models/module';
 
 let server: Server;
 
@@ -55,13 +56,13 @@ jest.mock('./src/database/database', () => ({
 
   getModuleById: jest.fn().mockImplementation((courseId: string, moduleId: string) => {
     if (!mockDB[courseId]) return Promise.resolve(null);
-    const module = mockDB[courseId].modules.find((mod: any) => mod.id === moduleId);
+    const module = mockDB[courseId].modules.find((mod: Module) => mod.id === moduleId);
     return Promise.resolve(module || null);
   }),
 
   deleteModule: jest.fn().mockImplementation((courseId: string, moduleId: string) => {
     if (!mockDB[courseId]) return Promise.resolve(false);
-    const moduleIndex = mockDB[courseId].modules.findIndex((mod: any) => mod.id === moduleId);
+    const moduleIndex = mockDB[courseId].modules.findIndex((mod: Module) => mod.id === moduleId);
     if (moduleIndex === -1) return Promise.resolve(false);
     mockDB[courseId].modules.splice(moduleIndex, 1);
     return Promise.resolve(true);
