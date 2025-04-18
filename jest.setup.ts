@@ -1,4 +1,4 @@
-import { Server } from 'http';
+import { get, Server } from 'http';
 import app from './src/app';
 import { addModuleToCourse, getModulesByCourseId } from './src/database/database';
 
@@ -7,6 +7,9 @@ let server: Server;
 // Simula una base de datos en memoria
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockDB: Record<string, any> = {};
+
+let courseIdCounter = 1;
+let moduleIdCounter = 1;
 
 jest.mock('./src/database/database', () => ({
   getCourses: jest.fn().mockImplementation(() => {
@@ -18,8 +21,8 @@ jest.mock('./src/database/database', () => ({
   }),
 
   addCourse: jest.fn().mockImplementation((courseData) => {
-    const id = "1".toString();
-    const newCourse = { ...courseData, id };
+    const id = (courseIdCounter++).toString();
+    const newCourse = { ...courseData, id, modules: [] };
     mockDB[id] = newCourse;
     return Promise.resolve(newCourse);
   }),
@@ -40,8 +43,8 @@ jest.mock('./src/database/database', () => ({
 
   addModuleToCourse: jest.fn().mockImplementation((courseId, moduleData) => {
     if (!mockDB[courseId]) return Promise.resolve(null);
-    const newModule = { ...moduleData, id: "1".toString() };
-    if (!mockDB[courseId].modules) mockDB[courseId].modules = [];
+    const id = (moduleIdCounter++).toString();
+    const newModule = { ...moduleData, id };
     mockDB[courseId].modules.push(newModule);
     return Promise.resolve(newModule);
   }),
@@ -49,9 +52,15 @@ jest.mock('./src/database/database', () => ({
   getModulesByCourseId: jest.fn().mockImplementation((courseId: string) => {
     if (!mockDB[courseId]) return Promise.resolve([]);
     return Promise.resolve(mockDB[courseId].modules || []);
-  }
-  ),
-  
+  }),
+
+  getModuleById: jest.fn().mockImplementation((courseId: string, moduleId: string) => {
+    if (!mockDB[courseId]) return Promise.resolve(null);
+    const module = mockDB[courseId].modules.find((mod: any) => mod.id === moduleId);
+    return Promise.resolve(module || null);
+  }),
+
+
 }));
 
 beforeAll((done) => {
