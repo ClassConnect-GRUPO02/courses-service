@@ -126,14 +126,14 @@ export const getModules = async (req: Request, res: Response, next: NextFunction
 
 export const getModule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { courseId, moduleId } = req.params;
-    if (!courseId || !moduleId) {
+    const { id, moduleId } = req.params;
+    if (!id || !moduleId) {
       handleInvalidRequestError(res, 'Invalid course or module ID');
       return;
     }
-    const module = await courseService.getModuleById(courseId, moduleId);
+    const module = await courseService.getModuleById(id, moduleId);
     res.status(StatusCodes.OK).json({ data: module });
-    logger.info(`Module with ID ${moduleId} retrieved from course with ID ${courseId} successfully`);
+    logger.info(`Module with ID ${moduleId} retrieved from course with ID ${id} successfully`);
   } catch (error) {
     next(error);
   }
