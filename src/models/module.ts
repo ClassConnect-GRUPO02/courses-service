@@ -9,7 +9,7 @@ export class Module {
   courseId: string
 
   constructor(data: Partial<Module>) {
-    if (!data.name) throw new ModuleCreationError('The "name" field is required.');
+    if (!data.name) throw new ModuleCreationError('The "name" field is required.'); // If name is "" also is invalid
     if (!data.description) throw new ModuleCreationError('The "description" field is required.');
     if (!data.url) throw new ModuleCreationError('The "url" field is required.');
     if (data.order === undefined) throw new ModuleCreationError('The "order" field is required.');

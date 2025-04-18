@@ -1,5 +1,6 @@
 import { Server } from 'http';
 import app from './src/app';
+import { addModuleToCourse } from './src/database/database';
 
 let server: Server;
 
@@ -36,6 +37,15 @@ jest.mock('./src/database/database', () => ({
     delete mockDB[id];
     return Promise.resolve(deleted);
   }),
+
+  addModuleToCourse: jest.fn().mockImplementation((courseId, moduleData) => {
+    if (!mockDB[courseId]) return Promise.resolve(null);
+    const newModule = { ...moduleData, id: "1".toString() };
+    if (!mockDB[courseId].modules) mockDB[courseId].modules = [];
+    mockDB[courseId].modules.push(newModule);
+    return Promise.resolve(newModule);
+  }),
+  
 }));
 
 beforeAll((done) => {

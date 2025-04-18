@@ -1,0 +1,75 @@
+import request from 'supertest';
+import app from '../app';
+import { StatusCodes } from 'http-status-codes';
+import { mockCourseRequestData } from '../mocks/mock.course';
+
+describe('E2E Tests for modules of Courses API', () => {
+
+  const newModuleData = {
+    name: "Introducción a TypeScript",
+    description: "Aprendé los conceptos básicos de TypeScript",
+    url: "https://example.com/intro-typescript",
+    order: 1,
+    courseId: "", // This will fill with the id of the course
+  };
+
+  describe('POST /courses/:id/modules', () => {
+    it('should add a new module to the course', async () => {
+      // 1. Create new course
+      const courseResponse = await request(app)
+        .post('/courses')
+        .send(mockCourseRequestData);
+
+      const createdCourseId = courseResponse.body.data.id;
+      newModuleData.courseId = createdCourseId;
+
+      // 2. Add new module to the created course
+      const response = await request(app)
+        .post(`/courses/${createdCourseId}/modules`)
+        .send(newModuleData);
+
+      // 3. Check the response
+      expect(response.status).toBe(StatusCodes.CREATED);
+      const createdModule = response.body.data;
+
+      expect(createdModule.name).toBe(newModuleData.name);
+      expect(createdModule.description).toBe(newModuleData.description);
+      expect(createdModule.url).toBe(newModuleData.url);
+      expect(createdModule.order).toBe(newModuleData.order);
+      expect(createdModule.courseId).toBe(createdCourseId);
+      expect(createdModule.id).toBeDefined();
+    });
+
+    it('should return 404 if the course does not exist', async () => {
+      const nonExistentCourseId = 'non-existent-course-id';
+      const response = await request(app)
+        .post(`/courses/${nonExistentCourseId}/modules`)
+        .send(newModuleData);
+
+      expect(response.status).toBe(StatusCodes.NOT_FOUND);
+    });
+
+    it('should return 400 if the module data is invalid', async () => {
+      const courseResponse = await request(app)
+        .post('/courses')
+        .send(mockCourseRequestData);
+
+      const createdCourseId = courseResponse.body.data.id;
+
+      // Send invalid module data
+      const invalidModuleData = {
+        name: "",
+        description: "Missing name",
+        url: "https://example.com/intro-typescript",
+        order: 1,
+        courseId: createdCourseId,
+      };
+
+      const response = await request(app)
+        .post(`/courses/${createdCourseId}/modules`)
+        .send(invalidModuleData);
+
+      expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+    });
+  });
+});
