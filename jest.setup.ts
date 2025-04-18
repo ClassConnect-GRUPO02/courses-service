@@ -60,6 +60,14 @@ jest.mock('./src/database/database', () => ({
     return Promise.resolve(module || null);
   }),
 
+  deleteModule: jest.fn().mockImplementation((courseId: string, moduleId: string) => {
+    if (!mockDB[courseId]) return Promise.resolve(false);
+    const moduleIndex = mockDB[courseId].modules.findIndex((mod: any) => mod.id === moduleId);
+    if (moduleIndex === -1) return Promise.resolve(false);
+    mockDB[courseId].modules.splice(moduleIndex, 1);
+    return Promise.resolve(true);
+  }),
+
 
 }));
 

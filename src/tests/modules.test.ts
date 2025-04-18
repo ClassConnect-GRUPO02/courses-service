@@ -121,7 +121,6 @@ describe('E2E Tests for modules of Courses API', () => {
       expect(response.body.data.name).toBe(newModuleData.name);
       });
       
-      
     it('should return 404 if the module does not exist', async () => {
       const nonExistentModuleId = 'non-existent-module-id';
       const courseResponse = await request(app)
@@ -134,9 +133,45 @@ describe('E2E Tests for modules of Courses API', () => {
       .get(`/courses/${createdCourseId}/modules/${nonExistentModuleId}`);
       
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
+    }); 
+  });
+
+  describe('DELETE /courses/:id/modules/:moduleId', () => {
+    it('should delete a module from a course', async () => {
+      const courseResponse = await request(app)
+        .post('/courses')
+        .send(mockCourseRequestData);
+
+      const createdCourseId = courseResponse.body.data.id;
+      newModuleData.courseId = createdCourseId;
+
+      // Add a module to the course
+      const moduleResponse = await request(app)
+        .post(`/courses/${createdCourseId}/modules`)
+        .send(newModuleData);
+
+      const createdModuleId = moduleResponse.body.data.id;
+
+      // Delete the module
+      const response = await request(app)
+        .delete(`/courses/${createdCourseId}/modules/${createdModuleId}`);
+
+      expect(response.status).toBe(StatusCodes.NO_CONTENT);
     });
-    
-  }
-);
+
+    it('should return 404 if the module does not exist', async () => {
+      const nonExistentModuleId = 'non-existent-module-id';
+      const courseResponse = await request(app)
+        .post('/courses')
+        .send(mockCourseRequestData);
+
+      const createdCourseId = courseResponse.body.data.id;
+
+      const response = await request(app)
+        .delete(`/courses/${createdCourseId}/modules/${nonExistentModuleId}`);
+
+      expect(response.status).toBe(StatusCodes.NOT_FOUND);
+    });
+  });
 
 });
