@@ -1,6 +1,6 @@
 import { Server } from 'http';
 import app from './src/app';
-import { addModuleToCourse } from './src/database/database';
+import { addModuleToCourse, getModulesByCourseId } from './src/database/database';
 
 let server: Server;
 
@@ -45,6 +45,12 @@ jest.mock('./src/database/database', () => ({
     mockDB[courseId].modules.push(newModule);
     return Promise.resolve(newModule);
   }),
+
+  getModulesByCourseId: jest.fn().mockImplementation((courseId: string) => {
+    if (!mockDB[courseId]) return Promise.resolve([]);
+    return Promise.resolve(mockDB[courseId].modules || []);
+  }
+  ),
   
 }));
 
