@@ -5,6 +5,7 @@ import { addModuleToCourse } from './src/database/database';
 let server: Server;
 
 // Simula una base de datos en memoria
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockDB: Record<string, any> = {};
 
 jest.mock('./src/database/database', () => ({
@@ -27,7 +28,6 @@ jest.mock('./src/database/database', () => ({
     if (!mockDB[id]) return Promise.resolve(null);
     const updatedCourse = { ...mockDB[id], ...updatedData };
     mockDB[id] = updatedCourse;
-    console.log('Updated course:', updatedCourse);
     return Promise.resolve(updatedCourse);
   }),
 

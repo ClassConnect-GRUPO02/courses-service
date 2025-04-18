@@ -9,6 +9,7 @@ export const mockCourseRequestData = {
     profile: 'Professor of Mathematics',
   },
   capacity: 100,
+  enrolled: 0,
   category: 'Science',
   level: 'Principiante',
   modality: 'Online',

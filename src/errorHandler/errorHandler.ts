@@ -1,6 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
- import { StatusCodes } from 'http-status-codes';
- import { CourseCreationError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError } from '../models/errors';
+import { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
+import { CourseCreationError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError } from '../models/errors';
+import { NextFunction } from 'express';
  
 export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction): void => {
   if (err instanceof CourseCreationError || err instanceof ModuleCreationError) {

@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as courseService from '../service/service';
 import logger from '../logger/logger';
-import { CourseNotFoundError, CourseCreationError } from '../models/errors';
 import { StatusCodes } from 'http-status-codes';
 import { Course } from '../models/course';
 import { Module } from '../models/module';
@@ -72,6 +71,11 @@ export const updateCourse = async (req: Request, res: Response, next: NextFuncti
 
     const updatedCourse = await courseService.updateCourse(id, courseData);
 
+    if (!updatedCourse) {
+      res.status(StatusCodes.NOT_FOUND).json({ error: `Course with ID ${id} not found` });
+      return;
+    }
+
     res.status(StatusCodes.OK).json({ data: updatedCourse });
     logger.info(`Course with ID ${id} updated successfully`);
   } catch (error) {
@@ -135,14 +139,14 @@ export const getModule = async (req: Request, res: Response, next: NextFunction)
   }
 }
 
-const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
+/*const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
   res.status(error.status).json({
     type: error.type,
     title: 'Course Not Found',
     detail: error.detail,
     instance: req.originalUrl,
   });
-};
+};*/
 
 const handleInvalidRequestError = (res: Response, detail: string): void => {
   const errorResponse = {
@@ -156,7 +160,7 @@ const handleInvalidRequestError = (res: Response, detail: string): void => {
   logger.debug('Invalid Request');
 };
 
-const handleUnknownError = (res: Response, error: unknown): void => {
+/*const handleUnknownError = (res: Response, error: unknown): void => {
   const errorResponse = {
     type: 'https://example.com/internal-server-error',
     title: 'Internal Server Error',
@@ -166,4 +170,4 @@ const handleUnknownError = (res: Response, error: unknown): void => {
   };
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errorResponse);
   logger.error('Internal Server Error:', error);
-};
+};*/
