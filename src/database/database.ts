@@ -213,7 +213,7 @@ export const getModulesByCourseId = async (courseId: string): Promise<Module[]> 
     where: { courseId },
   });
 
-  return modules.map((module: { id: any; name: any; description: any; url: any; order: any; courseId: any; }) => ({
+  return modules.map((module: Module) => ({
     id: module.id,
     name: module.name,
     description: module.description,
