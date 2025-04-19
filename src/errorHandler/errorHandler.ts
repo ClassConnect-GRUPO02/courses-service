@@ -37,4 +37,5 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       instance: req.originalUrl,
     });
   }
+  next();
 };
