@@ -33,6 +33,14 @@ export const addCourse = async (req: Request, res: Response, next: NextFunction)
     const course = new Course(courseData);
 
     const createdCourse = await courseService.createCourse(course);
+    if (createdCourse) {
+      const instructor = await courseService.addInstructorToCourse(createdCourse.id, courseData.creatorId, "TITULAR");
+      if (instructor) {
+        logger.info('Instructor added');
+      } else {
+        logger.info('Instructor not added');
+      }
+    }
     res.status(StatusCodes.CREATED).json({ data: createdCourse });
     logger.info('Course added successfully');
   } catch (error) {
@@ -135,6 +143,8 @@ export const getModule = async (req: Request, res: Response, next: NextFunction)
     next(error);
   }
 }
+
+// -------------------------- ENROLLMENT --------------------------
 
 export const enrollStudentToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

@@ -11,4 +11,5 @@ export const mockCourseRequestData = {
   modality: 'Online',
   prerequisites: ['Basic Algebra'],
   imageUrl: 'http://example.com/image.png',
+  creatorId: '12345',
 };

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { InstructorType, PrismaClient } from '@prisma/client';
 import { Course } from '../models/course';
 import { v4 as uuidv4 } from 'uuid';
 import { CourseNotFoundError } from '../models/errors';
@@ -24,6 +24,7 @@ export const getCourses = async (): Promise<Course[]> => {
     modality: string;
     prerequisites: string;
     imageUrl: string;
+    creatorId: string;
   }): Course => ({
     id: course.id,
     name: course.name,
@@ -38,6 +39,7 @@ export const getCourses = async (): Promise<Course[]> => {
     modality: course.modality as Course['modality'],
     prerequisites: course.prerequisites.split(','),
     imageUrl: course.imageUrl,
+    creatorId: course.creatorId,
   }));
 };
 
@@ -64,6 +66,7 @@ export const getCourseById = async (id: string): Promise<Course> => {
     modality: course.modality as Course['modality'],
     prerequisites: course.prerequisites.split(','),
     imageUrl: course.imageUrl,
+    creatorId: course.creatorId,
   };
 };
 
@@ -83,6 +86,7 @@ export const addCourse = async (course: Course): Promise<Course> => {
       modality: course.modality,
       prerequisites: course.prerequisites.join(','),
       imageUrl: course.imageUrl,
+      creatorId: course.creatorId,
     },
   });
 
@@ -111,6 +115,7 @@ export const deleteCourse = async (id: string): Promise<Course> => {
     modality: deleted.modality as Course['modality'],
     prerequisites: deleted.prerequisites.split(','),
     imageUrl: deleted.imageUrl,
+    creatorId: deleted.creatorId,
   };
 };
 
@@ -138,6 +143,7 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
         ? updateData.prerequisites.join(',')
         : existingCourse.prerequisites,
       imageUrl: updateData.imageUrl ?? existingCourse.imageUrl,
+      creatorId: updateData.creatorId ?? existingCourse.creatorId,
     },
   });
 
@@ -155,6 +161,7 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
     modality: updated.modality as Course['modality'],
     prerequisites: updated.prerequisites.split(','),
     imageUrl: updated.imageUrl,
+    creatorId: updated.creatorId,
   };
 };
 
@@ -301,6 +308,7 @@ export const getCoursesByUserId = async (userId: string): Promise<Course[]> => {
     modality: enrollment.course.modality as Course['modality'],
     prerequisites: enrollment.course.prerequisites.split(','),
     imageUrl: enrollment.course.imageUrl,
+    creatorId: enrollment.course.creatorId,
   }));
 }
 
@@ -326,3 +334,16 @@ export const isEnrolledInCourse = async (courseId: string, userId: string): Prom
 
   return !!enrollment;
 };
+
+export const addInstructorToCourse = async (courseId: string, instructorId: string, type: string): Promise<boolean> => {
+  const newInstructor = await prisma.courseInstructor.create({
+    data: {
+      id: uuidv4(),
+      courseId,
+      userId: instructorId,
+      type: type as InstructorType,
+    },
+  });
+
+  return !!newInstructor;
+}

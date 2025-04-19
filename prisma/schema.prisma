@@ -22,8 +22,10 @@ model Course {
   modality          String
   prerequisites     String // Se guarda como "js,html,css"
   imageUrl          String
+  creatorId         String
   modules           Module[]
   enrollments       Enrollment[]
+  instructors       CourseInstructor[]
 }
 
 model Module {
@@ -44,4 +46,21 @@ model Enrollment {
   enrollmentDate DateTime
 
   @@map("course_student")
+}
+
+model CourseInstructor {
+  id       String   @id @default(uuid())
+  course   Course   @relation(fields: [courseId], references: [id])
+  courseId String
+  userId   String
+  type     InstructorType
+
+  @@unique([courseId, userId]) // para que no se repita el mismo instructor en un curso
+  @@map("courses_instructors")
+}
+
+// Enum para los tipos de instructor
+enum InstructorType {
+  TITULAR
+  AUXILIAR
 }

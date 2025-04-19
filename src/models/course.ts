@@ -15,6 +15,7 @@ export class Course {
   prerequisites: string[];
   isEnrolled?: boolean;
   imageUrl: string;
+  creatorId: string; // Optional field for the creator of the course
 
   constructor(data: Partial<Course>) {
     if (!data.name) throw new CourseCreationError('The "name" field is required.');
@@ -29,6 +30,7 @@ export class Course {
     if (!data.modality) throw new CourseCreationError('The "modality" field is required.');
     if (!data.prerequisites) throw new CourseCreationError('The "prerequisites" field is required.');
     if (!data.imageUrl) throw new CourseCreationError('The "imageUrl" field is required.');
+    if (!data.creatorId) throw new CourseCreationError('The "creatorId" field is required.');
 
     this.id = data.id || ''; // Id is not needed because it will be asigned after
     this.name = data.name;
@@ -43,5 +45,6 @@ export class Course {
     this.modality = data.modality;
     this.prerequisites = data.prerequisites;
     this.imageUrl = data.imageUrl;
+    this.creatorId = data.creatorId;
   }
 }
