@@ -1,7 +1,8 @@
 import { Course } from '../models/course';
 import * as database from '../database/database';
-import { CourseNotFoundError, ModuleNotFoundError } from '../models/errors';
+import { AlreadyEnrolledError, CourseFullError, CourseNotFoundError, ModuleNotFoundError } from '../models/errors';
 import { Module } from '../models/module';
+import { Enrollment } from '../models/enrollment';
 
 export const getAllCourses = async (): Promise<Course[]> => {
   return await database.getCourses();
@@ -58,3 +59,23 @@ export const getModuleById = async (courseId: string, moduleId: string): Promise
   }
   return module;
 }
+
+export const enrollStudent = async (enrollment: Enrollment ): Promise<Enrollment> => {
+  const course = await database.getCourseById(enrollment.courseId);
+  
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${enrollment.courseId} not found`);
+  }
+  
+  if (course.enrolled >= course.capacity) {
+    throw new CourseFullError(`Course with ID ${enrollment.courseId} is full`);
+  } else {
+    const enroll = await database.enrollStudent(enrollment.courseId, enrollment.userId);
+    if (!enroll) {
+      throw new AlreadyEnrolledError(enrollment.courseId, enrollment.userId);
+    }
+    course.enrolled += 1;
+    await database.updateCourse(enrollment.courseId, course);
+    return enroll;
+  }
+};

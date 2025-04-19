@@ -3,6 +3,7 @@ import { Course } from '../models/course';
 import { v4 as uuidv4 } from 'uuid';
 import { CourseNotFoundError } from '../models/errors';
 import { Module } from '../models/module';
+import { Enrollment } from '../models/enrollment';
 
 const prisma = new PrismaClient();
 
@@ -212,7 +213,7 @@ export const getModulesByCourseId = async (courseId: string): Promise<Module[]> 
     where: { courseId },
   });
 
-  return modules.map((module) => ({
+  return modules.map((module: { id: any; name: any; description: any; url: any; order: any; courseId: any; }) => ({
     id: module.id,
     name: module.name,
     description: module.description,
@@ -252,4 +253,43 @@ export const getModuleById = async (courseId: string, moduleId: string): Promise
       courseId: courseId,
     },
   });
+}
+
+// Enrolls a student in a course by its ID in table course_student
+// Throws an error if the course is not found or if the student is already enrolled
+export const enrollStudent = async (courseId: string, studentId: string): Promise<Enrollment | null> => {
+  
+  const existingEnrollment = await prisma.enrollment.findFirst({
+    where: {
+      courseId,
+      userId: studentId,
+    },
+  });
+
+  if (existingEnrollment) {
+    return null; // Student is already enrolled
+  }
+  
+  await prisma.enrollment.create({
+    data: {
+      id: uuidv4(),
+      courseId,
+      userId: studentId,
+      enrollmentDate: new Date().toISOString(),
+    },
+  });
+
+  const result = await prisma.enrollment.findFirst({
+    where: {
+      courseId,
+      userId: studentId,
+    },
+  });
+  
+  if (!result) return null;
+  
+  return {
+    ...result,
+    enrollmentDate: result.enrollmentDate.toISOString(), // 👈 conversión a string
+  };
 }
