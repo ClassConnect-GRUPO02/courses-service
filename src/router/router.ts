@@ -14,7 +14,8 @@ router.delete('/courses/:id/modules/:moduleId', courseController.deleteModule); 
 router.get('/courses/:id/modules', courseController.getModules); // Get all modules from course
 router.get('/courses/:id/modules/:moduleId', courseController.getModule); // Get module by ID inside course
 // router.patch('/courses/:id/modules/order', courseController.updateModule); // Change modules order
-
 // router.patch('/courses/:id/modules/:moduleId', courseController.updateModule); // Update specific module by ID inside course
+
+router.post('/courses/:id/enrollments', courseController.enrollStudentToCourse); // Enroll student in course
 
 export default router;

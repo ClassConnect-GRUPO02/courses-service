@@ -43,3 +43,23 @@ export class ModuleNotFoundError extends AppError {
     );
   }
 }
+
+export class CourseFullError extends AppError {
+  constructor(courseID: string) {
+    super(
+      'CourseFullError',
+      400,
+      `Course with ID ${courseID} is full`
+    );
+  }
+}
+
+export class AlreadyEnrolledError extends AppError {
+  constructor(courseID: string, studentID: string) {
+    super(
+      'AlreadyEnrolledError',
+      400,
+      `Student with ID ${studentID} is already enrolled in course with ID ${courseID}`
+    );
+  }
+}

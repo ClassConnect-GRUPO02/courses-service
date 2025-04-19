@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { CourseCreationError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError } from '../models/errors';
+import { CourseCreationError, CourseFullError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError, AlreadyEnrolledError } from '../models/errors';
 import { NextFunction } from 'express';
  
 export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction): void => {
-  if (err instanceof CourseCreationError || err instanceof ModuleCreationError) {
+  if (err instanceof CourseCreationError || err instanceof ModuleCreationError || err instanceof CourseFullError || err instanceof AlreadyEnrolledError) {
     res.status(StatusCodes.BAD_REQUEST).json({
       type: 'https://example.com/bad-request',
       title: 'Invalid Request',

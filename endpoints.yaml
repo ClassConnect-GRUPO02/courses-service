@@ -597,11 +597,11 @@ components:
           type: string
         courseId:
           type: string
+        enrollmentDate:
+          type: string
       
     CreateEnrollmentRequest:
       type: object
       properties:
         userId:
-          type: string
-        courseId:
           type: string
