@@ -18,5 +18,6 @@ router.get('/courses/:id/modules/:moduleId', courseController.getModule); // Get
 
 router.post('/courses/:id/enrollments', courseController.enrollStudentToCourse); // Enroll student in course
 router.get('/users/:id/courses', courseController.getCoursesByUserId); // Get all courses by user ID
+router.get('/courses/:id/enrollments/:userId', courseController.isEnrolledInCourse);
 
 export default router;

@@ -167,6 +167,18 @@ export const getCoursesByUserId = async (req: Request, res: Response, next: Next
   }
 };
 
+export const isEnrolledInCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, userId } = req.params;
+    const isEnrolled = await courseService.isEnrolledInCourse(id, userId);
+    res.status(StatusCodes.OK).json({ isEnrolled: isEnrolled });
+    logger.info(`Enrollment status checked for user with ID ${userId} in course with ID ${id}`);
+  }
+  catch (error) {
+    next(error)
+  }
+};
+
 /*const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
   res.status(error.status).json({
     type: error.type,

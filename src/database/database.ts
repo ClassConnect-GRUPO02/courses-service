@@ -329,3 +329,26 @@ export const getCoursesByUserId = async (userId: string): Promise<Course[]> => {
     imageUrl: enrollment.course.imageUrl,
   }));
 }
+
+// Checks if a user is enrolled in a specific course
+// Returns true if enrolled, false otherwise
+// Throws an error if the course is not found
+// or if the user is not found
+export const isEnrolledInCourse = async (courseId: string, userId: string): Promise<boolean> => {
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+  });
+
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+
+  const enrollment = await prisma.enrollment.findFirst({
+    where: {
+      courseId,
+      userId,
+    },
+  });
+
+  return !!enrollment;
+};
