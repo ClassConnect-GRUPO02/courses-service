@@ -213,7 +213,7 @@ export const getModulesByCourseId = async (courseId: string): Promise<Module[]> 
     where: { courseId },
   });
 
-  return modules.map((module: { id: any; name: any; description: any; url: any; order: any; courseId: any; }) => ({
+  return modules.map((module: Module) => ({
     id: module.id,
     name: module.name,
     description: module.description,
@@ -292,4 +292,40 @@ export const enrollStudent = async (courseId: string, studentId: string): Promis
     ...result,
     enrollmentDate: result.enrollmentDate.toISOString(), // 👈 conversión a string
   };
+}
+
+// Retrieves all courses for a specific user ID
+// Returns an array of Course objects
+// Throws an error if the user is not found
+export const getCoursesByUserId = async (userId: string): Promise<Course[]> => {
+  const enrollments = await prisma.enrollment.findMany({
+    where: { userId },
+    include: {
+      course: true,
+    },
+  });
+
+  if (enrollments.length === 0) {
+    throw new CourseNotFoundError(`No courses found for user with ID ${userId}`);
+  }
+
+  return enrollments.map((enrollment) => ({
+    id: enrollment.course.id,
+    name: enrollment.course.name,
+    description: enrollment.course.description,
+    shortDescription: enrollment.course.shortDescription,
+    startDate: enrollment.course.startDate.toISOString(),
+    endDate: enrollment.course.endDate.toISOString(),
+    instructor: {
+      name: enrollment.course.instructorName,
+      profile: enrollment.course.instructorProfile,
+    },
+    capacity: enrollment.course.capacity,
+    enrolled: enrollment.course.enrolled,
+    category: enrollment.course.category,
+    level: enrollment.course.level as Course['level'],
+    modality: enrollment.course.modality as Course['modality'],
+    prerequisites: enrollment.course.prerequisites.split(','),
+    imageUrl: enrollment.course.imageUrl,
+  }));
 }

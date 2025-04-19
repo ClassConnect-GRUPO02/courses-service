@@ -136,6 +136,37 @@ export const getModule = async (req: Request, res: Response, next: NextFunction)
   }
 }
 
+export const enrollStudentToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const courseId = req.params.id;
+    const { userId } = req.body;
+    
+    if (!userId) {
+      handleInvalidRequestError(res, 'Student ID is required');
+      return;
+    }
+
+    const enrollment = new Enrollment({ courseId, userId });
+    const enrolledCourse = await courseService.enrollStudent(enrollment);
+    res.status(StatusCodes.OK).json({ data: enrolledCourse });
+    logger.info(`Student with ID ${userId} enrolled in course with ID ${courseId} successfully`);
+  } catch (error) {
+    console.error('Error during enrollment:', error);
+    next(error);
+  }
+};
+
+export const getCoursesByUserId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const courses = await courseService.getCoursesByUserId(id);
+    res.status(StatusCodes.OK).json({ data: courses });
+    logger.info(`Courses retrieved for user with ID ${id} successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
 /*const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
   res.status(error.status).json({
     type: error.type,
@@ -168,23 +199,3 @@ const handleInvalidRequestError = (res: Response, detail: string): void => {
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errorResponse);
   logger.error('Internal Server Error:', error);
 };*/
-
-export const enrollStudentToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const courseId = req.params.id;
-    const { userId } = req.body;
-    
-    if (!userId) {
-      handleInvalidRequestError(res, 'Student ID is required');
-      return;
-    }
-
-    const enrollment = new Enrollment({ courseId, userId });
-    const enrolledCourse = await courseService.enrollStudent(enrollment);
-    res.status(StatusCodes.OK).json({ data: enrolledCourse });
-    logger.info(`Student with ID ${userId} enrolled in course with ID ${courseId} successfully`);
-  } catch (error) {
-    console.error('Error during enrollment:', error);
-    next(error);
-  }
-};
