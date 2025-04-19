@@ -481,8 +481,6 @@ components:
         endDate:
           type: string
           format: date-time
-        instructor:
-          $ref: '#/components/schemas/Instructor'
         capacity:
           type: integer
         enrolled:
@@ -497,9 +495,9 @@ components:
           type: array
           items:
             type: string
-        isEnrrolled:
-          type: boolean
         imageUrl:
+          type: string
+        creatorId:
           type: string
 
     CreateCourseRequest:
@@ -517,8 +515,6 @@ components:
         endDate:
           type: string
           format: date-time
-        instructor:
-          $ref: '#/components/schemas/Instructor'
         capacity:
           type: integer
         enrolled:
@@ -533,9 +529,9 @@ components:
           type: array
           items:
             type: string
-        isEnrrolled:
-          type: boolean #Hay que ver esto, porque el '?' hace que no sea obligatorio?
         imageUrl:
+          type: string
+        creatorId:
           type: string
 
     ErrorResponse:
