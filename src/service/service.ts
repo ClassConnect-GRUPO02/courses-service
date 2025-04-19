@@ -79,3 +79,7 @@ export const enrollStudent = async (enrollment: Enrollment ): Promise<Enrollment
     return enroll;
   }
 };
+
+export const getCoursesByUserId = async (userId: string): Promise<Course[]> => {
+  return await database.getCoursesByUserId(userId);
+};

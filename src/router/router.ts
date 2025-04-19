@@ -17,5 +17,6 @@ router.get('/courses/:id/modules/:moduleId', courseController.getModule); // Get
 // router.patch('/courses/:id/modules/:moduleId', courseController.updateModule); // Update specific module by ID inside course
 
 router.post('/courses/:id/enrollments', courseController.enrollStudentToCourse); // Enroll student in course
+router.get('/users/:id/courses', courseController.getCoursesByUserId); // Get all courses by user ID
 
 export default router;
