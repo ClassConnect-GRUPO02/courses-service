@@ -18,3 +18,13 @@ CREATE TABLE `Course` (
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE `course_student` (
+    `id` VARCHAR(191) NOT NULL,
+    `courseId` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `enrollmentDate` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

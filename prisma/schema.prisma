@@ -9,30 +9,41 @@ datasource db {
 }
 
 model Course {
-  id                 String   @id
-  name               String
-  description        String
-  shortDescription   String
-  startDate          DateTime
-  endDate            DateTime
-  instructorName     String
-  instructorProfile  String
-  capacity           Int
-  enrolled           Int
-  category           String
-  level              String
-  modality           String
-  prerequisites      String   // Se guarda como "js,html,css"
-  imageUrl           String
-  modules            Module[]
+  id                String       @id
+  name              String
+  description       String
+  shortDescription  String
+  startDate         DateTime
+  endDate           DateTime
+  instructorName    String
+  instructorProfile String
+  capacity          Int
+  enrolled          Int
+  category          String
+  level             String
+  modality          String
+  prerequisites     String // Se guarda como "js,html,css"
+  imageUrl          String
+  modules           Module[]
+  enrollments       Enrollment[]
 }
 
 model Module {
-  id                String   @id
-  name              String
-  description       String
-  url               String
-  order             Int
-  course           Course @relation(fields: [courseId], references: [id])
-  courseId         String
+  id          String @id
+  name        String
+  description String
+  url         String
+  order       Int
+  course      Course @relation(fields: [courseId], references: [id])
+  courseId    String
+}
+
+model Enrollment {
+  id             String   @id
+  userId         String
+  course         Course   @relation(fields: [courseId], references: [id])
+  courseId       String
+  enrollmentDate DateTime
+
+  @@map("course_student")
 }
