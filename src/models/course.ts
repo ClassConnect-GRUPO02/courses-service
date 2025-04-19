@@ -7,10 +7,6 @@ export class Course {
   shortDescription: string;
   startDate: string;
   endDate: string;
-  instructor: {
-    name: string;
-    profile: string;
-  };
   capacity: number;
   enrolled: number;
   category: string;
@@ -26,9 +22,6 @@ export class Course {
     if (!data.shortDescription) throw new CourseCreationError('The "shortDescription" field is required.');
     if (!data.startDate) throw new CourseCreationError('The "startDate" field is required.');
     if (!data.endDate) throw new CourseCreationError('The "endDate" field is required.');
-    if (!data.instructor || !data.instructor.name || !data.instructor.profile) {
-      throw new CourseCreationError('The "instructor" field is required and must include "name" and "profile".');
-    }
     if (data.capacity === undefined) throw new CourseCreationError('The "capacity" field is required.');
     if (data.enrolled === undefined) throw new CourseCreationError('The "enrolled" field is required.');
     if (!data.category) throw new CourseCreationError('The "category" field is required.');
@@ -43,7 +36,6 @@ export class Course {
     this.shortDescription = data.shortDescription;
     this.startDate = data.startDate;
     this.endDate = data.endDate;
-    this.instructor = data.instructor;
     this.capacity = data.capacity;
     this.enrolled = data.enrolled;
     this.category = data.category;

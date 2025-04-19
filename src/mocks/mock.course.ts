@@ -4,10 +4,6 @@ export const mockCourseRequestData = {
   shortDescription: 'Learn the basics of math',
   startDate: '2023-05-01',
   endDate: '2023-06-01',
-  instructor: {
-    name: 'John Doe',
-    profile: 'Professor of Mathematics',
-  },
   capacity: 100,
   enrolled: 0,
   category: 'Science',

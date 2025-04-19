@@ -15,8 +15,6 @@ model Course {
   shortDescription  String
   startDate         DateTime
   endDate           DateTime
-  instructorName    String
-  instructorProfile String
   capacity          Int
   enrolled          Int
   category          String

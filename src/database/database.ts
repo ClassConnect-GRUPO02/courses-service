@@ -17,8 +17,6 @@ export const getCourses = async (): Promise<Course[]> => {
     shortDescription: string;
     startDate: Date;
     endDate: Date;
-    instructorName: string;
-    instructorProfile: string;
     capacity: number;
     enrolled: number;
     category: string;
@@ -33,10 +31,6 @@ export const getCourses = async (): Promise<Course[]> => {
     shortDescription: course.shortDescription,
     startDate: course.startDate.toISOString(),
     endDate: course.endDate.toISOString(),
-    instructor: {
-      name: course.instructorName,
-      profile: course.instructorProfile,
-    },
     capacity: course.capacity,
     enrolled: course.enrolled,
     category: course.category,
@@ -63,10 +57,6 @@ export const getCourseById = async (id: string): Promise<Course> => {
     shortDescription: course.shortDescription,
     startDate: course.startDate.toISOString(),
     endDate: course.endDate.toISOString(),
-    instructor: {
-      name: course.instructorName,
-      profile: course.instructorProfile,
-    },
     capacity: course.capacity,
     enrolled: course.enrolled,
     category: course.category,
@@ -86,8 +76,6 @@ export const addCourse = async (course: Course): Promise<Course> => {
       shortDescription: course.shortDescription,
       startDate: new Date(course.startDate),
       endDate: new Date(course.endDate),
-      instructorName: course.instructor.name,
-      instructorProfile: course.instructor.profile,
       capacity: course.capacity,
       enrolled: course.enrolled,
       category: course.category,
@@ -116,10 +104,6 @@ export const deleteCourse = async (id: string): Promise<Course> => {
     shortDescription: deleted.shortDescription,
     startDate: deleted.startDate.toISOString(),
     endDate: deleted.endDate.toISOString(),
-    instructor: {
-      name: deleted.instructorName,
-      profile: deleted.instructorProfile,
-    },
     capacity: deleted.capacity,
     enrolled: deleted.enrolled,
     category: deleted.category,
@@ -145,8 +129,6 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
       shortDescription: updateData.shortDescription ?? existingCourse.shortDescription,
       startDate: updateData.startDate ? new Date(updateData.startDate) : existingCourse.startDate,
       endDate: updateData.endDate ? new Date(updateData.endDate) : existingCourse.endDate,
-      instructorName: updateData.instructor?.name ?? existingCourse.instructorName,
-      instructorProfile: updateData.instructor?.profile ?? existingCourse.instructorProfile,
       capacity: updateData.capacity ?? existingCourse.capacity,
       enrolled: updateData.enrolled ?? existingCourse.enrolled,
       category: updateData.category ?? existingCourse.category,
@@ -166,10 +148,6 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
     shortDescription: updated.shortDescription,
     startDate: updated.startDate.toISOString(),
     endDate: updated.endDate.toISOString(),
-    instructor: {
-      name: updated.instructorName,
-      profile: updated.instructorProfile,
-    },
     capacity: updated.capacity,
     enrolled: updated.enrolled,
     category: updated.category,
@@ -316,10 +294,6 @@ export const getCoursesByUserId = async (userId: string): Promise<Course[]> => {
     shortDescription: enrollment.course.shortDescription,
     startDate: enrollment.course.startDate.toISOString(),
     endDate: enrollment.course.endDate.toISOString(),
-    instructor: {
-      name: enrollment.course.instructorName,
-      profile: enrollment.course.instructorProfile,
-    },
     capacity: enrollment.course.capacity,
     enrolled: enrollment.course.enrolled,
     category: enrollment.course.category,
