@@ -20,4 +20,6 @@ router.post('/courses/:id/enrollments', courseController.enrollStudentToCourse);
 router.get('/users/:id/courses', courseController.getCoursesByUserId); // Get all courses by user ID
 router.get('/courses/:id/enrollments/:userId', courseController.isEnrolledInCourse);
 
+router.get('/courses/:id/instructors/:instructorId', courseController.isInstructorInCourse); // Check if user is instructor in course
+
 export default router;

@@ -347,3 +347,15 @@ export const addInstructorToCourse = async (courseId: string, instructorId: stri
 
   return !!newInstructor;
 }
+
+export const isInstructorInCourse = async (courseId: string, instructorId: string): Promise<boolean> => {
+
+  const instructor = await prisma.courseInstructor.findFirst({
+    where: {
+      courseId,
+      userId: instructorId,
+    },
+  });
+
+  return !!instructor;
+}

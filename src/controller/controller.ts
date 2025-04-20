@@ -189,6 +189,21 @@ export const isEnrolledInCourse = async (req: Request, res: Response, next: Next
   }
 };
 
+// -------------------------- INSTRUCTORS --------------------------
+
+export const isInstructorInCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, instructorId } = req.params;
+    const isInstructor = await courseService.isInstructorInCourse(id, instructorId);
+    res.status(StatusCodes.OK).json({ isInstructor: isInstructor });
+    logger.info(`Instructor status checked for user with ID ${instructorId} in course with ID ${id}`);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// -------------------------- ERROR HANDLING --------------------------
+
 /*const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
   res.status(error.status).json({
     type: error.type,

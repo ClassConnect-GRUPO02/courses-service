@@ -99,3 +99,12 @@ export const addInstructorToCourse = async (courseId: string, instructorId: stri
 
   return await database.addInstructorToCourse(courseId, instructorId, type);
 }
+
+export const isInstructorInCourse = async (courseId: string, instructorId: string): Promise<boolean> => {
+  const course = await database.getCourseById(courseId);
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+
+  return await database.isInstructorInCourse(courseId, instructorId);
+}
