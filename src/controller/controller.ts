@@ -33,6 +33,14 @@ export const addCourse = async (req: Request, res: Response, next: NextFunction)
     const course = new Course(courseData);
 
     const createdCourse = await courseService.createCourse(course);
+    if (createdCourse) {
+      const instructor = await courseService.addInstructorToCourse(createdCourse.id, courseData.creatorId, "TITULAR");
+      if (instructor) {
+        logger.info('Instructor added');
+      } else {
+        logger.info('Instructor not added');
+      }
+    }
     res.status(StatusCodes.CREATED).json({ data: createdCourse });
     logger.info('Course added successfully');
   } catch (error) {
@@ -136,6 +144,8 @@ export const getModule = async (req: Request, res: Response, next: NextFunction)
   }
 }
 
+// -------------------------- ENROLLMENT --------------------------
+
 export const enrollStudentToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const courseId = req.params.id;
@@ -178,6 +188,21 @@ export const isEnrolledInCourse = async (req: Request, res: Response, next: Next
     next(error)
   }
 };
+
+// -------------------------- INSTRUCTORS --------------------------
+
+export const isInstructorInCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, instructorId } = req.params;
+    const isInstructor = await courseService.isInstructorInCourse(id, instructorId);
+    res.status(StatusCodes.OK).json({ isInstructor: isInstructor });
+    logger.info(`Instructor status checked for user with ID ${instructorId} in course with ID ${id}`);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// -------------------------- ERROR HANDLING --------------------------
 
 /*const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {
   res.status(error.status).json({

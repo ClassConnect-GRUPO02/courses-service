@@ -6,8 +6,6 @@ CREATE TABLE `Course` (
     `shortDescription` VARCHAR(191) NOT NULL,
     `startDate` DATETIME(3) NOT NULL,
     `endDate` DATETIME(3) NOT NULL,
-    `instructorName` VARCHAR(191) NOT NULL,
-    `instructorProfile` VARCHAR(191) NOT NULL,
     `capacity` INTEGER NOT NULL,
     `enrolled` INTEGER NOT NULL,
     `category` VARCHAR(191) NOT NULL,

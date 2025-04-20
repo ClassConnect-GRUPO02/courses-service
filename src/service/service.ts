@@ -32,7 +32,6 @@ export const updateCourse = (id: string, updateData: Partial<Course>): Promise<C
   return database.updateCourse(id, updatedCourse);
 };
 
-
 export const addModuleToCourse = async (courseId: string, module: Module): Promise<Module> => {
   const newModule = await database.addModuleToCourse(courseId, module);
   if (!newModule) {
@@ -90,4 +89,22 @@ export const isEnrolledInCourse = async (courseId: string, userId: string): Prom
     throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
   }
   return await database.isEnrolledInCourse(courseId, userId);
+}
+
+export const addInstructorToCourse = async (courseId: string, instructorId: string, type: string): Promise<boolean> => {
+  const course = await database.getCourseById(courseId);
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+
+  return await database.addInstructorToCourse(courseId, instructorId, type);
+}
+
+export const isInstructorInCourse = async (courseId: string, instructorId: string): Promise<boolean> => {
+  const course = await database.getCourseById(courseId);
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+
+  return await database.isInstructorInCourse(courseId, instructorId);
 }

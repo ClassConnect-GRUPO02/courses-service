@@ -458,6 +458,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+
+  /courses/{id}/instructors/{instructorId}:
+    get:
+      summary: Check if a user is an instructor in a course
+      description: Returns whether the given instructorId is assigned as an instructor to the specified course.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the course
+          schema:
+            type: string
+        - name: instructorId
+          in: path
+          required: true
+          description: The ID of the instructor (user)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Whether the user is an instructor of the course
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isInstructor:
+                    type: boolean
+                    example: true
+        '404':
+          description: Course not found
+        '500':
+          description: Server error
   
 
 
@@ -481,8 +514,6 @@ components:
         endDate:
           type: string
           format: date-time
-        instructor:
-          $ref: '#/components/schemas/Instructor'
         capacity:
           type: integer
         enrolled:
@@ -497,9 +528,9 @@ components:
           type: array
           items:
             type: string
-        isEnrrolled:
-          type: boolean
         imageUrl:
+          type: string
+        creatorId:
           type: string
 
     CreateCourseRequest:
@@ -517,8 +548,6 @@ components:
         endDate:
           type: string
           format: date-time
-        instructor:
-          $ref: '#/components/schemas/Instructor'
         capacity:
           type: integer
         enrolled:
@@ -533,9 +562,9 @@ components:
           type: array
           items:
             type: string
-        isEnrrolled:
-          type: boolean #Hay que ver esto, porque el '?' hace que no sea obligatorio?
         imageUrl:
+          type: string
+        creatorId:
           type: string
 
     ErrorResponse:

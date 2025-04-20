@@ -11,17 +11,14 @@ describe('E2E Tests for Courses API', () => {
     shortDescription: "TS para principiantes",
     startDate: "2025-05-01T00:00:00.000Z",
     endDate: "2025-07-01T00:00:00.000Z",
-    instructor: {
-      name: "Martín Abramovich",
-      profile: "https://example.com/martin"
-    },
     capacity: 25,
     enrolled: 0,
     category: "Programación",
     level: "Beginner",
     modality: "Online",
     prerequisites: ["JavaScript", "Lógica de programación"],
-    imageUrl: "https://example.com/imagen-del-curso.jpg"
+    imageUrl: "https://example.com/imagen-del-curso.jpg",
+    creatorId: "12345"
   };
 
   const updatedData = {
