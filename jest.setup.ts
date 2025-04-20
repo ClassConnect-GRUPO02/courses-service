@@ -1,15 +1,26 @@
 import { Server } from 'http';
 import app from './src/app';
 import { Module } from './src/models/module';
+import { v4 as uuidv4 } from 'uuid';
 
 let server: Server;
 
 // Simula una base de datos en memoria
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockDB: Record<string, any> = {};
+const mockInstructors: Instructor[] = [];
+
 
 let courseIdCounter = 1;
 let moduleIdCounter = 1;
+
+export interface Instructor {
+  id: string;
+  courseId: string;
+  userId: string;
+  type: string;
+}
+
 
 jest.mock('./src/database/database', () => ({
   getCourses: jest.fn().mockImplementation(() => {
@@ -66,6 +77,24 @@ jest.mock('./src/database/database', () => ({
     if (moduleIndex === -1) return Promise.resolve(false);
     mockDB[courseId].modules.splice(moduleIndex, 1);
     return Promise.resolve(true);
+  }),
+
+  addInstructorToCourse: jest.fn().mockImplementation((courseId: string, instructorId: string, type: string) => {
+    const newInstructor = {
+      id: uuidv4(),
+      courseId,
+      userId: instructorId,
+      type,
+    };
+    mockInstructors.push(newInstructor);
+    return Promise.resolve(true);
+  }),
+
+  isInstructorInCourse: jest.fn().mockImplementation((courseId: string, instructorId: string) => {
+    const found = mockInstructors.find(
+      (inst) => inst.courseId === courseId && inst.userId === instructorId
+    );
+    return Promise.resolve(!!found);
   }),
 
 
