@@ -13,7 +13,8 @@ const baseCourseData = {
   level: "Principiante" as const,
   modality: "Online" as const,
   prerequisites: ["JavaScript básico"],
-  imageUrl: "http://imagen.com/curso.jpg"
+  imageUrl: "http://imagen.com/curso.jpg",
+  creatorId: "12345"
 };
 
 

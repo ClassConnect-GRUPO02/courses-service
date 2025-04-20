@@ -17,7 +17,8 @@ describe('E2E Tests for Courses API', () => {
     level: "Beginner",
     modality: "Online",
     prerequisites: ["JavaScript", "Lógica de programación"],
-    imageUrl: "https://example.com/imagen-del-curso.jpg"
+    imageUrl: "https://example.com/imagen-del-curso.jpg",
+    creatorId: "12345"
   };
 
   const updatedData = {
