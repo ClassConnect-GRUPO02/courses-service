@@ -1,31 +1,30 @@
-# Usa Node.js LTS con Alpine como base
 FROM node:18-alpine
 
-# Instala netcat (necesario para esperar la DB)
+# Instala netcat y dependencias necesarias
 RUN apk add --no-cache netcat-openbsd
 
-# Crea y usa el directorio de trabajo
 WORKDIR /app
 
-# Copia package.json y package-lock.json e instala solo dependencias de producción
+# Copia solo los archivos necesarios para instalar dependencias
 COPY package*.json ./
 RUN npm install
 
-# Copia todo el código fuente y archivos restantes
+# Copia el resto del código fuente
 COPY . .
 
-# Build del proyecto
+RUN npx prisma generate
+
+# Compila TypeScript (ya puede usar los tipos generados por Prisma)
 RUN npm run build
 
-# Expone el puerto de la app
 EXPOSE 3000
 
-# Comando de inicio con lógica incluida (sin necesidad de entrypoint.sh)
+# Comando para esperar DB, empujar esquema y correr la app
 CMD ["sh", "-c", "\
   echo 'Esperando a que la base de datos esté disponible en $DB_HOST:$DB_PORT...' && \
   until nc -z $DB_HOST $DB_PORT; do echo 'Esperando...'; sleep 1; done && \
   echo 'Base de datos disponible 🎉' && \
-  echo 'Ejecutando Prisma db push...' && \
   npx prisma db push && \
   echo 'Levantando la app 🚀' && \
   node dist/main.js"]
+
