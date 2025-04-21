@@ -2,6 +2,7 @@ import { Server } from 'http';
 import app from './src/app';
 import { Module } from './src/models/module';
 import { v4 as uuidv4 } from 'uuid';
+import { Enrollment } from './src/models/enrollment';
 
 let server: Server;
 
@@ -9,6 +10,7 @@ let server: Server;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockDB: Record<string, any> = {};
 const mockInstructors: Instructor[] = [];
+const enrollments: Enrollment[] = [];
 
 
 let courseIdCounter = 1;
@@ -93,6 +95,36 @@ jest.mock('./src/database/database', () => ({
   isInstructorInCourse: jest.fn().mockImplementation((courseId: string, instructorId: string) => {
     const found = mockInstructors.find(
       (inst) => inst.courseId === courseId && inst.userId === instructorId
+    );
+    return Promise.resolve(!!found);
+  }),
+
+  enrollStudent: jest.fn().mockImplementation((courseId: string, studentId: string) => {
+    const existing = enrollments.find(
+      (e) => e.courseId === courseId && e.userId === studentId
+    );
+
+    if (existing) return Promise.resolve(null);
+
+    const newEnrollment = new Enrollment({
+      userId: studentId,
+      courseId,
+    });
+
+    newEnrollment.id = uuidv4();
+    newEnrollment.enrollmentDate = new Date().toISOString();
+
+    enrollments.push(newEnrollment);
+    return Promise.resolve(newEnrollment);
+  }),
+
+  isEnrolledInCourse: jest.fn().mockImplementation((courseId: string, userId: string) => {
+    const course = mockDB[courseId];
+    if (!course) {
+      throw new Error(`Course with ID ${courseId} not found`);
+    }
+    const found = enrollments.find(
+      (enrollment) => enrollment.courseId === courseId && enrollment.userId === userId
     );
     return Promise.resolve(!!found);
   }),

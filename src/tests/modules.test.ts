@@ -1,17 +1,10 @@
 import request from 'supertest';
 import app from '../app';
 import { StatusCodes } from 'http-status-codes';
-import { mockCourseRequestData } from '../mocks/mock.course';
+import { mockCourseRequestData } from './mocks/mock.course';
+import { mockModuleRequestData } from './mocks/mock.module';
 
-describe('E2E Tests for modules of Courses API', () => {
-
-  const newModuleData = {
-    name: "Introducción a TypeScript",
-    description: "Aprendé los conceptos básicos de TypeScript",
-    url: "https://example.com/intro-typescript",
-    order: 1,
-    courseId: "", // This will fill with the id of the course
-  };
+describe('Integration Tests for modules of Courses API', () => {
 
   describe('POST /courses/:id/modules', () => {
     it('should add a new module to the course', async () => {
@@ -21,21 +14,21 @@ describe('E2E Tests for modules of Courses API', () => {
         .send(mockCourseRequestData);
 
       const createdCourseId = courseResponse.body.data.id;
-      newModuleData.courseId = createdCourseId;
+      mockModuleRequestData.courseId = createdCourseId;
 
       // 2. Add new module to the created course
       const response = await request(app)
         .post(`/courses/${createdCourseId}/modules`)
-        .send(newModuleData);
+        .send(mockModuleRequestData);
 
       // 3. Check the response
       expect(response.status).toBe(StatusCodes.CREATED);
       const createdModule = response.body.data;
 
-      expect(createdModule.name).toBe(newModuleData.name);
-      expect(createdModule.description).toBe(newModuleData.description);
-      expect(createdModule.url).toBe(newModuleData.url);
-      expect(createdModule.order).toBe(newModuleData.order);
+      expect(createdModule.name).toBe(mockModuleRequestData.name);
+      expect(createdModule.description).toBe(mockModuleRequestData.description);
+      expect(createdModule.url).toBe(mockModuleRequestData.url);
+      expect(createdModule.order).toBe(mockModuleRequestData.order);
       expect(createdModule.courseId).toBe(createdCourseId);
       expect(createdModule.id).toBeDefined();
     });
@@ -44,7 +37,7 @@ describe('E2E Tests for modules of Courses API', () => {
       const nonExistentCourseId = 'non-existent-course-id';
       const response = await request(app)
         .post(`/courses/${nonExistentCourseId}/modules`)
-        .send(newModuleData);
+        .send(mockModuleRequestData);
 
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });
@@ -80,12 +73,12 @@ describe('E2E Tests for modules of Courses API', () => {
         .send(mockCourseRequestData);
 
       const createdCourseId = courseResponse.body.data.id;
-      newModuleData.courseId = createdCourseId;
+      mockModuleRequestData.courseId = createdCourseId;
 
       // Add a module to the course
       await request(app)
         .post(`/courses/${createdCourseId}/modules`)
-        .send(newModuleData);
+        .send(mockModuleRequestData);
 
       // Retrieve modules for the course
       const response = await request(app)
@@ -103,12 +96,12 @@ describe('E2E Tests for modules of Courses API', () => {
         .send(mockCourseRequestData);
         
       const createdCourseId = courseResponse.body.data.id;
-      newModuleData.courseId = createdCourseId;
+      mockModuleRequestData.courseId = createdCourseId;
       
       // Add a module to the course
       const moduleResponse = await request(app)
       .post(`/courses/${createdCourseId}/modules`)
-      .send(newModuleData);
+      .send(mockModuleRequestData);
       
       const createdModuleId = moduleResponse.body.data.id;
       expect(moduleResponse.status).toBe(StatusCodes.CREATED); 
@@ -118,7 +111,7 @@ describe('E2E Tests for modules of Courses API', () => {
       .get(`/courses/${createdCourseId}/modules/${createdModuleId}`);
       
       expect(response.status).toBe(StatusCodes.OK);
-      expect(response.body.data.name).toBe(newModuleData.name);
+      expect(response.body.data.name).toBe(mockModuleRequestData.name);
       });
       
     it('should return 404 if the module does not exist', async () => {
@@ -143,12 +136,12 @@ describe('E2E Tests for modules of Courses API', () => {
         .send(mockCourseRequestData);
 
       const createdCourseId = courseResponse.body.data.id;
-      newModuleData.courseId = createdCourseId;
+      mockModuleRequestData.courseId = createdCourseId;
 
       // Add a module to the course
       const moduleResponse = await request(app)
         .post(`/courses/${createdCourseId}/modules`)
-        .send(newModuleData);
+        .send(mockModuleRequestData);
 
       const createdModuleId = moduleResponse.body.data.id;
 
