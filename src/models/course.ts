@@ -19,34 +19,26 @@ export class Course {
   creatorId: string;
   
   constructor(data: Partial<Course>) {
-    if (!data.name) throw new CourseCreationError('The "name" field is required.');
-    if (!data.description) throw new CourseCreationError('The "description" field is required.');
-    if (!data.shortDescription) throw new CourseCreationError('The "shortDescription" field is required.');
     if (!data.startDate) throw new CourseCreationError('The "startDate" field is required.');
     if (!data.endDate) throw new CourseCreationError('The "endDate" field is required.');
-    if (data.capacity === undefined) throw new CourseCreationError('The "capacity" field is required.');
-    if (data.enrolled === undefined) throw new CourseCreationError('The "enrolled" field is required.');
-    if (!data.category) throw new CourseCreationError('The "category" field is required.');
     if (!data.level) throw new CourseCreationError('The "level" field is required.');
     if (!data.modality) throw new CourseCreationError('The "modality" field is required.');
     if (!data.prerequisites) throw new CourseCreationError('The "prerequisites" field is required.');
-    if (!data.imageUrl) throw new CourseCreationError('The "imageUrl" field is required.');
-    if (!data.creatorId) throw new CourseCreationError('The "creatorId" field is required.');
     
     this.id = data.id || '';
-    this.name = data.name;
-    this.description = data.description;
-    this.shortDescription = data.shortDescription;
+    this.name = requireField(data.name, 'name');
+    this.description = requireField(data.description, 'description');
+    this.shortDescription = requireField(data.shortDescription, 'shortDescription');
     this.startDate = validateDateString(data.startDate, "startDate");
     this.endDate = validateDateString(data.endDate, "endDate");
-    this.capacity = data.capacity;
-    this.enrolled = data.enrolled;
-    this.category = data.category;
+    this.capacity = requireNumber(data.capacity, 'capacity');
+    this.enrolled = requireNumber(data.enrolled, 'enrolled');
+    this.category = requireField(data.category, 'category');
     this.level = data.level;
     this.modality = data.modality;
     this.prerequisites = data.prerequisites;
-    this.imageUrl = data.imageUrl;
-    this.creatorId = data.creatorId;
+    this.imageUrl = requireField(data.imageUrl, 'imageUrl');
+    this.creatorId = requireField(data.creatorId, 'creatorId');
   }
 }
 
@@ -54,6 +46,20 @@ function validateDateString(value: string, fieldName: string): string {
   const date = new Date(value);
   if (isNaN(date.getTime())) {
     throw new CourseCreationError(`Invalid date format for "${fieldName}".`);
+  }
+  return value;
+}
+
+function requireField<T>(value: T | undefined | null, fieldName: string): T {
+  if (value === undefined || value === null || value === '') {
+    throw new CourseCreationError(`The "${fieldName}" field is required.`);
+  }
+  return value;
+}
+
+function requireNumber(value: unknown, fieldName: string): number {
+  if (typeof value !== 'number') {
+    throw new CourseCreationError(`The "${fieldName}" field must be a number.`);
   }
   return value;
 }

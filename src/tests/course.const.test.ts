@@ -1,100 +1,82 @@
 import { Course } from '../../src/models/course';
-import { CourseCreationError } from '../../src/models/errors';
-
-const baseCourseData = {
-  name: "Curso de Node.js",
-  description: "Aprende backend con Node.js",
-  shortDescription: "Backend con Node",
-  startDate: "2025-05-01",
-  endDate: "2025-06-01",
-  capacity: 30,
-  enrolled: 5,
-  category: "Programación",
-  level: "Principiante" as const,
-  modality: "Online" as const,
-  prerequisites: ["JavaScript básico"],
-  imageUrl: "http://imagen.com/curso.jpg",
-  creatorId: "12345"
-};
-
+import { mockCourseRequestData } from '../mocks/mock.course';
 
 describe('Course constructor', () => {
   it('should create a course with valid data', () => {
-    const course = new Course(baseCourseData);
-    expect(course.name).toBe(baseCourseData.name);
+    const course = new Course(mockCourseRequestData);
+    expect(course.name).toBe(mockCourseRequestData.name);
     expect(course.level).toBe("Principiante");
   });
 
   it('should throw if name is missing', () => {
-    const data: Partial<Course> = { ...baseCourseData };
-    delete data.name;
-    expect(() => new Course(data)).toThrowError(CourseCreationError);
+    const data = {...mockCourseRequestData};
+    data.name = '';
     expect(() => new Course(data)).toThrow('The "name" field is required.');
   });
 
   it('should throw if description is missing', () => {
-    const data: Partial<Course> = { ...baseCourseData };
-    delete data.description;
+    const data = {...mockCourseRequestData};
+    data.description = '';
     expect(() => new Course(data)).toThrow('The "description" field is required.');
   });
 
   it('should throw if shortDescription is missing', () => {
-    const data: Partial<Course> = { ...baseCourseData };
-    delete data.shortDescription;
+    const data = { ...mockCourseRequestData };
+    data.shortDescription = '';
     expect(() => new Course(data)).toThrow('The "shortDescription" field is required.');
   });
 
   it('should throw if startDate is missing', () => {
-    const data: Partial<Course> = { ...baseCourseData };
-    delete data.startDate;
+    const data = { ...mockCourseRequestData };
+    data.startDate = '';
     expect(() => new Course(data)).toThrow('The "startDate" field is required.');
   });
 
   it('should throw if endDate is missing', () => {
-    const data: Partial<Course> = { ...baseCourseData };
-    delete data.endDate;
-    expect(() => new Course(data)).toThrow('The "endDate" field is required.');
+    const data = { ...mockCourseRequestData };
+    data.endDate = 'invalid-date';
+    expect(() => new Course(data)).toThrow(`Invalid date format for "endDate".`);
   });
 
   it('should throw if capacity is missing', () => {
-    const data: Partial<Course> = { ...baseCourseData };
-    delete data.capacity;
-    expect(() => new Course(data)).toThrow('The "capacity" field is required.');
+    const data = { ...mockCourseRequestData, capacity: undefined };
+    expect(() => new Course(data)).toThrow(`The "capacity" field must be a number.`);
   });
 
   it('should throw if enrolled is missing', () => {
-    const data: Partial<Course> = { ...baseCourseData };
-    delete data.enrolled;
-    expect(() => new Course(data)).toThrow('The "enrolled" field is required.');
+    const data = { ...mockCourseRequestData, enrolled: undefined };
+    expect(() => new Course(data)).toThrow(`The "enrolled" field must be a number.`);
   });
 
   it('should throw if category is missing', () => {
-    const data: Partial<Course> = { ...baseCourseData };
-    delete data.category;
+    const data = { ...mockCourseRequestData, category: undefined };
     expect(() => new Course(data)).toThrow('The "category" field is required.');
   });
 
   it('should throw if level is missing', () => {
-    const data: Partial<Course> = { ...baseCourseData };
-    delete data.level;
+    const data = { ...mockCourseRequestData, level:undefined };
     expect(() => new Course(data)).toThrow('The "level" field is required.');
   });
 
   it('should throw if modality is missing', () => {
-    const data: Partial<Course> = { ...baseCourseData };
-    delete data.modality;
+    const data = { ...mockCourseRequestData, modality: undefined };
     expect(() => new Course(data)).toThrow('The "modality" field is required.');
   });
 
   it('should throw if prerequisites is missing', () => {
-    const data: Partial<Course> = { ...baseCourseData };
-    delete data.prerequisites;
+    const data = { ...mockCourseRequestData, prerequisites: undefined };
     expect(() => new Course(data)).toThrow('The "prerequisites" field is required.');
   });
 
   it('should throw if imageUrl is missing', () => {
-    const data: Partial<Course> = { ...baseCourseData };
-    delete data.imageUrl;
+    const data = { ...mockCourseRequestData };
+    data.imageUrl = '';
     expect(() => new Course(data)).toThrow('The "imageUrl" field is required.');
+  });
+
+  it ('should throw if creatorId is missing', () => {
+    const data = { ...mockCourseRequestData };
+    data.creatorId = '';
+    expect(() => new Course(data)).toThrow('The "creatorId" field is required.');
   });
 });
