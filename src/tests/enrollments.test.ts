@@ -23,7 +23,9 @@ describe('Integration Tests for Enrollments of Courses API', () => {
       expect(enrolledCourse.userId).toBe(enrollmentData.userId);
       expect(enrolledCourse.id).toBeDefined();
     });
+
     it('should return 404 if the course does not exist', async () => {
+      const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {}); // silence console.error
       const nonExistentCourseId = 'non-existent-course-id';
       const enrollmentData = {
         userId: "123456789",
@@ -32,7 +34,9 @@ describe('Integration Tests for Enrollments of Courses API', () => {
         .post(`/courses/${nonExistentCourseId}/enrollments`)
         .send(enrollmentData);
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
+      consoleErrorMock.mockRestore(); // Restore original console.error
     });
+
     it('should return 400 if the student ID is missing', async () => {
       const response = await request(app).post('/courses').send(mockCourseRequestData);
       expect(response.status).toBe(StatusCodes.CREATED);
@@ -42,9 +46,10 @@ describe('Integration Tests for Enrollments of Courses API', () => {
         .post(`/courses/${createdCourseId}/enrollments`)
         .send({}); // Missing userId
       expect(enrollmentResponse.status).toBe(StatusCodes.BAD_REQUEST);
-    }
-    );
+    });
+
     it('should return 400 if the student is already enrolled', async () => {
+      const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {}); // silence console.error
       const response = await request(app).post('/courses').send(mockCourseRequestData);
       expect(response.status).toBe(StatusCodes.CREATED);
 
@@ -59,6 +64,7 @@ describe('Integration Tests for Enrollments of Courses API', () => {
         .post(`/courses/${createdCourseId}/enrollments`)
         .send(enrollmentData);
       expect(enrollmentResponse.status).toBe(StatusCodes.BAD_REQUEST);
+      consoleErrorMock.mockRestore();
     });
   });
 
