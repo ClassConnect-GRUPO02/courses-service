@@ -22,4 +22,7 @@ router.get('/courses/:id/enrollments/:userId', courseController.isEnrolledInCour
 
 router.get('/courses/:id/instructors/:instructorId', courseController.isInstructorInCourse); // Check if user is instructor in course
 
+// ----------------------------- TASKS AND EXAMS -----------------------------
+router.post('/courses/:id/tasks', courseController.addTaskToCourse); // Add task to course
+
 export default router;

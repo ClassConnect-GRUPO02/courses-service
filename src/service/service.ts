@@ -3,6 +3,7 @@ import * as database from '../database/database';
 import { AlreadyEnrolledError, CourseFullError, CourseNotFoundError, ModuleNotFoundError } from '../models/errors';
 import { Module } from '../models/module';
 import { Enrollment } from '../models/enrollment';
+import { Task } from '../models/task';
 
 export const getAllCourses = async (): Promise<Course[]> => {
   return await database.getCourses();
@@ -107,4 +108,13 @@ export const isInstructorInCourse = async (courseId: string, instructorId: strin
   }
 
   return await database.isInstructorInCourse(courseId, instructorId);
+}
+
+export const addTaskToCourse = async (courseId: string, task: Task): Promise<Task> => {
+  const course = await database.getCourseById(courseId);
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+
+  return await database.addTaskToCourse(courseId, task);
 }

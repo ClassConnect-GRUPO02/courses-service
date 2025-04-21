@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { Course } from '../models/course';
 import { Module } from '../models/module';
 import { Enrollment } from '../models/enrollment';
+import { Task } from '../models/task';
 
 export const getCourses = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -28,8 +29,6 @@ export const getCourse = async (req: Request, res: Response, next: NextFunction)
 export const addCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const courseData: Course = req.body;
-
-    logger.debug('BODY RECIBIDO:', JSON.stringify(courseData, null, 2));
     const course = new Course(courseData);
 
     const createdCourse = await courseService.createCourse(course);
@@ -197,6 +196,21 @@ export const isInstructorInCourse = async (req: Request, res: Response, next: Ne
     const isInstructor = await courseService.isInstructorInCourse(id, instructorId);
     res.status(StatusCodes.OK).json({ isInstructor: isInstructor });
     logger.info(`Instructor status checked for user with ID ${instructorId} in course with ID ${id}`);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// -------------------------- TASKS / EXAMS ---------------------------
+
+export const addTaskToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const taskData = req.body;
+    const task = new Task(taskData);
+    const createdTask = await courseService.addTaskToCourse(id, task);
+    res.status(StatusCodes.CREATED).json({ data: createdTask });
+    logger.info(`Task added to course with ID ${id} successfully`);
   } catch (error) {
     next(error);
   }

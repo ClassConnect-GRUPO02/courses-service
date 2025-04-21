@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CourseNotFoundError } from '../models/errors';
 import { Module } from '../models/module';
 import { Enrollment } from '../models/enrollment';
+import { Task } from '../models/task';
 
 const prisma = new PrismaClient();
 
@@ -358,4 +359,43 @@ export const isInstructorInCourse = async (courseId: string, instructorId: strin
   });
 
   return !!instructor;
+}
+
+export const addTaskToCourse = async (courseId: string, task: any): Promise<Task> => {
+
+  const newTask = await prisma.task.create({
+    data: {
+      id: uuidv4(),
+      course_id: courseId,
+      created_by: task.created_by,
+      type: task.type,
+      title: task.title,
+      description: task.description,
+      instructions: task.instructions,
+      due_date: new Date(task.due_date),
+      allow_late: task.allow_late,
+      late_policy: task.late_policy,
+      has_timer: task.has_timer,
+      time_limit_minutes: task.time_limit_minutes ?? null,
+      published: task.published,
+      visible_from: task.visible_from ? new Date(task.visible_from) : null,
+      visible_until: task.visible_until ? new Date(task.visible_until) : null,
+      allow_file_upload: task.allow_file_upload,
+      answer_format: task.answer_format,
+      created_at: new Date(),
+      updated_at: new Date(),
+      deleted_at: null,
+    },
+  });
+
+  return {
+    ...newTask,
+    id: newTask.id,
+    due_date: newTask.due_date.toISOString(),
+    visible_from: newTask.visible_from ? newTask.visible_from.toISOString() : null,
+    visible_until: newTask.visible_until ? newTask.visible_until.toISOString() : null,
+    created_at: newTask.created_at.toISOString(),
+    updated_at: newTask.updated_at.toISOString(),
+    deleted_at: newTask.deleted_at ? newTask.deleted_at.toISOString() : null,
+  };
 }

@@ -63,3 +63,9 @@ export class AlreadyEnrolledError extends AppError {
     );
   }
 }
+
+export class TaskCreationError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
