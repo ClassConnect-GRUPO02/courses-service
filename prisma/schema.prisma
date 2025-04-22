@@ -35,14 +35,14 @@ model Module {
   description String
   url         String
   order       Int
-  course      Course @relation(fields: [courseId], references: [id])
+  course      Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId    String
 }
 
 model Enrollment {
   id             String   @id
   userId         String
-  course         Course   @relation(fields: [courseId], references: [id])
+  course         Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId       String
   enrollmentDate DateTime
 
@@ -51,7 +51,7 @@ model Enrollment {
 
 model CourseInstructor {
   id       String   @id @default(uuid())
-  course   Course   @relation(fields: [courseId], references: [id])
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId String
   userId   String
   type     InstructorType
@@ -89,7 +89,7 @@ model Task {
   deleted_at           DateTime?
 
   // Relaciones
-  course               Course       @relation(fields: [course_id], references: [id])
+  course               Course       @relation(fields: [course_id], references: [id], onDelete: Cascade)
 
   @@map("tasks")
 }

@@ -228,6 +228,21 @@ export const updateTask = async (req: Request, res: Response, next: NextFunction
   }
 }
 
+export const deleteTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, taskId } = req.params;
+    if (!id || !taskId) {
+      handleInvalidRequestError(res, 'Invalid course or task ID');
+      return;
+    }
+    await courseService.removeTask(id, taskId);
+    res.status(StatusCodes.NO_CONTENT).send();
+    logger.info(`Task with ID ${taskId} deleted from course with ID ${id} successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // -------------------------- ERROR HANDLING --------------------------
 
 /*const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {

@@ -132,3 +132,15 @@ export const updateTask = async (courseId: string, taskId: string, task: Partial
 
   return updatedTask;
 }
+
+export const removeTask = async (courseId: string, taskId: string): Promise<void> => {
+  const course = await database.getCourseById(courseId);
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+
+  /*const isDeleted = await database.deleteTask(courseId, taskId);
+  if (!isDeleted) {
+    throw new Error(`Task with ID ${taskId} not found in course ${courseId}`);
+  }*/
+}

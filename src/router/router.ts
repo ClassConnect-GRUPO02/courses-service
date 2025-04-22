@@ -25,5 +25,6 @@ router.get('/courses/:id/instructors/:instructorId', courseController.isInstruct
 // ----------------------------- TASKS AND EXAMS -----------------------------
 router.post('/courses/:id/tasks', courseController.addTaskToCourse); // Add task to course
 router.patch('/courses/:id/tasks/:taskId', courseController.updateTask); // Update task by ID inside course
+router.delete('/courses/:id/tasks/:taskId', courseController.deleteTask); // Delete task from course
 
 export default router;
