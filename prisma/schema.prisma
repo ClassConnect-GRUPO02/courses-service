@@ -26,6 +26,7 @@ model Course {
   modules           Module[]
   enrollments       Enrollment[]
   instructors       CourseInstructor[]
+  tasks             Task[]
 }
 
 model Module {
@@ -63,4 +64,53 @@ model CourseInstructor {
 enum InstructorType {
   TITULAR
   AUXILIAR
+}
+
+model Task {
+  id                   String       @id @default(uuid())
+  course_id            String
+  created_by           String
+  type                 TaskType
+  title                String
+  description          String
+  instructions         String
+  due_date             DateTime
+  allow_late           Boolean
+  late_policy          LatePolicy
+  has_timer            Boolean
+  time_limit_minutes   Int? // opcional
+  published            Boolean
+  visible_from         DateTime?
+  visible_until        DateTime?
+  allow_file_upload    Boolean
+  answer_format        AnswerFormat
+  created_at           DateTime     @default(now())
+  updated_at           DateTime     @updatedAt
+  deleted_at           DateTime?
+
+  // Relaciones
+  course               Course       @relation(fields: [course_id], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+enum TaskType {
+  tarea
+  examen
+}
+
+enum LatePolicy {
+  ninguna
+  descontar
+  penalizar
+  aceptar
+  aceptar_con_descuento
+  aceptar_con_penalizacion
+}
+
+enum AnswerFormat {
+  texto
+  opcion_multiple
+  archivo
+  mixto
 }
