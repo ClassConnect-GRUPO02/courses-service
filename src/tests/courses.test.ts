@@ -17,6 +17,7 @@ describe('Integration Tests for Courses API', () => {
       const response = await request(app).get('/courses');
       expect(response.status).toBe(StatusCodes.OK);
       expect(Array.isArray(response.body.data)).toBe(true);
+      expect(response.body.data.length).toBe(2);
     });
   });
 

@@ -167,7 +167,7 @@ describe('Integration Tests for modules of Courses API', () => {
     });
   });
 
-  xdescribe('PATCH /courses/:id/modules/order', () => {
+  describe('PATCH /courses/:id/modules/order', () => {
     it('should update the order of modules in a course', async () => {
       const courseResponse = await request(app)
         .post('/courses')
