@@ -162,6 +162,23 @@ export const updateModuleOrder = async (req: Request, res: Response, next: NextF
   }
 };
 
+export const updateModule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, moduleId } = req.params;
+    const moduleData: Partial<Module> = req.body;
+    const updatedModule = await courseService.updateModule(id, moduleId, moduleData);
+    if (!updatedModule) {
+      res.status(StatusCodes.NOT_FOUND).json({ error: `Module with ID ${moduleId} not found in course ${id}` });
+      return;
+    }
+    res.status(StatusCodes.OK).json({ data: updatedModule });
+    logger.debug("Module updated:", updatedModule);
+  } catch(error) {
+    logger.error("Error updating module:", error);
+    next(error);
+  }
+}
+
 
 // -------------------------- ENROLLMENT --------------------------
 

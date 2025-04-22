@@ -3,6 +3,7 @@ import app from './src/app';
 import { Module } from './src/models/module';
 import { v4 as uuidv4 } from 'uuid';
 import { Enrollment } from './src/models/enrollment';
+import { updateModulesOrder } from './src/database/database';
 
 let server: Server;
 
@@ -11,6 +12,11 @@ let server: Server;
 const mockDB: Record<string, any> = {};
 const mockInstructors: Instructor[] = [];
 const enrollments: Enrollment[] = [];
+const modules: Module[] = [
+  { id: 'm1', name: 'Módulo 1', description: '', url: '', order: 0, courseId: 'c1' },
+  { id: 'm2', name: 'Módulo 2', description: '', url: '', order: 1, courseId: 'c1' },
+  { id: 'm3', name: 'Módulo 3', description: '', url: '', order: 2, courseId: 'c1' },
+];
 
 
 let courseIdCounter = 1;
@@ -64,7 +70,11 @@ jest.mock('./src/database/database', () => ({
 
   getModulesByCourseId: jest.fn().mockImplementation((courseId: string) => {
     if (!mockDB[courseId]) return Promise.resolve([]);
-    return Promise.resolve(mockDB[courseId].modules || []);
+  
+    const modules = mockDB[courseId].modules || [];
+    const orderedModules = [...modules].sort((a, b) => a.order - b.order);
+  
+    return Promise.resolve(orderedModules);
   }),
 
   getModuleById: jest.fn().mockImplementation((courseId: string, moduleId: string) => {
@@ -79,6 +89,16 @@ jest.mock('./src/database/database', () => ({
     if (moduleIndex === -1) return Promise.resolve(false);
     mockDB[courseId].modules.splice(moduleIndex, 1);
     return Promise.resolve(true);
+  }),
+
+  updateModulesOrder: jest.fn().mockImplementation((courseId: string, newOrder: string[]) => {
+    newOrder.forEach((moduleId, index) => {
+      const module = modules.find((m) => m.id === moduleId && m.courseId === courseId);
+      if (module) {
+        module.order = index;
+      }
+    });
+    return Promise.resolve();
   }),
 
   addInstructorToCourse: jest.fn().mockImplementation((courseId: string, instructorId: string, type: string) => {

@@ -352,7 +352,6 @@ export const isInstructorInCourse = async (courseId: string, instructorId: strin
   return !!instructor;
 }
 
-// En database.ts
 export const updateModulesOrder = async (courseId: string, orderedModuleIds: string[]): Promise<void> => {
   const course = await prisma.course.findUnique({
     where: { id: courseId },
@@ -371,4 +370,26 @@ export const updateModulesOrder = async (courseId: string, orderedModuleIds: str
     )
   );
 };
+
+export const updateModule = async (courseId: string, moduleId: string, updateData: Partial<Module>): Promise<Module | null> => {
+  const existingModule = await prisma.module.findUnique({
+    where: { id: moduleId },
+  });
+
+  if (!existingModule) {
+    return null;
+  }
+
+  const updatedModule = await prisma.module.update({
+    where: { id: moduleId },
+    data: {
+      name: updateData.name ?? existingModule.name,
+      description: updateData.description ?? existingModule.description,
+      url: updateData.url ?? existingModule.url,
+      order: updateData.order ?? existingModule.order,
+    },
+  });
+
+  return updatedModule;
+}
 

@@ -120,3 +120,11 @@ export const updateModulesOrder = async (courseId: string, orderedModuleIds: str
     }
   }
 
+export const updateModule = async (courseId: string, moduleId: string, moduleData: Partial<Module>): Promise<Module> => {
+  const module = await database.updateModule(courseId, moduleId, moduleData);
+  if (!module) {
+    throw new ModuleNotFoundError(`Module with ID ${moduleId} not found in course ${courseId}`);
+  }
+  return module;
+}
+

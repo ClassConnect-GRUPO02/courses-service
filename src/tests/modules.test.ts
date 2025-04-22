@@ -167,4 +167,63 @@ describe('Integration Tests for modules of Courses API', () => {
     });
   });
 
+  xdescribe('PATCH /courses/:id/modules/order', () => {
+    it('should update the order of modules in a course', async () => {
+      const courseResponse = await request(app)
+        .post('/courses')
+        .send(mockCourseRequestData);
+
+      const createdCourseId = courseResponse.body.data.id;
+      mockModuleRequestData.courseId = createdCourseId;
+
+      // Add multiple modules to the course
+      const moduleResponse1 = await request(app)
+        .post(`/courses/${createdCourseId}/modules`)
+        .send(mockModuleRequestData);
+
+      const moduleResponse2 = await request(app)
+        .post(`/courses/${createdCourseId}/modules`)
+        .send({
+          ...mockModuleRequestData,
+          name: 'Second Module',
+          order: 2,
+        });
+
+      const createdModuleId1 = moduleResponse1.body.data.id;
+      const createdModuleId2 = moduleResponse2.body.data.id;
+
+      // Update the order of modules
+      const orderedModuleIds = [createdModuleId2, createdModuleId1];
+      const response = await request(app)
+        .patch(`/courses/${createdCourseId}/modules/order`)
+        .send({ orderedModuleIds });
+
+      const getAllModulesResponse = await request(app)
+        .get(`/courses/${createdCourseId}/modules`);
+      const modulesInArray = getAllModulesResponse.body.data;
+      const firstModule = modulesInArray[0];
+      const secondModule = modulesInArray[1];
+
+      expect(response.status).toBe(StatusCodes.OK);
+      expect(firstModule.id).toBe(createdModuleId2);
+      expect(secondModule.id).toBe(createdModuleId1);
+
+    });
+
+    it('should return 400 if the orderedModuleIds is not an array', async () => {
+      const courseResponse = await request(app)
+        .post('/courses')
+        .send(mockCourseRequestData);
+
+      const createdCourseId = courseResponse.body.data.id;
+
+      // Update the order of modules with invalid data
+      const response = await request(app)
+        .patch(`/courses/${createdCourseId}/modules/order`)
+        .send({ orderedModuleIds: 'invalid-data' });
+
+      expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+    });
+  });
+
 });
