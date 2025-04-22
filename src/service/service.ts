@@ -139,8 +139,8 @@ export const removeTask = async (courseId: string, taskId: string): Promise<void
     throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
   }
 
-  /*const isDeleted = await database.deleteTask(courseId, taskId);
+  const isDeleted = await database.deleteTask(taskId);
   if (!isDeleted) {
     throw new Error(`Task with ID ${taskId} not found in course ${courseId}`);
-  }*/
+  }
 }

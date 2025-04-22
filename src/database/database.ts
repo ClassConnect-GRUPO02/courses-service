@@ -447,3 +447,11 @@ export const updateTask = async (courseId: string, taskId: string, task: Partial
     deleted_at: updatedTask.deleted_at ? updatedTask.deleted_at.toISOString() : null,
   };
 }
+
+export const deleteTask = async (taskId: string): Promise<string> => {
+  const deleted = await prisma.task.delete({
+    where: { id: taskId },
+  });
+  
+  return deleted.id;
+}
