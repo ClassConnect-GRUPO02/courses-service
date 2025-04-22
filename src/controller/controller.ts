@@ -243,6 +243,28 @@ export const deleteTask = async (req: Request, res: Response, next: NextFunction
   }
 };
 
+export const getTasks = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const tasks = await courseService.getTasks(id);
+    res.status(StatusCodes.OK).json({ data: tasks });
+    logger.info(`Tasks retrieved for course with ID ${id} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const getTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, taskId } = req.params;
+    const task = await courseService.getTaskById(id, taskId);
+    res.status(StatusCodes.OK).json({ data: task });
+    logger.info(`Task with ID ${taskId} retrieved from course with ID ${id} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}
+
 // -------------------------- ERROR HANDLING --------------------------
 
 /*const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {

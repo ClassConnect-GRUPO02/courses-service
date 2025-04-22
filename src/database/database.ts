@@ -452,6 +452,45 @@ export const deleteTask = async (taskId: string): Promise<string> => {
   const deleted = await prisma.task.delete({
     where: { id: taskId },
   });
-  
+
   return deleted.id;
+}
+
+export const getTasksByCourseId = async (courseId: string): Promise<Task[]> => {
+  const tasks = await prisma.task.findMany({
+    where: { course_id: courseId },
+  });
+
+  return tasks.map((task) => ({
+    ...task,
+    due_date: task.due_date.toISOString(),
+    visible_from: task.visible_from ? task.visible_from.toISOString() : null,
+    visible_until: task.visible_until ? task.visible_until.toISOString() : null,
+    created_at: task.created_at.toISOString(),
+    updated_at: task.updated_at.toISOString(),
+    deleted_at: task.deleted_at ? task.deleted_at.toISOString() : null,
+  }));
+}
+
+export const getTaskById = async (courseId: string, taskId: string): Promise<Task | null> => {
+  const task = await prisma.task.findFirst({
+    where: {
+      id: taskId,
+      course_id: courseId,
+    },
+  });
+
+  if (!task) {
+    return null;
+  }
+
+  return {
+    ...task,
+    due_date: task.due_date.toISOString(),
+    visible_from: task.visible_from ? task.visible_from.toISOString() : null,
+    visible_until: task.visible_until ? task.visible_until.toISOString() : null,
+    created_at: task.created_at.toISOString(),
+    updated_at: task.updated_at.toISOString(),
+    deleted_at: task.deleted_at ? task.deleted_at.toISOString() : null,
+  };
 }

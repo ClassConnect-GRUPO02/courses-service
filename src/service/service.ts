@@ -144,3 +144,26 @@ export const removeTask = async (courseId: string, taskId: string): Promise<void
     throw new Error(`Task with ID ${taskId} not found in course ${courseId}`);
   }
 }
+
+export const getTasks = async (courseId: string): Promise<Task[]> => {
+  const course = await database.getCourseById(courseId);
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+
+  return await database.getTasksByCourseId(courseId);
+}
+
+export const getTaskById = async (courseId: string, taskId: string): Promise<Task> => {
+  const course = await database.getCourseById(courseId);
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+
+  const task = await database.getTaskById(courseId, taskId);
+  if (!task) {
+    throw new Error(`Task with ID ${taskId} not found in course ${courseId}`);
+  }
+
+  return task;
+}
