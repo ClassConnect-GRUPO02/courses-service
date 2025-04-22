@@ -108,3 +108,15 @@ export const isInstructorInCourse = async (courseId: string, instructorId: strin
 
   return await database.isInstructorInCourse(courseId, instructorId);
 }
+
+export const updateModulesOrder = async (courseId: string, orderedModuleIds: string[]): Promise<void> => {
+    try {
+      await database.updateModulesOrder(courseId, orderedModuleIds);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Error updating modules order: ${error.message}`);
+      }
+      throw new Error("Unknown error updating modules order");
+    }
+  }
+

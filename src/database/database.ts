@@ -194,19 +194,11 @@ export const addModuleToCourse = async (courseId: string, module: Module): Promi
 // Retrieves all modules for a given course ID
 // Returns an array of Module objects
 export const getModulesByCourseId = async (courseId: string): Promise<Module[]> => {
-  const modules = await prisma.module.findMany({
+  return prisma.module.findMany({
     where: { courseId },
+    orderBy: { order: 'asc' },
   });
-
-  return modules.map((module: Module) => ({
-    id: module.id,
-    name: module.name,
-    description: module.description,
-    url: module.url,
-    order: module.order,
-    courseId: module.courseId,
-  }));
-}
+};
 
 // Deletes a module by its ID returning true if it was found and deleted, false otherwise
 export const deleteModule = async (courseId: string, moduleId: string): Promise<boolean> => {
@@ -359,3 +351,24 @@ export const isInstructorInCourse = async (courseId: string, instructorId: strin
 
   return !!instructor;
 }
+
+// En database.ts
+export const updateModulesOrder = async (courseId: string, orderedModuleIds: string[]): Promise<void> => {
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+  });
+
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+
+  await Promise.all(
+    orderedModuleIds.map((moduleId, index) =>
+      prisma.module.updateMany({
+        where: { id: moduleId, courseId },
+        data: { order: index },
+      })
+    )
+  );
+};
+

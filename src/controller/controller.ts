@@ -144,6 +144,25 @@ export const getModule = async (req: Request, res: Response, next: NextFunction)
   }
 }
 
+export const updateModuleOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const courseId = req.params.id;
+    const { orderedModuleIds } = req.body;
+
+    if (!Array.isArray(orderedModuleIds) || orderedModuleIds.length === 0) {
+      res.status(400).json({ error: 'orderedModuleIds must be a non-empty array.' });
+      return;
+    }
+
+    await courseService.updateModulesOrder(courseId, orderedModuleIds);
+
+    res.status(200).json({ message: 'Module order updated successfully.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 // -------------------------- ENROLLMENT --------------------------
 
 export const enrollStudentToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
