@@ -118,3 +118,17 @@ export const addTaskToCourse = async (courseId: string, task: Task): Promise<Tas
 
   return await database.addTaskToCourse(courseId, task);
 }
+
+export const updateTask = async (courseId: string, taskId: string, task: Partial<Task>): Promise<Task> => {
+  const course = await database.getCourseById(courseId);
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+
+  const updatedTask = await database.updateTask(courseId, taskId, task);
+  if (!updatedTask) {
+    throw new Error(`Task with ID ${taskId} not found in course ${courseId}`);
+  }
+
+  return updatedTask;
+}

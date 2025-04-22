@@ -216,6 +216,18 @@ export const addTaskToCourse = async (req: Request, res: Response, next: NextFun
   }
 }
 
+export const updateTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, taskId } = req.params;
+    const taskData: Partial<Task> = req.body;
+    const updatedTask = await courseService.updateTask(id, taskId, taskData);
+    res.status(StatusCodes.OK).json({ data: updatedTask });
+    logger.info(`Task with ID ${taskId} updated in course with ID ${id} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}
+
 // -------------------------- ERROR HANDLING --------------------------
 
 /*const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {

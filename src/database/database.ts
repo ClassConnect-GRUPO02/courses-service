@@ -399,3 +399,51 @@ export const addTaskToCourse = async (courseId: string, task: any): Promise<Task
     deleted_at: newTask.deleted_at ? newTask.deleted_at.toISOString() : null,
   };
 }
+
+export const updateTask = async (courseId: string, taskId: string, task: Partial<Task>): Promise<Task> => {
+  const existingTask = await prisma.task.findUnique({
+    where: { id: taskId },
+  });
+
+  if (!existingTask) {
+    throw new Error(`Task with ID ${taskId} not found`);
+  }
+
+
+  const updatedTask = await prisma.task.update({
+    where: { id: taskId },
+    data: {
+      id: existingTask.id,
+      course_id: courseId,
+      created_by: existingTask.created_by,
+      type: task.type ?? existingTask.type,
+      title: task.title ?? existingTask.title,
+      description: task.description ?? existingTask.description,
+      instructions: task.instructions ?? existingTask.instructions,
+      due_date: task.due_date ? new Date(task.due_date) : existingTask.due_date,
+      allow_late: task.allow_late ?? existingTask.allow_late,
+      late_policy: task.late_policy ?? existingTask.late_policy,
+      has_timer: task.has_timer ?? existingTask.has_timer,
+      time_limit_minutes: task.time_limit_minutes ?? existingTask.time_limit_minutes,
+      published: task.published ?? existingTask.published,
+      visible_from: task.visible_from ? new Date(task.visible_from) : existingTask.visible_from,
+      visible_until: task.visible_until ? new Date(task.visible_until) : existingTask.visible_until,
+      allow_file_upload: task.allow_file_upload ?? existingTask.allow_file_upload,
+      answer_format: task.answer_format ?? existingTask.answer_format,
+      created_at: existingTask.created_at,
+      updated_at: new Date(),
+      deleted_at: existingTask.deleted_at,
+    },
+  });
+
+  return {
+    ...updatedTask,
+    id: updatedTask.id,
+    due_date: updatedTask.due_date.toISOString(),
+    visible_from: updatedTask.visible_from ? updatedTask.visible_from.toISOString() : null,
+    visible_until: updatedTask.visible_until ? updatedTask.visible_until.toISOString() : null,
+    created_at: updatedTask.created_at.toISOString(),
+    updated_at: updatedTask.updated_at.toISOString(),
+    deleted_at: updatedTask.deleted_at ? updatedTask.deleted_at.toISOString() : null,
+  };
+}
