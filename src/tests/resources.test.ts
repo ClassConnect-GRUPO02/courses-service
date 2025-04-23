@@ -28,5 +28,26 @@ describe('Integration Tests for resources of Courses API', () => {
       expect(createdResource.moduleId).toBe(moduleId);
       expect(createdResource.id).toBeDefined();
     });
+    it('should return 400 if the resource data is invalid', async () => {
+      const courseId = 'c1';
+      const moduleId = 'm1';
+      const moduleResponse = await request(app) 
+        .get(`/courses/${courseId}/modules/${moduleId}`)
+        .send();
+      expect(moduleResponse.status).toBe(StatusCodes.OK);
+      
+      // Send invalid resource data
+      const invalidResourceData = {
+        description: "desc",
+        url: "https://example.com/intro-typescript",
+        type: "video",
+        order: "asd",
+        moduleId: moduleId,
+      };
+      const response = await request(app)
+        .post(`/modules/${moduleId}/resources`)
+        .send(invalidResourceData);
+      expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+    });
   });
 });

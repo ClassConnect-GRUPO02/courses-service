@@ -1,5 +1,5 @@
-import { Course } from '../../src/models/course';
-import { mockCourseRequestData } from './mocks/mock.course';
+import { Course } from "../../models/course";
+import { mockCourseRequestData } from "../mocks/mock.course";
 
 describe('Course constructor', () => {
   it('should create a course with valid data', () => {

@@ -1,5 +1,5 @@
-import { Enrollment } from "../models/enrollment";
-import { mockEnrollmentRequestData } from "./mocks/mock.enrollment";
+import { Enrollment } from "../../models/enrollment";
+import { mockEnrollmentRequestData } from "../mocks/mock.enrollment";
 
 describe('Enrollment constructor', () => {
 
