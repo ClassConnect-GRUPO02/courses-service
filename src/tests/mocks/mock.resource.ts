@@ -3,5 +3,5 @@ export const mockResourceRequestData = {
   type: "video",
   url: "https://example.com/intro-typescript",
   order: 1,
-  ModuleId: "m1",
+  moduleId: "m1",
 };

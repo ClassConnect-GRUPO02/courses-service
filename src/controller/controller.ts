@@ -282,7 +282,7 @@ export const addResourceToModule = async (req: Request, res: Response, next: Nex
     const resourceData = req.body;
     const newResource = new Resource(resourceData);
     const resource = await courseService.addResourceToModule( moduleId, newResource);
-    res.status(StatusCodes.OK).json({ data: resource });
+    res.status(StatusCodes.CREATED).json({ data: resource });
     logger.debug(`Resource added to module with ID ${moduleId} successfully`);
   } catch (error) {
     logger.debug('Error adding resource:', error);

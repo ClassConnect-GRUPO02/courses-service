@@ -137,6 +137,17 @@ jest.mock('./src/database/database', () => ({
     return Promise.resolve(!!found);
   }),
 
+  // Mocks for resources
+
+  addResourceToModule: jest.fn().mockImplementation((moduleId: string, resourceData: any) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve(null);
+    const id = uuidv4().toString();
+    const newResource = { ...resourceData, id };
+    mockDB.resources.push(newResource); 
+    return Promise.resolve(newResource);
+  }),
+
 }));
 
 
