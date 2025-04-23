@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { CourseCreationError, CourseFullError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError, AlreadyEnrolledError, ResourceCreationError } from '../models/errors';
+import { CourseCreationError, CourseFullError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError, AlreadyEnrolledError, ResourceCreationError, ResourceNotFoundError } from '../models/errors';
 import { NextFunction } from 'express';
  
 export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction): void => {
@@ -24,6 +24,14 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
     res.status(err.status).json({
       type: err.type,
       title: 'Module Not Found',
+      status: StatusCodes.NOT_FOUND,
+      detail: err.detail,
+      instance: req.originalUrl,
+    });
+  } else if (err instanceof ResourceNotFoundError) {
+    res.status(err.status).json({
+      type: err.type,
+      title: 'Resource Not Found',
       status: StatusCodes.NOT_FOUND,
       detail: err.detail,
       instance: req.originalUrl,

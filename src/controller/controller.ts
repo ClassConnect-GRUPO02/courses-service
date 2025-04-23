@@ -289,3 +289,19 @@ export const addResourceToModule = async (req: Request, res: Response, next: Nex
     next(error);
   }
 }
+
+// Deletes a resource from a module
+export const deleteResourceFromModule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { moduleId, resourceId } = req.params;
+    if (!moduleId || !resourceId) {
+      handleInvalidRequestError(res, 'Invalid module or resource ID');
+      return;
+    }
+    await courseService.deleteResourceFromModule(moduleId, resourceId);
+    res.status(StatusCodes.NO_CONTENT).send();
+    logger.debug(`Resource with ID ${resourceId} deleted from module with ID ${moduleId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}

@@ -148,6 +148,17 @@ jest.mock('./src/database/database', () => ({
     return Promise.resolve(newResource);
   }),
 
+  // Deletes resource from module
+  deleteResourceFromModule: jest.fn().mockImplementation((moduleId: string, resourceId: string) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve(false);
+    const resourceIndex = mockDB.resources.findIndex(res => res.id === resourceId);
+    if (resourceIndex === -1) return Promise.resolve(false);
+    mockDB.resources.splice(resourceIndex, 1); 
+    return Promise.resolve(true);
+  }),
+  
+
 }));
 
 

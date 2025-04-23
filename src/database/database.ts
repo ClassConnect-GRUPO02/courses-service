@@ -410,3 +410,21 @@ export const addResourceToModule = async (moduleId: string, resource: Resource):
 
   return {...newResource, id: newResource.id };
 }
+
+export const deleteResourceFromModule = async (moduleId: string, resourceId: string): Promise<boolean> => {
+  const resource = await prisma.resource.findFirst({
+    where: {
+      id: resourceId,
+      moduleId: moduleId,
+    },
+  });
+
+  if (!resource) {
+    return false;
+  }
+
+  await prisma.resource.delete({
+    where: { id: resourceId },
+  });
+  return true;
+}

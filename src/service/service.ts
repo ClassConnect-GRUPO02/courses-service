@@ -1,6 +1,6 @@
 import { Course } from '../models/course';
 import * as database from '../database/database';
-import { AlreadyEnrolledError, CourseFullError, CourseNotFoundError, ModuleNotFoundError } from '../models/errors';
+import { AlreadyEnrolledError, CourseFullError, CourseNotFoundError, ModuleNotFoundError, ResourceNotFoundError } from '../models/errors';
 import { Module } from '../models/module';
 import { Enrollment } from '../models/enrollment';
 import { Resource } from '../models/resource';
@@ -137,4 +137,12 @@ export const addResourceToModule = async (moduleId: string, resource: Resource):
     throw new ModuleNotFoundError(`Module with ID ${moduleId} not found`);
   }
   return newResource;
+}
+
+// Deletes resource from module
+export const deleteResourceFromModule = async (moduleId: string, resourceId: string): Promise<void> => {
+  const isDeleted = await database.deleteResourceFromModule(moduleId, resourceId);
+  if (!isDeleted) {
+    throw new ResourceNotFoundError(`Resource with ID ${resourceId} not found in module ${moduleId}`);
+  }
 }

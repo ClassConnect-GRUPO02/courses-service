@@ -49,5 +49,27 @@ describe('Integration Tests for resources of Courses API', () => {
         .send(invalidResourceData);
       expect(response.status).toBe(StatusCodes.BAD_REQUEST);
     });
+    it('should return 404 if the module does not exist', async () => {
+      const nonExistentModuleId = 'non-existent-module-id';
+      const response = await request(app)
+        .post(`/modules/${nonExistentModuleId}/resources`)
+        .send(mockResourceRequestData);
+      expect(response.status).toBe(StatusCodes.NOT_FOUND);
+    });
+  });
+
+  describe('DELETE /modules/:moduleId/resources/:resourceId', () => {
+    it('should delete a resource from the module', async () => {
+      const response = await request(app).delete(
+        `/modules/m1/resources/r1`
+      );
+      expect(response.status).toBe(StatusCodes.NO_CONTENT);
+    });
+    it('should return 404 if the resource does not exist', async () => {
+      const response = await request(app).delete(
+        `/modules/m1/resources/99999999`
+      );
+      expect(response.status).toBe(StatusCodes.NOT_FOUND);
+    });
   });
 });

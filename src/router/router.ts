@@ -23,7 +23,7 @@ router.get('/courses/:id/enrollments/:userId', courseController.isEnrolledInCour
 router.get('/courses/:id/instructors/:instructorId', courseController.isInstructorInCourse); // Check if user is instructor in course
 
 router.post('/modules/:moduleId/resources', courseController.addResourceToModule); // Add resource to module
-//router.delete('/modules/:moduleId/resources/:resourceId', courseController.deleteResourceFromModule); // Delete resource from module
+router.delete('/modules/:moduleId/resources/:resourceId', courseController.deleteResourceFromModule); // Delete resource from module
 //router.get('/modules/:moduleId/resources', courseController.getResourcesByModuleId); // Get all resources from module
 //router.get('/modules/:moduleId/resources/:resourceId', courseController.getResourceById); // Get resource by ID inside module
 //router.patch('/modules/:moduleId/resources/:resourceId', courseController.updateResource); // Update specific resource by ID inside module
