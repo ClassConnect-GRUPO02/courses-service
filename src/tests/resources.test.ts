@@ -2,6 +2,7 @@ import request from 'supertest';
 import app from '../app';
 import { StatusCodes } from 'http-status-codes';
 import { mockResourceRequestData } from './mocks/mock.resource';
+import logger from '../logger/logger';
 
 describe('Integration Tests for resources of Courses API', () => {
   
@@ -65,7 +66,7 @@ describe('Integration Tests for resources of Courses API', () => {
         `/modules/m1/resources`
       );
       expect(response.status).toBe(StatusCodes.OK);
-      expect(response.body.data.length).toBe(2);
+      expect(response.body.data.length).toBe(3);
     });
   });
   
@@ -86,6 +87,35 @@ describe('Integration Tests for resources of Courses API', () => {
       expect(response.body.data.type).toBe(updatedData.type);
     });
   });
+
+  describe('PATCH /modules/:moduleId/resources/order', () => {
+    it('should update the order of resources in a module', async () => {
+      const moduleResponse = await request(app).get(`/courses/c1/modules/m1`).send();
+      expect(moduleResponse.status).toBe(StatusCodes.OK);
+  
+      const initialResources = await request(app).get(`/modules/m1/resources`).send();
+      expect(initialResources.status).toBe(StatusCodes.OK);
+  
+      // Confirmar que el orden inicial es distinto
+      const originalOrder = initialResources.body.data.map((r: any) => r.id);
+      expect(originalOrder).toEqual(expect.arrayContaining(['r1', 'r2']));
+  
+      const newOrderIds = ['r2', 'r1'];
+  
+      const patchResponse = await request(app)
+        .patch(`/modules/m1/resources/order`)
+        .send({ orderedResourceIds: newOrderIds });
+  
+      expect(patchResponse.status).toBe(StatusCodes.OK);
+      expect(patchResponse.body.message).toBe('Resource order updated successfully.');
+  
+      const updatedResources = await request(app).get(`/modules/m1/resources`).send();
+      expect(updatedResources.status).toBe(StatusCodes.OK);
+  
+      expect(updatedResources.body.data[0].id).toBe('r2');
+      expect(updatedResources.body.data[1].id).toBe('r1');
+    });
+  });
   
   describe('DELETE /modules/:moduleId/resources/:resourceId', () => {
     it('should delete a resource from the module', async () => {
@@ -101,5 +131,6 @@ describe('Integration Tests for resources of Courses API', () => {
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });
   });
+
 
 });

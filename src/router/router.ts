@@ -26,6 +26,7 @@ router.post('/modules/:moduleId/resources', courseController.addResourceToModule
 router.delete('/modules/:moduleId/resources/:resourceId', courseController.deleteResourceFromModule); // Delete resource from module
 router.get('/modules/:moduleId/resources', courseController.getResourcesByModuleId); // Get all resources from module
 //router.get('/modules/:moduleId/resources/:resourceId', courseController.getResourceById); // Get resource by ID inside module
+router.patch('/modules/:moduleId/resources/order', courseController.updateResourcesOrder); // Change resources order
 router.patch('/modules/:moduleId/resources/:resourceId', courseController.updateResource); // Update specific resource by ID inside module
 
 export default router;

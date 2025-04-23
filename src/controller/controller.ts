@@ -331,3 +331,22 @@ export const updateResource = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 }
+
+// Updates resources order in a module
+export const updateResourcesOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { moduleId } = req.params;
+    const { orderedResourceIds } = req.body;
+
+    if (!Array.isArray(orderedResourceIds) || orderedResourceIds.length === 0) {
+      res.status(400).json({ error: 'orderedResourceIds must be a non-empty array.' });
+      return;
+    }
+
+    await courseService.updateResourcesOrder(moduleId, orderedResourceIds);
+
+    res.status(200).json({ message: 'Resource order updated successfully.' });
+  } catch (error) {
+    next(error);
+  }
+};

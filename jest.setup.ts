@@ -162,7 +162,9 @@ jest.mock('./src/database/database', () => ({
   getResourcesByModuleId: jest.fn().mockImplementation((moduleId: string) => {
     const module = mockDB.modules.find(mod => mod.id === moduleId);
     if (!module) return Promise.resolve([]);
-    const resources = mockDB.resources.filter(res => res.moduleId === moduleId);
+    const resources = mockDB.resources
+      .filter(res => res.moduleId === moduleId)
+      .sort((a, b) => a.order - b.order); // orden por campo "order"
     return Promise.resolve(resources);
   }),
 
@@ -175,6 +177,19 @@ jest.mock('./src/database/database', () => ({
     const updatedResource = { ...mockDB.resources[resourceIndex], ...resourceData };
     mockDB.resources[resourceIndex] = updatedResource; 
     return Promise.resolve(updatedResource);
+  }),
+
+  // Updates resources order in a module
+  updateResourcesOrder: jest.fn().mockImplementation((moduleId: string, orderedResourceIds: string[]) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve();
+    orderedResourceIds.forEach((resourceId, index) => {
+      const resource = mockDB.resources.find(res => res.id === resourceId);
+      if (resource) {
+        resource.order = index; 
+      }
+    });
+    return Promise.resolve();
   }),
 
 }));

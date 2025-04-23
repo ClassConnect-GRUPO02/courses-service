@@ -160,3 +160,15 @@ export const updateResource = async (moduleId: string, resourceId: string, resou
   }
   return resource;
 }
+
+// Updates resources order in a module
+export const updateResourcesOrder = async (moduleId: string, orderedResourceIds: string[]): Promise<void> => {
+  try {
+    await database.updateResourcesOrder(moduleId, orderedResourceIds);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(`Error updating resources order: ${error.message}`);
+    }
+    throw new Error("Unknown error updating resources order");
+  }
+}

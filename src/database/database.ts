@@ -466,3 +466,19 @@ export const updateResource = async (moduleId: string, resourceId: string, updat
 
   return updatedResource;
 }
+
+// Updates resources order in module
+export const updateResourcesOrder = async (moduleId: string, orderedResourceIds: string[]): Promise<void> => {
+  const module = await prisma.module.findUnique({
+    where: { id: moduleId },
+  });
+
+  await Promise.all(
+    orderedResourceIds.map((resourceId, index) =>
+      prisma.resource.updateMany({
+        where: { id: resourceId, moduleId },
+        data: { order: index },
+      })
+    )
+  );
+}
