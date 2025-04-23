@@ -1,5 +1,4 @@
 // Simula una base de datos en memoria
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mockDB = {
   courses: [
     {

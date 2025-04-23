@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CourseNotFoundError } from '../models/errors';
 import { Module } from '../models/module';
 import { Enrollment } from '../models/enrollment';
+import { Resource } from '../models/resource';
 
 const prisma = new PrismaClient();
 
@@ -393,3 +394,18 @@ export const updateModule = async (courseId: string, moduleId: string, updateDat
   return updatedModule;
 }
 
+// ---------------------- RESOURCE --------------------------------------
+
+export const addResourceToModule = async (moduleId: string, resource: Resource): Promise<Resource> => {
+  const newResource = await prisma.resource.create({
+    data: {
+      id: uuidv4(),
+      description: resource.description,
+      type: resource.type,
+      url: resource.url,
+      moduleId: moduleId,
+    },
+  });
+
+  return {...newResource, id: newResource.id };
+}

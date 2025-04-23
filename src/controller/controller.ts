@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { Course } from '../models/course';
 import { Module } from '../models/module';
 import { Enrollment } from '../models/enrollment';
+import { Resource } from '../models/resource';
 
 export const getCourses = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -272,3 +273,19 @@ const handleInvalidRequestError = (res: Response, detail: string): void => {
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errorResponse);
   logger.error('Internal Server Error:', error);
 };*/
+
+// -------------------------- RESOURCES -------------------------------------
+
+export const addResourceToModule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { moduleId } = req.params;
+    const resourceData = req.body;
+    const newResource = new Resource(resourceData);
+    const resource = await courseService.addResourceToModule( moduleId, newResource);
+    res.status(StatusCodes.OK).json({ data: resource });
+    logger.debug(`Resource added to module with ID ${moduleId} successfully`);
+  } catch (error) {
+    logger.debug('Error adding resource:', error);
+    next(error);
+  }
+}

@@ -3,6 +3,7 @@ import * as database from '../database/database';
 import { AlreadyEnrolledError, CourseFullError, CourseNotFoundError, ModuleNotFoundError } from '../models/errors';
 import { Module } from '../models/module';
 import { Enrollment } from '../models/enrollment';
+import { Resource } from '../models/resource';
 
 export const getAllCourses = async (): Promise<Course[]> => {
   return await database.getCourses();
@@ -128,3 +129,12 @@ export const updateModule = async (courseId: string, moduleId: string, moduleDat
   return module;
 }
 
+// --------------------------- RESOURCE ---------------------------------------------
+
+export const addResourceToModule = async (moduleId: string, resource: Resource): Promise<Resource> => {
+  const newResource = await database.addResourceToModule(moduleId, resource);
+  if (!newResource) {
+    throw new ModuleNotFoundError(`Module with ID ${moduleId} not found`);
+  }
+  return newResource;
+}

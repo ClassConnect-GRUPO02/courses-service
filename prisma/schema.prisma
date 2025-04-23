@@ -119,20 +119,12 @@ enum AnswerFormat {
 model Resource {
   id          String   @id @default(uuid())
   description String
-  type        ResourceType
+  type        String
   url         String
-  module      Module   @relation(fields: [module_id], references: [id], onDelete: Cascade)
-  module_id   String
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  moduleId    String
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
   @@map("resources")
-}
-
-enum ResourceType {
-  video
-  documento
-  enlace
-  imagen
-  audio
 }

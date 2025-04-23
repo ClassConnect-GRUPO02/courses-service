@@ -1,9 +1,7 @@
 import { Server } from 'http';
 import app from './src/app';
-import { Module } from './src/models/module';
 import { v4 as uuidv4 } from 'uuid';
-import { Enrollment } from './src/models/enrollment';
-import { updateModulesOrder } from './src/database/database';
+
 
 import { mockDB } from './src/tests/mocks/mock.db';
 
