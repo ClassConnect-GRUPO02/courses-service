@@ -2,5 +2,6 @@ export const mockResourceRequestData = {
   description: "Aprendé los conceptos básicos de TypeScript",
   type: "video",
   url: "https://example.com/intro-typescript",
-  ModuleId: "asd-123",
+  order: 1,
+  ModuleId: "m1",
 };

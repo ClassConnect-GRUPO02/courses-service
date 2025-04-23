@@ -121,6 +121,7 @@ model Resource {
   description String
   type        String
   url         String
+  order       Int
   module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   moduleId    String
   created_at  DateTime @default(now())

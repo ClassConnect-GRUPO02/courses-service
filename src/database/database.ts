@@ -403,6 +403,7 @@ export const addResourceToModule = async (moduleId: string, resource: Resource):
       description: resource.description,
       type: resource.type,
       url: resource.url,
+      order: resource.order,
       moduleId: moduleId,
     },
   });
