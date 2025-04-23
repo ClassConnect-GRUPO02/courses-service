@@ -428,3 +428,41 @@ export const deleteResourceFromModule = async (moduleId: string, resourceId: str
   });
   return true;
 }
+
+// Get resources by module ID
+// returns an array of Resource objects or an empty array if none are found
+export const getResourcesByModuleId = async (moduleId: string): Promise<Resource[]> => {
+  const resources = await prisma.resource.findMany({
+    where: { moduleId },
+    orderBy: { order: 'asc' },
+  });
+
+  return resources.map((resource) => ({
+    ...resource,
+    id: resource.id,
+  }));
+}
+
+// Updates resource by ID inside module
+// Returns the updated Resource object or null if not found
+export const updateResource = async (moduleId: string, resourceId: string, updateData: Partial<Resource>): Promise<Resource | null> => {
+  const existingResource = await prisma.resource.findUnique({
+    where: { id: resourceId },
+  });
+
+  if (!existingResource) {
+    return null;
+  }
+
+  const updatedResource = await prisma.resource.update({
+    where: { id: resourceId },
+    data: {
+      description: updateData.description ?? existingResource.description,
+      type: updateData.type ?? existingResource.type,
+      url: updateData.url ?? existingResource.url,
+      order: updateData.order ?? existingResource.order,
+    },
+  });
+
+  return updatedResource;
+}

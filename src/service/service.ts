@@ -146,3 +146,17 @@ export const deleteResourceFromModule = async (moduleId: string, resourceId: str
     throw new ResourceNotFoundError(`Resource with ID ${resourceId} not found in module ${moduleId}`);
   }
 }
+
+// Get resources by module ID
+export const getResourcesByModuleId = async (moduleId: string): Promise<Resource[]> => {
+  return await database.getResourcesByModuleId(moduleId);
+}
+
+// Updates resource by ID inside module
+export const updateResource = async (moduleId: string, resourceId: string, resourceData: Partial<Resource>): Promise<Resource> => {
+  const resource = await database.updateResource(moduleId, resourceId, resourceData);
+  if (!resource) {
+    throw new ResourceNotFoundError(`Resource with ID ${resourceId} not found in module ${moduleId}`);
+  }
+  return resource;
+}

@@ -305,3 +305,29 @@ export const deleteResourceFromModule = async (req: Request, res: Response, next
     next(error);
   }
 }
+
+// Get resources from a module
+export const getResourcesByModuleId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { moduleId } = req.params;
+    const resources = await courseService.getResourcesByModuleId(moduleId);
+    res.status(StatusCodes.OK).json({ data: resources });
+    logger.debug(`Resources retrieved from module with ID ${moduleId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Updates a resource in a module
+export const updateResource = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { moduleId, resourceId } = req.params;
+    const resourceData: Partial<Resource> = req.body;
+    const updatedResource = await courseService.updateResource(moduleId, resourceId, resourceData);
+    res.status(StatusCodes.OK).json({ data: updatedResource });
+    logger.debug("Resource updated:", updatedResource);
+  } catch(error) {
+    logger.error("Error updating resource:", error);
+    next(error);
+  }
+}

@@ -157,7 +157,25 @@ jest.mock('./src/database/database', () => ({
     mockDB.resources.splice(resourceIndex, 1); 
     return Promise.resolve(true);
   }),
-  
+
+  // Get resources by module ID
+  getResourcesByModuleId: jest.fn().mockImplementation((moduleId: string) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve([]);
+    const resources = mockDB.resources.filter(res => res.moduleId === moduleId);
+    return Promise.resolve(resources);
+  }),
+
+  // Update resource by ID inside module
+  updateResource: jest.fn().mockImplementation((moduleId: string, resourceId: string, resourceData: any) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve(null);
+    const resourceIndex = mockDB.resources.findIndex(res => res.id === resourceId);
+    if (resourceIndex === -1) return Promise.resolve(null);
+    const updatedResource = { ...mockDB.resources[resourceIndex], ...resourceData };
+    mockDB.resources[resourceIndex] = updatedResource; 
+    return Promise.resolve(updatedResource);
+  }),
 
 }));
 

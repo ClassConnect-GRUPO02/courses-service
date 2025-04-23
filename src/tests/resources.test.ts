@@ -58,6 +58,35 @@ describe('Integration Tests for resources of Courses API', () => {
     });
   });
 
+  
+  describe('GET /modules/:moduleId/resources', () => {
+    it('should get all resources from the module', async () => {
+      const response = await request(app).get(
+        `/modules/m1/resources`
+      );
+      expect(response.status).toBe(StatusCodes.OK);
+      expect(response.body.data.length).toBe(2);
+    });
+  });
+  
+  describe('PATCH /modules/:moduleId/resources/:resourceId', () => {
+    it('should update a resource in the module', async () => {
+      const updatedData = {
+        description: "Updated description",
+        type: "video",
+        url: "https://example.com/updated-url",
+        order: 2, // En realidad no debería cambiarle el orden desde este endpoint
+      };
+      const response = await request(app)
+      .patch(`/modules/m1/resources/r1`)
+      .send(updatedData);
+      expect(response.status).toBe(StatusCodes.OK);
+      expect(response.body.data.description).toBe(updatedData.description);
+      expect(response.body.data.url).toBe(updatedData.url);
+      expect(response.body.data.type).toBe(updatedData.type);
+    });
+  });
+  
   describe('DELETE /modules/:moduleId/resources/:resourceId', () => {
     it('should delete a resource from the module', async () => {
       const response = await request(app).delete(
@@ -72,4 +101,5 @@ describe('Integration Tests for resources of Courses API', () => {
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });
   });
+
 });
