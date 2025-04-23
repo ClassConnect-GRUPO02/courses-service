@@ -139,7 +139,7 @@ jest.mock('./src/database/database', () => ({
 
   // Mocks for resources
 
-  addResourceToModule: jest.fn().mockImplementation((moduleId: string, resourceData: any) => {
+  addResourceToModule: jest.fn().mockImplementation((moduleId: string, resourceData) => {
     const module = mockDB.modules.find(mod => mod.id === moduleId);
     if (!module) return Promise.resolve(null);
     const id = uuidv4().toString();
@@ -169,7 +169,7 @@ jest.mock('./src/database/database', () => ({
   }),
 
   // Update resource by ID inside module
-  updateResource: jest.fn().mockImplementation((moduleId: string, resourceId: string, resourceData: any) => {
+  updateResource: jest.fn().mockImplementation((moduleId: string, resourceId: string, resourceData) => {
     const module = mockDB.modules.find(mod => mod.id === moduleId);
     if (!module) return Promise.resolve(null);
     const resourceIndex = mockDB.resources.findIndex(res => res.id === resourceId);

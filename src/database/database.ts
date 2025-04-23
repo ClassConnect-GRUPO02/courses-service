@@ -1,7 +1,7 @@
 import { InstructorType, PrismaClient } from '@prisma/client';
 import { Course } from '../models/course';
 import { v4 as uuidv4 } from 'uuid';
-import { CourseNotFoundError } from '../models/errors';
+import { CourseNotFoundError, ModuleNotFoundError } from '../models/errors';
 import { Module } from '../models/module';
 import { Enrollment } from '../models/enrollment';
 import { Resource } from '../models/resource';
@@ -472,6 +472,10 @@ export const updateResourcesOrder = async (moduleId: string, orderedResourceIds:
   const module = await prisma.module.findUnique({
     where: { id: moduleId },
   });
+
+  if (!module) {
+    throw new ModuleNotFoundError(`Module with ID ${moduleId} not found`);
+  }
 
   await Promise.all(
     orderedResourceIds.map((resourceId, index) =>

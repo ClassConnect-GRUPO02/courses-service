@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../app';
 import { StatusCodes } from 'http-status-codes';
 import { mockResourceRequestData } from './mocks/mock.resource';
-import logger from '../logger/logger';
+import { Resource } from '../models/resource';
 
 describe('Integration Tests for resources of Courses API', () => {
   
@@ -97,7 +97,7 @@ describe('Integration Tests for resources of Courses API', () => {
       expect(initialResources.status).toBe(StatusCodes.OK);
   
       // Confirmar que el orden inicial es distinto
-      const originalOrder = initialResources.body.data.map((r: any) => r.id);
+      const originalOrder = initialResources.body.data.map((r: Resource) => r.id);
       expect(originalOrder).toEqual(expect.arrayContaining(['r1', 'r2']));
   
       const newOrderIds = ['r2', 'r1'];
