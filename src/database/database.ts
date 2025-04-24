@@ -487,6 +487,7 @@ export const getTaskById = async (courseId: string, taskId: string): Promise<Tas
     updated_at: task.updated_at.toISOString(),
     deleted_at: task.deleted_at ? task.deleted_at.toISOString() : null,
   };
+}
 
 export const updateModulesOrder = async (courseId: string, orderedModuleIds: string[]): Promise<void> => {
   const course = await prisma.course.findUnique({

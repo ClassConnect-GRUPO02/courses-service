@@ -69,6 +69,7 @@ export class TaskCreationError extends Error {
   constructor(message: string) {
     super(message);
   }
+}
 
 export class ResourceCreationError extends Error {
   constructor(message: string) {
