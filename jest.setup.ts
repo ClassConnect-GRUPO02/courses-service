@@ -1,20 +1,11 @@
 import { Server } from 'http';
 import app from './src/app';
-import { Module } from './src/models/module';
 import { v4 as uuidv4 } from 'uuid';
-import { Enrollment } from './src/models/enrollment';
+
+
+import { mockDB } from './src/tests/mocks/mock.db';
 
 let server: Server;
-
-// Simula una base de datos en memoria
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mockDB: Record<string, any> = {};
-const mockInstructors: Instructor[] = [];
-const enrollments: Enrollment[] = [];
-
-
-let courseIdCounter = 1;
-let moduleIdCounter = 1;
 
 export interface Instructor {
   id: string;
@@ -23,62 +14,80 @@ export interface Instructor {
   type: string;
 }
 
-
 jest.mock('./src/database/database', () => ({
   getCourses: jest.fn().mockImplementation(() => {
-    return Promise.resolve(Object.values(mockDB));
+    return Promise.resolve(mockDB.courses); 
   }),
 
   getCourseById: jest.fn().mockImplementation((id: string) => {
-    return Promise.resolve(mockDB[id] || null);
+    return Promise.resolve(mockDB.courses.find(course => course.id === id) || null);
   }),
 
   addCourse: jest.fn().mockImplementation((courseData) => {
-    const id = (courseIdCounter++).toString();
+    const id = uuidv4().toString();
     const newCourse = { ...courseData, id, modules: [] };
-    mockDB[id] = newCourse;
+    mockDB.courses.push(newCourse); 
     return Promise.resolve(newCourse);
   }),
 
   updateCourse: jest.fn().mockImplementation((id: string, updatedData) => {
-    if (!mockDB[id]) return Promise.resolve(null);
-    const updatedCourse = { ...mockDB[id], ...updatedData };
-    mockDB[id] = updatedCourse;
+    const course = mockDB.courses.find(course => course.id === id);
+    if (!course) return Promise.resolve(null);
+    const updatedCourse = { ...course, ...updatedData };
+    const index = mockDB.courses.findIndex(course => course.id === id);
+    mockDB.courses[index] = updatedCourse; 
     return Promise.resolve(updatedCourse);
   }),
 
   deleteCourse: jest.fn().mockImplementation((id: string) => {
-    const deleted = mockDB[id];
-    if (!deleted) return Promise.resolve(null);
-    delete mockDB[id];
+    const courseIndex = mockDB.courses.findIndex(course => course.id === id);
+    if (courseIndex === -1) return Promise.resolve(null);
+    const deleted = mockDB.courses[courseIndex];
+    mockDB.courses.splice(courseIndex, 1);
     return Promise.resolve(deleted);
   }),
 
   addModuleToCourse: jest.fn().mockImplementation((courseId, moduleData) => {
-    if (!mockDB[courseId]) return Promise.resolve(null);
-    const id = (moduleIdCounter++).toString();
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(null);
+    const id = uuidv4().toString();
     const newModule = { ...moduleData, id };
-    mockDB[courseId].modules.push(newModule);
+    mockDB.modules.push(newModule); 
     return Promise.resolve(newModule);
   }),
 
   getModulesByCourseId: jest.fn().mockImplementation((courseId: string) => {
-    if (!mockDB[courseId]) return Promise.resolve([]);
-    return Promise.resolve(mockDB[courseId].modules || []);
+    const courseModules = mockDB.modules.filter(module => module.courseId === courseId);
+    const orderedModules = courseModules.sort((a, b) => a.order - b.order); 
+    return Promise.resolve(orderedModules);
   }),
 
   getModuleById: jest.fn().mockImplementation((courseId: string, moduleId: string) => {
-    if (!mockDB[courseId]) return Promise.resolve(null);
-    const module = mockDB[courseId].modules.find((mod: Module) => mod.id === moduleId);
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(null);
+    const module = mockDB.modules.find(mod => mod.id === moduleId); 
     return Promise.resolve(module || null);
   }),
 
   deleteModule: jest.fn().mockImplementation((courseId: string, moduleId: string) => {
-    if (!mockDB[courseId]) return Promise.resolve(false);
-    const moduleIndex = mockDB[courseId].modules.findIndex((mod: Module) => mod.id === moduleId);
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(false);
+    const moduleIndex = mockDB.modules.findIndex(mod => mod.id === moduleId);
     if (moduleIndex === -1) return Promise.resolve(false);
-    mockDB[courseId].modules.splice(moduleIndex, 1);
+    mockDB.modules.splice(moduleIndex, 1); 
     return Promise.resolve(true);
+  }),
+
+  updateModulesOrder: jest.fn().mockImplementation((courseId: string, newOrder: string[]) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve();
+    newOrder.forEach((moduleId, index) => {
+      const module = mockDB.modules.find(m => m.id === moduleId);
+      if (module) {
+        module.order = index; 
+      }
+    });
+    return Promise.resolve();
   }),
 
   addInstructorToCourse: jest.fn().mockImplementation((courseId: string, instructorId: string, type: string) => {
@@ -88,49 +97,103 @@ jest.mock('./src/database/database', () => ({
       userId: instructorId,
       type,
     };
-    mockInstructors.push(newInstructor);
+    mockDB.instructors.push(newInstructor); 
     return Promise.resolve(true);
   }),
 
   isInstructorInCourse: jest.fn().mockImplementation((courseId: string, instructorId: string) => {
-    const found = mockInstructors.find(
+    const found = mockDB.instructors.find(
       (inst) => inst.courseId === courseId && inst.userId === instructorId
     );
     return Promise.resolve(!!found);
   }),
 
   enrollStudent: jest.fn().mockImplementation((courseId: string, studentId: string) => {
-    const existing = enrollments.find(
+    const existing = mockDB.enrollments.find(
       (e) => e.courseId === courseId && e.userId === studentId
     );
 
     if (existing) return Promise.resolve(null);
 
-    const newEnrollment = new Enrollment({
+    const newEnrollment = {
+      id: uuidv4(),
       userId: studentId,
       courseId,
-    });
+      enrollmentDate: new Date().toISOString(),
+    };
 
-    newEnrollment.id = uuidv4();
-    newEnrollment.enrollmentDate = new Date().toISOString();
-
-    enrollments.push(newEnrollment);
+    mockDB.enrollments.push(newEnrollment); 
     return Promise.resolve(newEnrollment);
   }),
 
   isEnrolledInCourse: jest.fn().mockImplementation((courseId: string, userId: string) => {
-    const course = mockDB[courseId];
+    const course = mockDB.courses.find(course => course.id === courseId);
     if (!course) {
       throw new Error(`Course with ID ${courseId} not found`);
     }
-    const found = enrollments.find(
+    const found = mockDB.enrollments.find(
       (enrollment) => enrollment.courseId === courseId && enrollment.userId === userId
     );
     return Promise.resolve(!!found);
   }),
 
+  // Mocks for resources
+
+  addResourceToModule: jest.fn().mockImplementation((moduleId: string, resourceData) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve(null);
+    const id = uuidv4().toString();
+    const newResource = { ...resourceData, id };
+    mockDB.resources.push(newResource); 
+    return Promise.resolve(newResource);
+  }),
+
+  // Deletes resource from module
+  deleteResourceFromModule: jest.fn().mockImplementation((moduleId: string, resourceId: string) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve(false);
+    const resourceIndex = mockDB.resources.findIndex(res => res.id === resourceId);
+    if (resourceIndex === -1) return Promise.resolve(false);
+    mockDB.resources.splice(resourceIndex, 1); 
+    return Promise.resolve(true);
+  }),
+
+  // Get resources by module ID
+  getResourcesByModuleId: jest.fn().mockImplementation((moduleId: string) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve([]);
+    const resources = mockDB.resources
+      .filter(res => res.moduleId === moduleId)
+      .sort((a, b) => a.order - b.order); // orden por campo "order"
+    return Promise.resolve(resources);
+  }),
+
+  // Update resource by ID inside module
+  updateResource: jest.fn().mockImplementation((moduleId: string, resourceId: string, resourceData) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve(null);
+    const resourceIndex = mockDB.resources.findIndex(res => res.id === resourceId);
+    if (resourceIndex === -1) return Promise.resolve(null);
+    const updatedResource = { ...mockDB.resources[resourceIndex], ...resourceData };
+    mockDB.resources[resourceIndex] = updatedResource; 
+    return Promise.resolve(updatedResource);
+  }),
+
+  // Updates resources order in a module
+  updateResourcesOrder: jest.fn().mockImplementation((moduleId: string, orderedResourceIds: string[]) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve();
+    orderedResourceIds.forEach((resourceId, index) => {
+      const resource = mockDB.resources.find(res => res.id === resourceId);
+      if (resource) {
+        resource.order = index; 
+      }
+    });
+    return Promise.resolve();
+  }),
 
 }));
+
 
 beforeAll((done) => {
   server = app.listen(3001, () => {

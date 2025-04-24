@@ -37,6 +37,7 @@ model Module {
   order       Int
   course      Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId    String
+  resources   Resource[]
 }
 
 model Enrollment {
@@ -113,4 +114,18 @@ enum AnswerFormat {
   opcion_multiple
   archivo
   mixto
+}
+
+model Resource {
+  id          String   @id @default(uuid())
+  description String
+  type        String
+  url         String
+  order       Int
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  moduleId    String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("resources")
 }
