@@ -231,6 +231,8 @@ export const updateResourcesOrder = async (moduleId: string, orderedResourceIds:
     throw new Error("Unknown error updating resources order");
   }
 }
+
+// --------------------------- SUBMIT TASKS ---------------------------------------------
 export const submitTask = async (courseId: string, taskId: string, studentId: string, answers: any, fileUrl: string) => {
   const task = await database.getTaskById(courseId, taskId);
   if (!task || task.course_id !== courseId) {
