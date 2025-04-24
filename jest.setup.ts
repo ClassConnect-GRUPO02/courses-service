@@ -47,61 +47,6 @@ jest.mock('./src/database/database', () => ({
     return Promise.resolve(deleted);
   }),
 
-  // Mocks for resources
-
-  addResourceToModule: jest.fn().mockImplementation((moduleId: string, resourceData) => {
-    const module = mockDB.modules.find(mod => mod.id === moduleId);
-    if (!module) return Promise.resolve(null);
-    const id = uuidv4().toString();
-    const newResource = { ...resourceData, id };
-    mockDB.resources.push(newResource); 
-    return Promise.resolve(newResource);
-  }),
-
-  // Deletes resource from module
-  deleteResourceFromModule: jest.fn().mockImplementation((moduleId: string, resourceId: string) => {
-    const module = mockDB.modules.find(mod => mod.id === moduleId);
-    if (!module) return Promise.resolve(false);
-    const resourceIndex = mockDB.resources.findIndex(res => res.id === resourceId);
-    if (resourceIndex === -1) return Promise.resolve(false);
-    mockDB.resources.splice(resourceIndex, 1); 
-    return Promise.resolve(true);
-  }),
-
-  // Get resources by module ID
-  getResourcesByModuleId: jest.fn().mockImplementation((moduleId: string) => {
-    const module = mockDB.modules.find(mod => mod.id === moduleId);
-    if (!module) return Promise.resolve([]);
-    const resources = mockDB.resources
-      .filter(res => res.moduleId === moduleId)
-      .sort((a, b) => a.order - b.order); // orden por campo "order"
-    return Promise.resolve(resources);
-  }),
-
-  // Update resource by ID inside module
-  updateResource: jest.fn().mockImplementation((moduleId: string, resourceId: string, resourceData) => {
-    const module = mockDB.modules.find(mod => mod.id === moduleId);
-    if (!module) return Promise.resolve(null);
-    const resourceIndex = mockDB.resources.findIndex(res => res.id === resourceId);
-    if (resourceIndex === -1) return Promise.resolve(null);
-    const updatedResource = { ...mockDB.resources[resourceIndex], ...resourceData };
-    mockDB.resources[resourceIndex] = updatedResource; 
-    return Promise.resolve(updatedResource);
-  }),
-
-  // Updates resources order in a module
-  updateResourcesOrder: jest.fn().mockImplementation((moduleId: string, orderedResourceIds: string[]) => {
-    const module = mockDB.modules.find(mod => mod.id === moduleId);
-    if (!module) return Promise.resolve();
-    orderedResourceIds.forEach((resourceId, index) => {
-      const resource = mockDB.resources.find(res => res.id === resourceId);
-      if (resource) {
-        resource.order = index; 
-      }
-    });
-    return Promise.resolve();
-  }),
-
 }));
 
 jest.mock('./src/database/module_db', () => ({
@@ -198,6 +143,63 @@ jest.mock('./src/database/instructor_db', () => ({
       (inst) => inst.courseId === courseId && inst.userId === instructorId
     );
     return Promise.resolve(!!found);
+  }),
+}));
+
+jest.mock('./src/database/resource_db', () => ({
+  // Mocks for resources
+
+  addResourceToModule: jest.fn().mockImplementation((moduleId: string, resourceData) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve(null);
+    const id = uuidv4().toString();
+    const newResource = { ...resourceData, id };
+    mockDB.resources.push(newResource); 
+    return Promise.resolve(newResource);
+  }),
+
+  // Deletes resource from module
+  deleteResourceFromModule: jest.fn().mockImplementation((moduleId: string, resourceId: string) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve(false);
+    const resourceIndex = mockDB.resources.findIndex(res => res.id === resourceId);
+    if (resourceIndex === -1) return Promise.resolve(false);
+    mockDB.resources.splice(resourceIndex, 1); 
+    return Promise.resolve(true);
+  }),
+
+  // Get resources by module ID
+  getResourcesByModuleId: jest.fn().mockImplementation((moduleId: string) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve([]);
+    const resources = mockDB.resources
+      .filter(res => res.moduleId === moduleId)
+      .sort((a, b) => a.order - b.order); // orden por campo "order"
+    return Promise.resolve(resources);
+  }),
+
+  // Update resource by ID inside module
+  updateResource: jest.fn().mockImplementation((moduleId: string, resourceId: string, resourceData) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve(null);
+    const resourceIndex = mockDB.resources.findIndex(res => res.id === resourceId);
+    if (resourceIndex === -1) return Promise.resolve(null);
+    const updatedResource = { ...mockDB.resources[resourceIndex], ...resourceData };
+    mockDB.resources[resourceIndex] = updatedResource; 
+    return Promise.resolve(updatedResource);
+  }),
+
+  // Updates resources order in a module
+  updateResourcesOrder: jest.fn().mockImplementation((moduleId: string, orderedResourceIds: string[]) => {
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
+    if (!module) return Promise.resolve();
+    orderedResourceIds.forEach((resourceId, index) => {
+      const resource = mockDB.resources.find(res => res.id === resourceId);
+      if (resource) {
+        resource.order = index; 
+      }
+    });
+    return Promise.resolve();
   }),
 }));
 

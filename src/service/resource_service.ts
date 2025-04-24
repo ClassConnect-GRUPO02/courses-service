@@ -1,4 +1,4 @@
-import * as database from '../database/database';
+import * as database from '../database/resource_db';
 import { Resource } from "../models/resource";
 import { ModuleNotFoundError, ResourceNotFoundError } from "../models/errors";
 
