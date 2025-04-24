@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import * as courseService from '../service/service';
 import logger from '../logger/logger';
 import { StatusCodes } from 'http-status-codes';
 import { Enrollment } from '../models/enrollment';
 import { handleInvalidRequestError } from './course_controller';
+import * as enrollmentService from '../service/enrollment_service';
 
 
 // -------------------------- ENROLLMENT --------------------------
@@ -19,7 +19,7 @@ export const enrollStudentToCourse = async (req: Request, res: Response, next: N
     }
 
     const enrollment = new Enrollment({ courseId, userId });
-    const enrolledCourse = await courseService.enrollStudent(enrollment);
+    const enrolledCourse = await enrollmentService.enrollStudent(enrollment);
     res.status(StatusCodes.OK).json({ data: enrolledCourse });
     logger.info(`Student with ID ${userId} enrolled in course with ID ${courseId} successfully`);
   } catch (error) {
@@ -28,21 +28,11 @@ export const enrollStudentToCourse = async (req: Request, res: Response, next: N
   }
 };
 
-export const getCoursesByUserId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const courses = await courseService.getCoursesByUserId(id);
-    res.status(StatusCodes.OK).json({ data: courses });
-    logger.info(`Courses retrieved for user with ID ${id} successfully`);
-  } catch (error) {
-    next(error);
-  }
-};
 
 export const isEnrolledInCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id, userId } = req.params;
-    const isEnrolled = await courseService.isEnrolledInCourse(id, userId);
+    const isEnrolled = await enrollmentService.isEnrolledInCourse(id, userId);
     res.status(StatusCodes.OK).json({ isEnrolled: isEnrolled });
     logger.info(`Enrollment status checked for user with ID ${userId} in course with ID ${id}`);
   }

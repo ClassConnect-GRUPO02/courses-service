@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import * as courseService from '../service/service';
+import * as courseService from '../service/course_service';
 import logger from '../logger/logger';
 import { StatusCodes } from 'http-status-codes';
 import { Course } from '../models/course';
+import * as instructorService from '../service/instructor_service';
 
 export const getCourses = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -30,7 +31,7 @@ export const addCourse = async (req: Request, res: Response, next: NextFunction)
 
     const createdCourse = await courseService.createCourse(course);
     if (createdCourse) {
-      const instructor = await courseService.addInstructorToCourse(createdCourse.id, courseData.creatorId, "TITULAR");
+      const instructor = await instructorService.addInstructorToCourse(createdCourse.id, courseData.creatorId, "TITULAR");
       if (instructor) {
         logger.info('Instructor added');
       } else {
@@ -83,6 +84,17 @@ export const updateCourse = async (req: Request, res: Response, next: NextFuncti
 
     res.status(StatusCodes.OK).json({ data: updatedCourse });
     logger.info(`Course with ID ${id} updated successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCoursesByUserId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const courses = await courseService.getCoursesByUserId(id);
+    res.status(StatusCodes.OK).json({ data: courses });
+    logger.info(`Courses retrieved for user with ID ${id} successfully`);
   } catch (error) {
     next(error);
   }
