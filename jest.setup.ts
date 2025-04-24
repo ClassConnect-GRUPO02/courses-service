@@ -67,35 +67,6 @@ jest.mock('./src/database/database', () => ({
     return Promise.resolve(!!found);
   }),
 
-  enrollStudent: jest.fn().mockImplementation((courseId: string, studentId: string) => {
-    const existing = mockDB.enrollments.find(
-      (e) => e.courseId === courseId && e.userId === studentId
-    );
-
-    if (existing) return Promise.resolve(null);
-
-    const newEnrollment = {
-      id: uuidv4(),
-      userId: studentId,
-      courseId,
-      enrollmentDate: new Date().toISOString(),
-    };
-
-    mockDB.enrollments.push(newEnrollment); 
-    return Promise.resolve(newEnrollment);
-  }),
-
-  isEnrolledInCourse: jest.fn().mockImplementation((courseId: string, userId: string) => {
-    const course = mockDB.courses.find(course => course.id === courseId);
-    if (!course) {
-      throw new Error(`Course with ID ${courseId} not found`);
-    }
-    const found = mockDB.enrollments.find(
-      (enrollment) => enrollment.courseId === courseId && enrollment.userId === userId
-    );
-    return Promise.resolve(!!found);
-  }),
-
   // Mocks for resources
 
   addResourceToModule: jest.fn().mockImplementation((moduleId: string, resourceData) => {
@@ -196,6 +167,38 @@ jest.mock('./src/database/module_db', () => ({
     });
     return Promise.resolve();
   }),
+}));
+
+jest.mock('./src/database/enrollment_db', () => ({
+  enrollStudent: jest.fn().mockImplementation((courseId: string, studentId: string) => {
+    const existing = mockDB.enrollments.find(
+      (e) => e.courseId === courseId && e.userId === studentId
+    );
+
+    if (existing) return Promise.resolve(null);
+
+    const newEnrollment = {
+      id: uuidv4(),
+      userId: studentId,
+      courseId,
+      enrollmentDate: new Date().toISOString(),
+    };
+
+    mockDB.enrollments.push(newEnrollment); 
+    return Promise.resolve(newEnrollment);
+  }),
+
+  isEnrolledInCourse: jest.fn().mockImplementation((courseId: string, userId: string) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) {
+      throw new Error(`Course with ID ${courseId} not found`);
+    }
+    const found = mockDB.enrollments.find(
+      (enrollment) => enrollment.courseId === courseId && enrollment.userId === userId
+    );
+    return Promise.resolve(!!found);
+  }),
+
 }));
 
 

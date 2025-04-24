@@ -1,6 +1,7 @@
 import { Enrollment } from '../models/enrollment';
 import { CourseNotFoundError, CourseFullError, AlreadyEnrolledError } from '../models/errors';
 import * as database from '../database/database';
+import * as databaseEnrollment from '../database/enrollment_db';
 
 export const enrollStudent = async (enrollment: Enrollment ): Promise<Enrollment> => {
   const course = await database.getCourseById(enrollment.courseId);
@@ -12,7 +13,7 @@ export const enrollStudent = async (enrollment: Enrollment ): Promise<Enrollment
   if (course.enrolled >= course.capacity) {
     throw new CourseFullError(`Course with ID ${enrollment.courseId} is full`);
   } else {
-    const enroll = await database.enrollStudent(enrollment.courseId, enrollment.userId);
+    const enroll = await databaseEnrollment.enrollStudent(enrollment.courseId, enrollment.userId);
     if (!enroll) {
       throw new AlreadyEnrolledError(enrollment.courseId, enrollment.userId);
     }
@@ -27,5 +28,5 @@ export const isEnrolledInCourse = async (courseId: string, userId: string): Prom
   if (!course) {
     throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
   }
-  return await database.isEnrolledInCourse(courseId, userId);
+  return await databaseEnrollment.isEnrolledInCourse(courseId, userId);
 }
