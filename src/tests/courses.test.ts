@@ -1,25 +1,10 @@
 import request from 'supertest';
 import app from '../app';
 import { StatusCodes } from 'http-status-codes';
+import { mockCourseRequestData } from './mocks/mock.course';
 
-describe('E2E Tests for Courses API', () => {
+describe('Integration Tests for Courses API', () => {
   let createdCourseId: string;
-
-  const newCourse = {
-    name: "Curso de Prueba",
-    description: "Aprendé TypeScript desde cero",
-    shortDescription: "TS para principiantes",
-    startDate: "2025-05-01T00:00:00.000Z",
-    endDate: "2025-07-01T00:00:00.000Z",
-    capacity: 25,
-    enrolled: 0,
-    category: "Programación",
-    level: "Beginner",
-    modality: "Online",
-    prerequisites: ["JavaScript", "Lógica de programación"],
-    imageUrl: "https://example.com/imagen-del-curso.jpg",
-    creatorId: "12345"
-  };
 
   const updatedData = {
     name: "Curso de Prueba Actualizado",
@@ -32,17 +17,19 @@ describe('E2E Tests for Courses API', () => {
       const response = await request(app).get('/courses');
       expect(response.status).toBe(StatusCodes.OK);
       expect(Array.isArray(response.body.data)).toBe(true);
+      expect(response.body.data.length).toBe(2);
     });
   });
 
   describe('POST /courses', () => {
     it('should create a new course', async () => {
-      const response = await request(app).post('/courses').send(newCourse);
+      const response = await request(app).post('/courses').send(mockCourseRequestData);
       expect(response.status).toBe(StatusCodes.CREATED);
 
       const created = response.body.data;
-      expect(created.name).toBe(newCourse.name);
+      expect(created.name).toBe(mockCourseRequestData.name);
       createdCourseId = created.id;
+      expect(created.creatorId).toBe(mockCourseRequestData.creatorId);
     });
   });
 
@@ -92,4 +79,5 @@ describe('E2E Tests for Courses API', () => {
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });
   });
+
 });

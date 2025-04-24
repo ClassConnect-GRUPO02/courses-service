@@ -64,8 +64,24 @@ export class AlreadyEnrolledError extends AppError {
   }
 }
 
+
 export class TaskCreationError extends Error {
   constructor(message: string) {
     super(message);
+  }
+
+export class ResourceCreationError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class ResourceNotFoundError extends AppError {
+  constructor(resourceID: string) {
+    super(
+      'ResourceNotFoundError',
+      404,
+      `Resource with ID ${resourceID} not found`
+    );
   }
 }

@@ -1,9 +1,10 @@
 import { Course } from '../models/course';
 import * as database from '../database/database';
-import { AlreadyEnrolledError, CourseFullError, CourseNotFoundError, ModuleNotFoundError } from '../models/errors';
+import { AlreadyEnrolledError, CourseFullError, CourseNotFoundError, ModuleNotFoundError, ResourceNotFoundError } from '../models/errors';
 import { Module } from '../models/module';
 import { Enrollment } from '../models/enrollment';
 import { Task } from '../models/task';
+import { Resource } from '../models/resource';
 
 export const getAllCourses = async (): Promise<Course[]> => {
   return await database.getCourses();
@@ -166,4 +167,67 @@ export const getTaskById = async (courseId: string, taskId: string): Promise<Tas
   }
 
   return task;
+}
+
+export const updateModulesOrder = async (courseId: string, orderedModuleIds: string[]): Promise<void> => {
+    try {
+      await database.updateModulesOrder(courseId, orderedModuleIds);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Error updating modules order: ${error.message}`);
+      }
+      throw new Error("Unknown error updating modules order");
+    }
+  }
+
+export const updateModule = async (courseId: string, moduleId: string, moduleData: Partial<Module>): Promise<Module> => {
+  const module = await database.updateModule(courseId, moduleId, moduleData);
+  if (!module) {
+    throw new ModuleNotFoundError(`Module with ID ${moduleId} not found in course ${courseId}`);
+  }
+  return module;
+}
+
+// --------------------------- RESOURCE ---------------------------------------------
+
+export const addResourceToModule = async (moduleId: string, resource: Resource): Promise<Resource> => {
+  const newResource = await database.addResourceToModule(moduleId, resource);
+  if (!newResource) {
+    throw new ModuleNotFoundError(`Module with ID ${moduleId} not found`);
+  }
+  return newResource;
+}
+
+// Deletes resource from module
+export const deleteResourceFromModule = async (moduleId: string, resourceId: string): Promise<void> => {
+  const isDeleted = await database.deleteResourceFromModule(moduleId, resourceId);
+  if (!isDeleted) {
+    throw new ResourceNotFoundError(`Resource with ID ${resourceId} not found in module ${moduleId}`);
+  }
+}
+
+// Get resources by module ID
+export const getResourcesByModuleId = async (moduleId: string): Promise<Resource[]> => {
+  return await database.getResourcesByModuleId(moduleId);
+}
+
+// Updates resource by ID inside module
+export const updateResource = async (moduleId: string, resourceId: string, resourceData: Partial<Resource>): Promise<Resource> => {
+  const resource = await database.updateResource(moduleId, resourceId, resourceData);
+  if (!resource) {
+    throw new ResourceNotFoundError(`Resource with ID ${resourceId} not found in module ${moduleId}`);
+  }
+  return resource;
+}
+
+// Updates resources order in a module
+export const updateResourcesOrder = async (moduleId: string, orderedResourceIds: string[]): Promise<void> => {
+  try {
+    await database.updateResourcesOrder(moduleId, orderedResourceIds);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(`Error updating resources order: ${error.message}`);
+    }
+    throw new Error("Unknown error updating resources order");
+  }
 }

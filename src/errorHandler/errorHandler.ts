@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { CourseCreationError, CourseFullError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError, AlreadyEnrolledError } from '../models/errors';
+import { CourseCreationError, CourseFullError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError, AlreadyEnrolledError, ResourceCreationError, ResourceNotFoundError } from '../models/errors';
 import { NextFunction } from 'express';
+import logger from '../logger/logger';
  
 export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction): void => {
-  if (err instanceof CourseCreationError || err instanceof ModuleCreationError || err instanceof CourseFullError || err instanceof AlreadyEnrolledError) {
+  if (err instanceof CourseCreationError || err instanceof ModuleCreationError || err instanceof CourseFullError || err instanceof AlreadyEnrolledError || err instanceof ResourceCreationError) {
     res.status(StatusCodes.BAD_REQUEST).json({
       type: 'https://example.com/bad-request',
       title: 'Invalid Request',
@@ -12,6 +13,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       detail: err.message,
       instance: req.originalUrl,
     });
+    logger.error(err.message);
   } else if (err instanceof CourseNotFoundError) {
     res.status(err.status).json({
       type: err.type,
@@ -20,6 +22,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       detail: err.detail,
       instance: req.originalUrl,
     });
+    logger.error(err.message);
   } else if (err instanceof ModuleNotFoundError) {
     res.status(err.status).json({
       type: err.type,
@@ -28,6 +31,16 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       detail: err.detail,
       instance: req.originalUrl,
     });
+    logger.error(err.message);
+  } else if (err instanceof ResourceNotFoundError) {
+    res.status(err.status).json({
+      type: err.type,
+      title: 'Resource Not Found',
+      status: StatusCodes.NOT_FOUND,
+      detail: err.detail,
+      instance: req.originalUrl,
+    });
+    logger.error(err.message);
   } else {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       type: 'https://example.com/internal-server-error',
@@ -36,6 +49,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       detail: 'An unexpected error occurred.',
       instance: req.originalUrl,
     });
+    logger.error('An unexpected error occurred:', err);
   }
   next();
 };

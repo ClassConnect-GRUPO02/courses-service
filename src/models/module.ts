@@ -9,17 +9,25 @@ export class Module {
   courseId: string
 
   constructor(data: Partial<Module>) {
-    if (!data.name) throw new ModuleCreationError('The "name" field is required.'); // If name is "" also is invalid
-    if (!data.description) throw new ModuleCreationError('The "description" field is required.');
-    if (!data.url) throw new ModuleCreationError('The "url" field is required.');
-    if (data.order === undefined) throw new ModuleCreationError('The "order" field is required.');
-    if (!data.courseId) throw new ModuleCreationError('The "courseId" field is required.');
-
     this.id = ''; // Id is not needed because it will be asigned after
-    this.name = data.name;
-    this.description = data.description;
-    this.url = data.url;
-    this.order = data.order;
-    this.courseId = data.courseId;
+    this.name = requireField(data.name, 'name');
+    this.description = requireField(data.description, 'description');
+    this.url = requireField(data.url, 'url');
+    this.order = requireNumber(data.order, 'order');
+    this.courseId = requireField(data.courseId, 'courseId');
   }
+}
+
+function requireField<T>(value: T | undefined | null, fieldName: string): T {
+  if (value === undefined || value === null || value === '') {
+    throw new ModuleCreationError(`The "${fieldName}" field is required.`);
+  }
+  return value;
+}
+
+function requireNumber(value: unknown, fieldName: string): number {
+  if (typeof value !== 'number') {
+    throw new ModuleCreationError(`The "${fieldName}" field must be a number.`);
+  }
+  return value;
 }

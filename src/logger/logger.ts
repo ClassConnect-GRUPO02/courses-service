@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { createLogger, format, transports } from 'winston';
 import dotenv from 'dotenv';
 
@@ -13,7 +14,7 @@ const logger = createLogger({
     ),
     transports: [
         new transports.Console(),
-        new transports.File({ filename: 'app.log' })
+        //new transports.File({ filename: 'app.log' })
     ]
 });
 
