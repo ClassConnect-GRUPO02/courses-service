@@ -1,5 +1,5 @@
 import { Course } from '../models/course';
-import * as database from '../database/database';
+import * as database from '../database/course_db';
 import { CourseNotFoundError } from '../models/errors';
 
 export const getAllCourses = async (): Promise<Course[]> => {

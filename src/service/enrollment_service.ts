@@ -1,6 +1,6 @@
 import { Enrollment } from '../models/enrollment';
 import { CourseNotFoundError, CourseFullError, AlreadyEnrolledError } from '../models/errors';
-import * as database from '../database/database';
+import * as database from '../database/course_db';
 import * as databaseEnrollment from '../database/enrollment_db';
 
 export const enrollStudent = async (enrollment: Enrollment ): Promise<Enrollment> => {

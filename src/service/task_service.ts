@@ -1,6 +1,6 @@
 import { Task } from '../models/task';
 import { CourseNotFoundError } from '../models/errors';
-import * as database from '../database/database';
+import * as database from '../database/course_db';
 import * as databaseTask from '../database/task_db';
 
 export const addTaskToCourse = async (courseId: string, task: Task): Promise<Task> => {

@@ -14,7 +14,7 @@ export interface Instructor {
   type: string;
 }
 
-jest.mock('./src/database/database', () => ({
+jest.mock('./src/database/course_db', () => ({
   getCourses: jest.fn().mockImplementation(() => {
     return Promise.resolve(mockDB.courses); 
   }),

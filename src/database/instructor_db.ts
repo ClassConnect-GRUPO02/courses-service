@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { prisma } from './database';
+import { prisma } from './course_db';
 import { InstructorType } from '@prisma/client'
 
 export const addInstructorToCourse = async (courseId: string, instructorId: string, type: string): Promise<boolean> => {

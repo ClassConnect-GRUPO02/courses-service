@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { prisma } from './database';
+import { prisma } from './course_db';
 import { Resource } from '../models/resource';
 import { ModuleNotFoundError } from '../models/errors';
 

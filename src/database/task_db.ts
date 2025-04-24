@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { prisma } from './database';
+import { prisma } from './course_db';
 import { Task } from '../models/task';
 
 export const addTaskToCourse = async (courseId: string, task: Task): Promise<Task> => {

@@ -1,5 +1,5 @@
 import { CourseNotFoundError } from '../models/errors';
-import * as database from '../database/database';
+import * as database from '../database/course_db';
 import * as databaseInstructor from '../database/instructor_db';
 
 export const addInstructorToCourse = async (courseId: string, instructorId: string, type: string): Promise<boolean> => {
