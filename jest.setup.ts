@@ -47,26 +47,6 @@ jest.mock('./src/database/database', () => ({
     return Promise.resolve(deleted);
   }),
 
-  
-
-  addInstructorToCourse: jest.fn().mockImplementation((courseId: string, instructorId: string, type: string) => {
-    const newInstructor = {
-      id: uuidv4(),
-      courseId,
-      userId: instructorId,
-      type,
-    };
-    mockDB.instructors.push(newInstructor); 
-    return Promise.resolve(true);
-  }),
-
-  isInstructorInCourse: jest.fn().mockImplementation((courseId: string, instructorId: string) => {
-    const found = mockDB.instructors.find(
-      (inst) => inst.courseId === courseId && inst.userId === instructorId
-    );
-    return Promise.resolve(!!found);
-  }),
-
   // Mocks for resources
 
   addResourceToModule: jest.fn().mockImplementation((moduleId: string, resourceData) => {
@@ -199,6 +179,26 @@ jest.mock('./src/database/enrollment_db', () => ({
     return Promise.resolve(!!found);
   }),
 
+}));
+
+jest.mock('./src/database/instructor_db', () => ({
+  addInstructorToCourse: jest.fn().mockImplementation((courseId: string, instructorId: string, type: string) => {
+    const newInstructor = {
+      id: uuidv4(),
+      courseId,
+      userId: instructorId,
+      type,
+    };
+    mockDB.instructors.push(newInstructor); 
+    return Promise.resolve(true);
+  }),
+
+  isInstructorInCourse: jest.fn().mockImplementation((courseId: string, instructorId: string) => {
+    const found = mockDB.instructors.find(
+      (inst) => inst.courseId === courseId && inst.userId === instructorId
+    );
+    return Promise.resolve(!!found);
+  }),
 }));
 
 

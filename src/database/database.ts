@@ -168,44 +168,7 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
 };
 
 
-// Enrolls a student in a course by its ID in table course_student
-// Throws an error if the course is not found or if the student is already enrolled
-export const enrollStudent = async (courseId: string, studentId: string): Promise<Enrollment | null> => {
-  
-  const existingEnrollment = await prisma.enrollment.findFirst({
-    where: {
-      courseId,
-      userId: studentId,
-    },
-  });
 
-  if (existingEnrollment) {
-    return null; // Student is already enrolled
-  }
-  
-  await prisma.enrollment.create({
-    data: {
-      id: uuidv4(),
-      courseId,
-      userId: studentId,
-      enrollmentDate: new Date().toISOString(),
-    },
-  });
-
-  const result = await prisma.enrollment.findFirst({
-    where: {
-      courseId,
-      userId: studentId,
-    },
-  });
-  
-  if (!result) return null;
-  
-  return {
-    ...result,
-    enrollmentDate: result.enrollmentDate.toISOString(), // 👈 conversión a string
-  };
-}
 
 // Retrieves all courses for a specific user ID
 // Returns an array of Course objects
@@ -240,53 +203,9 @@ export const getCoursesByUserId = async (userId: string): Promise<Course[]> => {
   }));
 }
 
-// Checks if a user is enrolled in a specific course
-// Returns true if enrolled, false otherwise
-// Throws an error if the course is not found
-// or if the user is not found
-export const isEnrolledInCourse = async (courseId: string, userId: string): Promise<boolean> => {
-  const course = await prisma.course.findUnique({
-    where: { id: courseId },
-  });
 
-  if (!course) {
-    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
-  }
 
-  const enrollment = await prisma.enrollment.findFirst({
-    where: {
-      courseId,
-      userId,
-    },
-  });
 
-  return !!enrollment;
-};
-
-export const addInstructorToCourse = async (courseId: string, instructorId: string, type: string): Promise<boolean> => {
-  const newInstructor = await prisma.courseInstructor.create({
-    data: {
-      id: uuidv4(),
-      courseId,
-      userId: instructorId,
-      type: type as InstructorType,
-    },
-  });
-
-  return !!newInstructor;
-}
-
-export const isInstructorInCourse = async (courseId: string, instructorId: string): Promise<boolean> => {
-
-  const instructor = await prisma.courseInstructor.findFirst({
-    where: {
-      courseId,
-      userId: instructorId,
-    },
-  });
-
-  return !!instructor;
-}
 
 
 export const addTaskToCourse = async (courseId: string, task: Task): Promise<Task> => {
