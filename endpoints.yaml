@@ -214,22 +214,13 @@ paths:
             schema:
               type: object
               properties:
-                order:
+                orderedModuleIds:
                   type: array
                   items:
                     type: string
       responses:
         '200':
           description: Order updated successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Module'
         '400':
           description: Bad request error
           content:
@@ -491,6 +482,173 @@ paths:
           description: Course not found
         '500':
           description: Server error
+    
+  /modules/{moduleId}/resources:
+    post:
+      summary: Create a new resource for a module
+      parameters:
+        - in: path
+          name: moduleId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateResourceRequest'
+      responses:
+        '201':
+          description: Resource created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Resource'
+        '400':
+          description: Bad request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      summary: Retrieve all resources for a module
+      parameters:
+        - in: path
+          name: moduleId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of resources for the module
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Resource'
+  
+  /modules/{moduleId}/resources/{resourceId}:
+    delete:
+      summary: Delete a resource by ID
+      parameters:
+        - in: path
+          name: moduleId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: resourceId
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Resource deleted successfully
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+    patch:
+      summary: Update a resource by ID
+      parameters:
+        - in: path
+          name: moduleId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: resourceId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Resource'
+      responses:
+        '200':
+          description: Resource updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Resource'
+        '400':
+          description: Bad request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /modules/{moduleId}/resources/order:
+    patch:
+      summary: Update the order of resources for a module
+      parameters:
+        - in: path
+          name: moduleId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderedResourceIds:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Order updated successfully
+        '400':
+          description: Bad request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   
 
 
@@ -637,6 +795,36 @@ components:
         order:
           type: number
         courseId:
+          type: string
+          
+    CreateResourceRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        type:
+          type: string
+        url:
+          type: string
+        order:
+          type: number
+        moduleId:
+          type: string
+
+    Resource:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        url:
+          type: string
+        order:
+          type: number
+        moduleId:
           type: string
 
     Module:
