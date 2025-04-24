@@ -22,11 +22,19 @@ router.get('/courses/:id/enrollments/:userId', courseController.isEnrolledInCour
 
 router.get('/courses/:id/instructors/:instructorId', courseController.isInstructorInCourse); // Check if user is instructor in course
 
+// ----------------------------- TASKS AND EXAMS -----------------------------
+router.post('/courses/:id/tasks', courseController.addTaskToCourse); // Add task to course
+router.patch('/courses/:id/tasks/:taskId', courseController.updateTask); // Update task by ID inside course
+router.delete('/courses/:id/tasks/:taskId', courseController.deleteTask); // Delete task from course
+router.get('/courses/:id/tasks', courseController.getTasks); // Get all tasks from course
+router.get('/courses/:id/tasks/:taskId', courseController.getTask); // Get task by ID inside course
+
 router.post('/modules/:moduleId/resources', courseController.addResourceToModule); // Add resource to module
 router.delete('/modules/:moduleId/resources/:resourceId', courseController.deleteResourceFromModule); // Delete resource from module
 router.get('/modules/:moduleId/resources', courseController.getResourcesByModuleId); // Get all resources from module
 //router.get('/modules/:moduleId/resources/:resourceId', courseController.getResourceById); // Get resource by ID inside module
 router.patch('/modules/:moduleId/resources/order', courseController.updateResourcesOrder); // Change resources order
 router.patch('/modules/:moduleId/resources/:resourceId', courseController.updateResource); // Update specific resource by ID inside module
+
 
 export default router;

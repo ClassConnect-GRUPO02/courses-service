@@ -42,7 +42,7 @@ export class Course {
   }
 }
 
-function validateDateString(value: string, fieldName: string): string {
+export function validateDateString(value: string, fieldName: string): string {
   const date = new Date(value);
   if (isNaN(date.getTime())) {
     throw new CourseCreationError(`Invalid date format for "${fieldName}".`);
