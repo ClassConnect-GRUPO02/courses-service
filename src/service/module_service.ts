@@ -1,6 +1,6 @@
 import { Module } from '../models/module';
 import { CourseNotFoundError, ModuleNotFoundError } from '../models/errors';
-import * as database from '../database/database';
+import * as database from '../database/module_db';
 
 export const addModuleToCourse = async (courseId: string, module: Module): Promise<Module> => {
   const newModule = await database.addModuleToCourse(courseId, module);

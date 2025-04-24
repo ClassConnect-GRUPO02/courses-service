@@ -47,48 +47,7 @@ jest.mock('./src/database/database', () => ({
     return Promise.resolve(deleted);
   }),
 
-  addModuleToCourse: jest.fn().mockImplementation((courseId, moduleData) => {
-    const course = mockDB.courses.find(course => course.id === courseId);
-    if (!course) return Promise.resolve(null);
-    const id = uuidv4().toString();
-    const newModule = { ...moduleData, id };
-    mockDB.modules.push(newModule); 
-    return Promise.resolve(newModule);
-  }),
-
-  getModulesByCourseId: jest.fn().mockImplementation((courseId: string) => {
-    const courseModules = mockDB.modules.filter(module => module.courseId === courseId);
-    const orderedModules = courseModules.sort((a, b) => a.order - b.order); 
-    return Promise.resolve(orderedModules);
-  }),
-
-  getModuleById: jest.fn().mockImplementation((courseId: string, moduleId: string) => {
-    const course = mockDB.courses.find(course => course.id === courseId);
-    if (!course) return Promise.resolve(null);
-    const module = mockDB.modules.find(mod => mod.id === moduleId); 
-    return Promise.resolve(module || null);
-  }),
-
-  deleteModule: jest.fn().mockImplementation((courseId: string, moduleId: string) => {
-    const course = mockDB.courses.find(course => course.id === courseId);
-    if (!course) return Promise.resolve(false);
-    const moduleIndex = mockDB.modules.findIndex(mod => mod.id === moduleId);
-    if (moduleIndex === -1) return Promise.resolve(false);
-    mockDB.modules.splice(moduleIndex, 1); 
-    return Promise.resolve(true);
-  }),
-
-  updateModulesOrder: jest.fn().mockImplementation((courseId: string, newOrder: string[]) => {
-    const course = mockDB.courses.find(course => course.id === courseId);
-    if (!course) return Promise.resolve();
-    newOrder.forEach((moduleId, index) => {
-      const module = mockDB.modules.find(m => m.id === moduleId);
-      if (module) {
-        module.order = index; 
-      }
-    });
-    return Promise.resolve();
-  }),
+  
 
   addInstructorToCourse: jest.fn().mockImplementation((courseId: string, instructorId: string, type: string) => {
     const newInstructor = {
@@ -192,6 +151,51 @@ jest.mock('./src/database/database', () => ({
     return Promise.resolve();
   }),
 
+}));
+
+jest.mock('./src/database/module_db', () => ({
+  addModuleToCourse: jest.fn().mockImplementation((courseId, moduleData) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(null);
+    const id = uuidv4().toString();
+    const newModule = { ...moduleData, id };
+    mockDB.modules.push(newModule); 
+    return Promise.resolve(newModule);
+  }),
+
+  getModulesByCourseId: jest.fn().mockImplementation((courseId: string) => {
+    const courseModules = mockDB.modules.filter(module => module.courseId === courseId);
+    const orderedModules = courseModules.sort((a, b) => a.order - b.order); 
+    return Promise.resolve(orderedModules);
+  }),
+
+  getModuleById: jest.fn().mockImplementation((courseId: string, moduleId: string) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(null);
+    const module = mockDB.modules.find(mod => mod.id === moduleId); 
+    return Promise.resolve(module || null);
+  }),
+
+  deleteModule: jest.fn().mockImplementation((courseId: string, moduleId: string) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(false);
+    const moduleIndex = mockDB.modules.findIndex(mod => mod.id === moduleId);
+    if (moduleIndex === -1) return Promise.resolve(false);
+    mockDB.modules.splice(moduleIndex, 1); 
+    return Promise.resolve(true);
+  }),
+
+  updateModulesOrder: jest.fn().mockImplementation((courseId: string, newOrder: string[]) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve();
+    newOrder.forEach((moduleId, index) => {
+      const module = mockDB.modules.find(m => m.id === moduleId);
+      if (module) {
+        module.order = index; 
+      }
+    });
+    return Promise.resolve();
+  }),
 }));
 
 
