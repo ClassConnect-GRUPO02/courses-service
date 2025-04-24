@@ -361,7 +361,7 @@ export const isInstructorInCourse = async (courseId: string, instructorId: strin
   return !!instructor;
 }
 
-export const addTaskToCourse = async (courseId: string, task: any): Promise<Task> => {
+export const addTaskToCourse = async (courseId: string, task: Task): Promise<Task> => {
 
   const newTask = await prisma.task.create({
     data: {
