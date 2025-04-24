@@ -622,3 +622,6 @@ export const updateResourcesOrder = async (moduleId: string, orderedResourceIds:
     )
   );
 }
+export const createTaskSubmission = async (data: any) => {
+  return await prisma.taskSubmission.create({ data });
+};

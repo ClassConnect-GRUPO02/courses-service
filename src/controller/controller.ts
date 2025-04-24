@@ -302,6 +302,21 @@ export const getTask = async (req: Request, res: Response, next: NextFunction): 
   }
 }
 
+// -------------------------- COMPLETE TASKS (STUDENTS) --------------------------
+export const submitTask = async (req: Request, res: Response, next: NextFunction) => {
+  const { id, taskId } = req.params;
+  const { studentId, answers, fileUrl } = req.body;
+  
+  try {
+    const result = await courseService.submitTask(id, taskId, studentId, answers, fileUrl);
+    res.status(StatusCodes.OK).json({ data: result });
+    logger.info(`Task with ID ${taskId} completed by student with ID ${studentId} in course with ID ${id} successfully`);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
 // -------------------------- ERROR HANDLING --------------------------
 
 /*const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {

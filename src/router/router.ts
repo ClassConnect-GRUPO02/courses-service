@@ -36,5 +36,7 @@ router.get('/modules/:moduleId/resources', courseController.getResourcesByModule
 router.patch('/modules/:moduleId/resources/order', courseController.updateResourcesOrder); // Change resources order
 router.patch('/modules/:moduleId/resources/:resourceId', courseController.updateResource); // Update specific resource by ID inside module
 
+// ----------------------------- COMPLETE TASKS (STUDENTS) -----------------------------
+router.post('/courses/:id/tasks/:taskId/submissions', courseController.submitTask); // Complete task by ID inside course
 
 export default router;

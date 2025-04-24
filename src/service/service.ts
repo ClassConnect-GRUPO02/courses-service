@@ -231,3 +231,27 @@ export const updateResourcesOrder = async (moduleId: string, orderedResourceIds:
     throw new Error("Unknown error updating resources order");
   }
 }
+export const submitTask = async (courseId: string, taskId: string, studentId: string, answers: any, fileUrl: string) => {
+  const task = await database.getTaskById(courseId, taskId);
+  if (!task || task.course_id !== courseId) {
+    throw { status: 404, message: 'Tarea no encontrada en este curso' };
+  }
+
+  const now = new Date();
+  const isLate = task.due_date && now > new Date(task.due_date);
+
+  const submission = await database.createTaskSubmission({
+    task_id: taskId,
+    student_id: studentId,
+    answers,
+    fileUrl,
+    submitted_at: now,
+    status: isLate ? 'late' : 'submitted',
+  });
+
+  return {
+    message: 'Entrega registrada exitosamente',
+    submittedAt: submission.submitted_at,
+    status: submission.status,
+  };
+}
