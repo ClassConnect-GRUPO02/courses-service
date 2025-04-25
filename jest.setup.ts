@@ -203,6 +203,17 @@ jest.mock('./src/database/resource_db', () => ({
   }),
 }));
 
+jest.mock('./src/database/task_db', () => ({
+  addTaskToCourse: jest.fn().mockImplementation((courseId: string, taskData) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(null);
+    const id = uuidv4().toString();
+    const newTask = { ...taskData, id };
+    mockDB.tasks.push(newTask);
+    return Promise.resolve(newTask);
+  }),
+}));
+
 
 beforeAll((done) => {
   server = app.listen(3001, () => {

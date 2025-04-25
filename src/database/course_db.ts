@@ -117,11 +117,11 @@ export const deleteCourse = async (id: string): Promise<Course> => {
   };
 };
 
-export const updateCourse = async (id: string, updateData: Partial<Course>): Promise<Course> => {
+export const updateCourse = async (id: string, updateData: Partial<Course>): Promise<Course | null> => {
   const existingCourse = await prisma.course.findUnique({ where: { id } });
 
   if (!existingCourse) {
-    throw new CourseNotFoundError(`Course with ID ${id} not found`);
+    return null;
   }
 
   const updated = await prisma.course.update({

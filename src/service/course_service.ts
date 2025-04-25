@@ -18,16 +18,12 @@ export const removeCourse = async (id: string): Promise<Course> => {
   return await database.deleteCourse(id);
 };
 
-export const updateCourse = (id: string, updateData: Partial<Course>): Promise<Course> => {
-  const existingCourse = database.getCourseById(id);
-
-  if (!existingCourse) {
+export const updateCourse = async (id: string, updateData: Partial<Course>): Promise<Course> => {
+  const course = await database.updateCourse(id, updateData);
+  if (!course) {
     throw new CourseNotFoundError(`Course with ID ${id} not found`);
   }
-
-  const updatedCourse = { ...existingCourse, ...updateData, id }; // mantener el mismo ID
-
-  return database.updateCourse(id, updatedCourse);
+  return course;
 };
 
 export const getCoursesByUserId = async (userId: string): Promise<Course[]> => {
