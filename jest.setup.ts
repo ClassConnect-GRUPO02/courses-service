@@ -14,7 +14,7 @@ export interface Instructor {
   type: string;
 }
 
-jest.mock('./src/database/database', () => ({
+jest.mock('./src/database/course_db', () => ({
   getCourses: jest.fn().mockImplementation(() => {
     return Promise.resolve(mockDB.courses); 
   }),
@@ -47,6 +47,9 @@ jest.mock('./src/database/database', () => ({
     return Promise.resolve(deleted);
   }),
 
+}));
+
+jest.mock('./src/database/module_db', () => ({
   addModuleToCourse: jest.fn().mockImplementation((courseId, moduleData) => {
     const course = mockDB.courses.find(course => course.id === courseId);
     if (!course) return Promise.resolve(null);
@@ -89,25 +92,9 @@ jest.mock('./src/database/database', () => ({
     });
     return Promise.resolve();
   }),
+}));
 
-  addInstructorToCourse: jest.fn().mockImplementation((courseId: string, instructorId: string, type: string) => {
-    const newInstructor = {
-      id: uuidv4(),
-      courseId,
-      userId: instructorId,
-      type,
-    };
-    mockDB.instructors.push(newInstructor); 
-    return Promise.resolve(true);
-  }),
-
-  isInstructorInCourse: jest.fn().mockImplementation((courseId: string, instructorId: string) => {
-    const found = mockDB.instructors.find(
-      (inst) => inst.courseId === courseId && inst.userId === instructorId
-    );
-    return Promise.resolve(!!found);
-  }),
-
+jest.mock('./src/database/enrollment_db', () => ({
   enrollStudent: jest.fn().mockImplementation((courseId: string, studentId: string) => {
     const existing = mockDB.enrollments.find(
       (e) => e.courseId === courseId && e.userId === studentId
@@ -137,6 +124,29 @@ jest.mock('./src/database/database', () => ({
     return Promise.resolve(!!found);
   }),
 
+}));
+
+jest.mock('./src/database/instructor_db', () => ({
+  addInstructorToCourse: jest.fn().mockImplementation((courseId: string, instructorId: string, type: string) => {
+    const newInstructor = {
+      id: uuidv4(),
+      courseId,
+      userId: instructorId,
+      type,
+    };
+    mockDB.instructors.push(newInstructor); 
+    return Promise.resolve(true);
+  }),
+
+  isInstructorInCourse: jest.fn().mockImplementation((courseId: string, instructorId: string) => {
+    const found = mockDB.instructors.find(
+      (inst) => inst.courseId === courseId && inst.userId === instructorId
+    );
+    return Promise.resolve(!!found);
+  }),
+}));
+
+jest.mock('./src/database/resource_db', () => ({
   // Mocks for resources
 
   addResourceToModule: jest.fn().mockImplementation((moduleId: string, resourceData) => {
@@ -191,7 +201,17 @@ jest.mock('./src/database/database', () => ({
     });
     return Promise.resolve();
   }),
+}));
 
+jest.mock('./src/database/task_db', () => ({
+  addTaskToCourse: jest.fn().mockImplementation((courseId: string, taskData) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(null);
+    const id = uuidv4().toString();
+    const newTask = { ...taskData, id };
+    mockDB.tasks.push(newTask);
+    return Promise.resolve(newTask);
+  }),
 }));
 
 

@@ -1,40 +1,50 @@
 import express from 'express';
-import * as courseController from '../controller/controller';
+import * as courseController from '../controller/course_controller';
+import * as moduleController from '../controller/module_controller';
+import * as enrollmentController from '../controller/enrollment_controller';
+import * as instructorController from '../controller/instructor_controller';
+import * as taskController from '../controller/task_controller';
+import * as resourceController from '../controller/resource_controller';
 
 const router = express.Router();
 
+// ----------------------------- COURSES -----------------------------
 router.get('/courses', courseController.getCourses);
 router.get('/courses/:id', courseController.getCourse);
 router.post('/courses', courseController.addCourse);
 router.delete('/courses/:id', courseController.deleteCourse);
 router.patch('/courses/:id', courseController.updateCourse);
 
-router.post('/courses/:id/modules', courseController.addModuleToCourse); // Add module to course
-router.delete('/courses/:id/modules/:moduleId', courseController.deleteModule); // Delete module from course
-router.get('/courses/:id/modules', courseController.getModules); // Get all modules from course
-router.get('/courses/:id/modules/:moduleId', courseController.getModule); // Get module by ID inside course
-router.patch('/courses/:id/modules/order', courseController.updateModuleOrder); // Change modules order
-router.patch('/courses/:id/modules/:moduleId', courseController.updateModule); // Update specific module by ID inside course
+// ----------------------------- MODULES -----------------------------
+router.post('/courses/:id/modules', moduleController.addModuleToCourse); // Add module to course
+router.delete('/courses/:id/modules/:moduleId', moduleController.deleteModule); // Delete module from course
+router.get('/courses/:id/modules', moduleController.getModules); // Get all modules from course
+router.get('/courses/:id/modules/:moduleId', moduleController.getModule); // Get module by ID inside course
+router.patch('/courses/:id/modules/order', moduleController.updateModuleOrder); // Change modules order
+router.patch('/courses/:id/modules/:moduleId', moduleController.updateModule); // Update specific module by ID inside course
 
-router.post('/courses/:id/enrollments', courseController.enrollStudentToCourse); // Enroll student in course
+// ----------------------------- ENROLLMENTS -----------------------------
+router.post('/courses/:id/enrollments', enrollmentController.enrollStudentToCourse); // Enroll student in course
 router.get('/users/:id/courses', courseController.getCoursesByUserId); // Get all courses by user ID
-router.get('/courses/:id/enrollments/:userId', courseController.isEnrolledInCourse);
+router.get('/courses/:id/enrollments/:userId', enrollmentController.isEnrolledInCourse);
 
-router.get('/courses/:id/instructors/:instructorId', courseController.isInstructorInCourse); // Check if user is instructor in course
+// ----------------------------- INSTRUCTORS -----------------------------
+router.get('/courses/:id/instructors/:instructorId', instructorController.isInstructorInCourse); // Check if user is instructor in course
 
 // ----------------------------- TASKS AND EXAMS -----------------------------
-router.post('/courses/:id/tasks', courseController.addTaskToCourse); // Add task to course
-router.patch('/courses/:id/tasks/:taskId', courseController.updateTask); // Update task by ID inside course
-router.delete('/courses/:id/tasks/:taskId', courseController.deleteTask); // Delete task from course
-router.get('/courses/:id/tasks', courseController.getTasks); // Get all tasks from course
-router.get('/courses/:id/tasks/:taskId', courseController.getTask); // Get task by ID inside course
+router.post('/courses/:id/tasks', taskController.addTaskToCourse); // Add task to course
+router.patch('/courses/:id/tasks/:taskId', taskController.updateTask); // Update task by ID inside course
+router.delete('/courses/:id/tasks/:taskId', taskController.deleteTask); // Delete task from course
+router.get('/courses/:id/tasks', taskController.getTasks); // Get all tasks from course
+router.get('/courses/:id/tasks/:taskId', taskController.getTask); // Get task by ID inside course
 
-router.post('/modules/:moduleId/resources', courseController.addResourceToModule); // Add resource to module
-router.delete('/modules/:moduleId/resources/:resourceId', courseController.deleteResourceFromModule); // Delete resource from module
-router.get('/modules/:moduleId/resources', courseController.getResourcesByModuleId); // Get all resources from module
-//router.get('/modules/:moduleId/resources/:resourceId', courseController.getResourceById); // Get resource by ID inside module
-router.patch('/modules/:moduleId/resources/order', courseController.updateResourcesOrder); // Change resources order
-router.patch('/modules/:moduleId/resources/:resourceId', courseController.updateResource); // Update specific resource by ID inside module
+// ----------------------------- RESOURCES -----------------------------
+router.post('/modules/:moduleId/resources', resourceController.addResourceToModule); // Add resource to module
+router.delete('/modules/:moduleId/resources/:resourceId', resourceController.deleteResourceFromModule); // Delete resource from module
+router.get('/modules/:moduleId/resources', resourceController.getResourcesByModuleId); // Get all resources from module
+//router.get('/modules/:moduleId/resources/:resourceId', resourceController.getResourceById); // Get resource by ID inside module
+router.patch('/modules/:moduleId/resources/order', resourceController.updateResourcesOrder); // Change resources order
+router.patch('/modules/:moduleId/resources/:resourceId', resourceController.updateResource); // Update specific resource by ID inside module
 
 
 export default router;

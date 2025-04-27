@@ -30,11 +30,11 @@ export class Task {
         if(!data.description) throw new TaskCreationError('The "description" field is required.');
         if(!data.instructions) throw new TaskCreationError('The "instructions" field is required.');
         if(!data.due_date) throw new TaskCreationError('The "due_date" field is required.');
-        if(!data.allow_late) throw new TaskCreationError('The "allow_late" field is required.');
+        if(data.allow_late == undefined) throw new TaskCreationError('The "allow_late" field is required.');
         if(!data.late_policy) throw new TaskCreationError('The "late_policy" field is required.');
-        if(!data.has_timer) throw new TaskCreationError('The "has_timer" field is required.');
-        if(!data.published) throw new TaskCreationError('The "published" field is required.');
-        if(!data.allow_file_upload) throw new TaskCreationError('The "allow_file_upload" field is required.');
+        if(data.has_timer === undefined) throw new TaskCreationError('The "has_timer" field is required.');
+        if(data.published === undefined) throw new TaskCreationError('The "published" field is required.');
+        if(data.allow_file_upload === undefined) throw new TaskCreationError('The "allow_file_upload" field is required.');
         if(!data.answer_format) throw new TaskCreationError('The "answer_format" field is required.');
 
         this.id = data.id || '';
