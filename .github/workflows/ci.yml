@@ -26,8 +26,7 @@ jobs:
         run: npm run lint
 
       - name: Correr tests con cobertura
-        continue-on-error: true
-        run: npm test -- --coverage
+        run: npm test -- --coverage --coverageThreshold='{}'
 
       - name: Subir cobertura a Codecov
         uses: codecov/codecov-action@v3
