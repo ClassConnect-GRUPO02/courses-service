@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from './course_db';
 import { Task } from '../models/task';
+import { SubmissionStatus, TaskSubmission } from '@prisma/client';
 
 export const addTaskToCourse = async (courseId: string, task: Task): Promise<Task> => {
 
@@ -134,4 +135,19 @@ export const getTaskById = async (courseId: string, taskId: string): Promise<Tas
     updated_at: task.updated_at.toISOString(),
     deleted_at: task.deleted_at ? task.deleted_at.toISOString() : null,
   };
+}
+
+export const createTaskSubmission = async (task_id: string, student_id: string, answers: string[], file_url: string, submitted_at: Date, status: SubmissionStatus): Promise<TaskSubmission> => {
+  const newSubmission = await prisma.taskSubmission.create({
+    data: {
+      task_id,
+      student_id,
+      answers,
+      file_url,
+      submitted_at,
+      status,
+    },
+  });
+
+  return newSubmission;
 }

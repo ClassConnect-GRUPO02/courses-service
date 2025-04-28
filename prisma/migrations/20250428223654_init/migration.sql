@@ -77,6 +77,39 @@ CREATE TABLE `tasks` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `resources` (
+    `id` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(191) NOT NULL,
+    `type` VARCHAR(191) NOT NULL,
+    `url` VARCHAR(191) NOT NULL,
+    `order` INTEGER NOT NULL,
+    `moduleId` VARCHAR(191) NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `task_submission` (
+    `id` VARCHAR(191) NOT NULL,
+    `task_id` VARCHAR(191) NOT NULL,
+    `student_id` VARCHAR(191) NOT NULL,
+    `submitted_at` DATETIME(3) NOT NULL,
+    `status` ENUM('submitted', 'late') NOT NULL,
+    `answers` JSON NOT NULL,
+    `grade` DOUBLE NULL,
+    `feedback` VARCHAR(191) NULL,
+    `file_url` VARCHAR(191) NULL,
+    `time_spent` INTEGER NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `task_submission_task_id_student_id_key`(`task_id`, `student_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Module` ADD CONSTRAINT `Module_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -88,3 +121,9 @@ ALTER TABLE `courses_instructors` ADD CONSTRAINT `courses_instructors_courseId_f
 
 -- AddForeignKey
 ALTER TABLE `tasks` ADD CONSTRAINT `tasks_course_id_fkey` FOREIGN KEY (`course_id`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `resources` ADD CONSTRAINT `resources_moduleId_fkey` FOREIGN KEY (`moduleId`) REFERENCES `Module`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `task_submission` ADD CONSTRAINT `task_submission_task_id_fkey` FOREIGN KEY (`task_id`) REFERENCES `tasks`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
