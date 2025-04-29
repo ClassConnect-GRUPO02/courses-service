@@ -38,6 +38,9 @@ router.delete('/courses/:id/tasks/:taskId', taskController.deleteTask); // Delet
 router.get('/courses/:id/tasks', taskController.getTasks); // Get all tasks from course
 router.get('/courses/:id/tasks/:taskId', taskController.getTask); // Get task by ID inside course
 
+// ----------------------------- COMPLETE TASKS (STUDENTS) -----------------------------
+router.post('/courses/:id/tasks/:taskId/submissions', taskController.submitTask); // Complete task by ID inside course
+
 // ----------------------------- RESOURCES -----------------------------
 router.post('/modules/:moduleId/resources', resourceController.addResourceToModule); // Add resource to module
 router.delete('/modules/:moduleId/resources/:resourceId', resourceController.deleteResourceFromModule); // Delete resource from module

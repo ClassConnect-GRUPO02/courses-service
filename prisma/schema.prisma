@@ -91,6 +91,7 @@ model Task {
 
   // Relaciones
   course               Course       @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  submissions TaskSubmission[]
 
   @@map("tasks")
 }
@@ -128,4 +129,28 @@ model Resource {
   updated_at  DateTime @updatedAt
 
   @@map("resources")
+}
+
+model TaskSubmission {
+  id           String    @id @default(uuid())
+  task_id       String
+  task         Task      @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  student_id    String
+  submitted_at  DateTime
+  status       SubmissionStatus
+  answers      Json
+  grade        Float?    // puede ser null hasta que se corrija
+  feedback     String?   // retroalimentación opcional
+  file_url      String?   // para subida de archivos opcional
+  time_spent    Int?      // minutos utilizados si hay temporizador
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  @@unique([task_id, student_id]) // Un alumno solo puede entregar una vez por tarea
+  @@map("task_submission")
+}
+
+enum SubmissionStatus {
+  submitted
+  late
 }

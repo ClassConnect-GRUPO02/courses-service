@@ -68,3 +68,16 @@ export const getTask = async (req: Request, res: Response, next: NextFunction): 
     next(error);
   }
 }
+
+// -------------------------- COMPLETE TASKS (STUDENTS) ---------------------------
+export const submitTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, taskId } = req.params;
+    const { student_id , answers, fileUrl } = req.body;
+    const submission = await taskService.submitTask(id, taskId, student_id, answers, fileUrl);
+    res.status(StatusCodes.CREATED).json({ data: submission });
+    logger.info(`Task with ID ${taskId} submitted for course with ID ${id} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}
