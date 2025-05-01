@@ -83,3 +83,12 @@ export const submitTask = async (courseId: string, taskId: string, studentId: st
     status: submission.status,
   };
 }
+
+// -------------------------------- GET TASKS BY STUDENT ID -----------------------------
+
+// Retrieves all tasks assigned to a student across different courses
+// and returns them as an array of Task objects.
+export const getTasksByStudentId = async (studentId: string): Promise<Task[]> => {
+  const tasks = await databaseTask.getTasksByStudentId(studentId);
+  return tasks;
+}

@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 import { mockDB } from './src/tests/mocks/mock.db';
+import { getTasksByStudentId } from './src/database/task_db';
 
 let server: Server;
 
@@ -212,7 +213,29 @@ jest.mock('./src/database/task_db', () => ({
     mockDB.tasks.push(newTask);
     return Promise.resolve(newTask);
   }),
+
+  getTasksByStudentId: jest.fn().mockImplementation((studentId: string) => {
+    const enrolledCoursesIds = mockDB.enrollments
+    .filter((enrollment) => enrollment.userId === studentId)
+    .map((enrollment) => enrollment.courseId);
+
+    const tasks = mockDB.tasks.filter(
+      (task) => enrolledCoursesIds.includes(task.course_id) && task.published
+    );
+
+    return tasks.map((task) => ({
+      ...task,
+      due_date: new Date(task.due_date).toISOString(),
+      visible_from: task.visible_from ? new Date(task.visible_from).toISOString() : null,
+      visible_until: task.visible_until ? new Date(task.visible_until).toISOString() : null,
+      created_at: new Date(task.created_at).toISOString(),
+      updated_at: new Date(task.updated_at).toISOString(),
+      deleted_at: task.deleted_at ? new Date(task.deleted_at).toISOString() : null,
+    }));
+  }),
+
 }));
+
 
 
 beforeAll((done) => {
