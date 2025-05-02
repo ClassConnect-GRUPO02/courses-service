@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 import { mockDB } from './src/tests/mocks/mock.db';
-import { getTasksByStudentId } from './src/database/task_db';
+import { getTasksByStudentId, updateTask } from './src/database/task_db';
 
 let server: Server;
 
@@ -232,6 +232,39 @@ jest.mock('./src/database/task_db', () => ({
       updated_at: new Date(task.updated_at).toISOString(),
       deleted_at: task.deleted_at ? new Date(task.deleted_at).toISOString() : null,
     }));
+  }),
+
+  updateTask: jest.fn().mockImplementation((courseId: string, taskId: string, taskData) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(null);
+    const taskIndex = mockDB.tasks.findIndex(task => task.id === taskId);
+    if (taskIndex === -1) return Promise.resolve(null);
+    const updatedTask = { ...mockDB.tasks[taskIndex], ...taskData };
+    mockDB.tasks[taskIndex] = updatedTask; 
+    return Promise.resolve(updatedTask);
+  }),
+  
+  getTasksByCourseId: jest.fn().mockImplementation((courseId: string) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve([]);
+    const tasks = mockDB.tasks.filter(task => task.course_id === courseId);
+    return Promise.resolve(tasks.map((task) => ({
+      ...task,
+      due_date: new Date(task.due_date).toISOString(),
+      visible_from: task.visible_from ? new Date(task.visible_from).toISOString() : null,
+      visible_until: task.visible_until ? new Date(task.visible_until).toISOString() : null,
+      created_at: new Date(task.created_at).toISOString(),
+      updated_at: new Date(task.updated_at).toISOString(),
+      deleted_at: task.deleted_at ? new Date(task.deleted_at).toISOString() : null,
+    })));
+  }),
+
+  deleteTask: jest.fn().mockImplementation((taskId: string) => {
+    const taskIndex = mockDB.tasks.findIndex(task => task.id === taskId);
+    if (taskIndex === -1) return Promise.resolve(null);
+    const deletedTask = mockDB.tasks[taskIndex];
+    mockDB.tasks.splice(taskIndex, 1); 
+    return Promise.resolve(deletedTask);
   }),
 
 }));
