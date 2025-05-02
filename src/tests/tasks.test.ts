@@ -98,5 +98,17 @@ describe('Integration Tests for tasks of Courses API', () => {
       expect(response.body.data).toBeDefined();
       expect(response.body.data.message).toBe('Entrega registrada exitosamente');
     });
+    it('should raise an error because of late submission', async () => {
+      // Simulate a late submission (The task 't4' policy does not allow late submissions)
+      const taskSubmission = mockTaskSubmissionData;
+      const courseId = 'c1';
+      const taskId = 't4';
+      
+      const response = await request(app)
+      .post(`/courses/${courseId}/tasks/${taskId}/submissions`)
+      .send(taskSubmission);
+      
+      expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+    });
   });
 });
