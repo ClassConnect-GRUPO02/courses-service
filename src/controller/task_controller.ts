@@ -81,3 +81,17 @@ export const submitTask = async (req: Request, res: Response, next: NextFunction
     next(error);
   }
 }
+
+// -------------------------- INSTRUCTORS ---------------------------
+export const listTasksByInstructor = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { instructorId } = req.params;
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+
+    const result = await taskService.getTasksByInstructor(instructorId, page, pageSize);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
