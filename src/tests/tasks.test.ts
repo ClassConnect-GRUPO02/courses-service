@@ -2,6 +2,7 @@ import request from 'supertest';
 import app from '../app';
 import { StatusCodes } from 'http-status-codes';
 import { mockTaskRequestData } from './mocks/mock.task';
+import { mockTaskSubmissionData } from './mocks/mock.task_sub';
 
 describe('Integration Tests for tasks of Courses API', () => {
   describe('GET /tasks/student/:studentId', () => {
@@ -53,6 +54,49 @@ describe('Integration Tests for tasks of Courses API', () => {
         .send();
 
       expect(response.status).toBe(StatusCodes.NO_CONTENT);
+    });
+  });
+  describe('GET /courses/:id/task/:taskId', () => {
+    it('should retrieve a specific task from a course', async () => {
+      const courseId = 'c1';
+      const taskId = 't2';
+      const taskTitle = 'Examen parcial';
+
+      const response = await request(app)
+        .get(`/courses/${courseId}/tasks/${taskId}`)
+        .send();
+
+      expect(response.status).toBe(StatusCodes.OK);
+      expect(response.body.data).toBeDefined();
+      expect(response.body.data.title).toBe(taskTitle);
+    });
+  });
+  describe('GET /courses/:id/tasks', () => {
+    it('should retrieve all tasks from a course', async () => {
+      const courseId = 'c1';
+
+      const response = await request(app)
+        .get(`/courses/${courseId}/tasks`)
+        .send();
+
+      expect(response.status).toBe(StatusCodes.OK);
+      expect(response.body.data).toBeDefined();
+      expect(Array.isArray(response.body.data)).toBe(true);
+    });
+  });
+  describe('POST /courses/:id/tasks/:taskId/submit', () => {
+    it('should submit a task for a student', async () => {
+      const taskSubmission = mockTaskSubmissionData;
+      const courseId = 'c1';
+      const taskId = 't2';
+
+      const response = await request(app)
+        .post(`/courses/${courseId}/tasks/${taskId}/submissions`)
+        .send(taskSubmission);
+
+      expect(response.status).toBe(StatusCodes.CREATED);
+      expect(response.body.data).toBeDefined();
+      expect(response.body.data.message).toBe('Entrega registrada exitosamente');
     });
   });
 });

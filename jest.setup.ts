@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 import { mockDB } from './src/tests/mocks/mock.db';
-import { getTasksByStudentId, updateTask } from './src/database/task_db';
+import { createTaskSubmission, getTaskById, getTasksByStudentId, updateTask } from './src/database/task_db';
 
 let server: Server;
 
@@ -267,6 +267,37 @@ jest.mock('./src/database/task_db', () => ({
     return Promise.resolve(deletedTask);
   }),
 
+  getTaskById: jest.fn().mockImplementation((courseId: string, taskId: string) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(null);
+    const task = mockDB.tasks.find(task => task.id === taskId && task.course_id === courseId);
+    if (!task) return Promise.resolve(null);
+    return Promise.resolve({
+      ...task,
+      due_date: new Date(task.due_date).toISOString(),
+      visible_from: task.visible_from ? new Date(task.visible_from).toISOString() : null,
+      visible_until: task.visible_until ? new Date(task.visible_until).toISOString() : null,
+      created_at: new Date(task.created_at).toISOString(),
+      updated_at: new Date(task.updated_at).toISOString(),
+      deleted_at: task.deleted_at ? new Date(task.deleted_at).toISOString() : null,
+    });
+  }),
+
+  createTaskSubmission: jest.fn().mockImplementation((task_id: string, student_id: string, answers: string[], file_url: string, submitted_at: Date, status: string) => {
+    const taskSub = {
+      id: uuidv4(),
+      task_id,
+      student_id,
+      answers,
+      file_url,
+      submitted_at: submitted_at.toISOString(),
+      status,
+    };
+    mockDB.taskSubmission.push(taskSub)
+    return Promise.resolve({
+      ...taskSub
+    })
+  }),
 }));
 
 
