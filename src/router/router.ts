@@ -40,6 +40,8 @@ router.delete('/courses/:id/tasks/:taskId', taskController.deleteTask); // Delet
 router.get('/courses/:id/tasks', taskController.getTasks); // Get all tasks from course
 router.get('/courses/:id/tasks/:taskId', taskController.getTask); // Get task by ID inside course
 
+router.get('/tasks/students/:studentId', taskController.getTasksByStudentId); // Get all tasks by student ID
+
 // ----------------------------- COMPLETE TASKS (STUDENTS) -----------------------------
 router.post('/courses/:id/tasks/:taskId/submissions', taskController.submitTask); // Complete task by ID inside course
 

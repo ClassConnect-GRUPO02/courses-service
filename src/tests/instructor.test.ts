@@ -10,6 +10,11 @@ describe('Integration Tests for instructor of Courses API', () => {
     expect(response.status).toBe(StatusCodes.OK);
     expect(response.body.isInstructor).toBe(true);
   });
+  it ('should return that the course does not exist', async () => {
+    const courseId = 'c9999';
+    const response = await request(app)
+      .get(`/courses/${courseId}/instructors/u1`)
 
-  
+    expect(response.status).toBe(StatusCodes.NOT_FOUND);
+  });
 });

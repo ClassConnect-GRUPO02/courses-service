@@ -191,3 +191,40 @@ export const countTasksByInstructor = async (instructorId: string) => {
     },
   });
 };
+
+// Searches all published tasks in courses where the student is enrolled
+export const getTasksByStudentId = async (studentId: string): Promise<Task[]> => {
+  // Retrieves all course IDs where the student is enrolled
+  const enrolledCoursesIds = await prisma.enrollment.findMany({
+    where: {
+      userId: studentId,
+    },
+    select: {
+      courseId: true,
+    },
+  });
+
+  const courseIds = enrolledCoursesIds.map((enrollment) => enrollment.courseId);
+
+  // Gets all tasks where the course ID is in the list of enrolled courses
+  // and the task is published
+  const tasks = await prisma.task.findMany({
+    where: {
+      course_id: {
+        in: courseIds, // Filters tasks by course IDs
+      },
+      published: true, // Only published tasks
+    },
+  });
+
+  // Returns the tasks with formatted dates
+  return tasks.map((task) => ({
+    ...task,
+    due_date: task.due_date.toISOString(),
+    visible_from: task.visible_from ? task.visible_from.toISOString() : null,
+    visible_until: task.visible_until ? task.visible_until.toISOString() : null,
+    created_at: task.created_at.toISOString(),
+    updated_at: task.updated_at.toISOString(),
+    deleted_at: task.deleted_at ? task.deleted_at.toISOString() : null,
+  }));
+};

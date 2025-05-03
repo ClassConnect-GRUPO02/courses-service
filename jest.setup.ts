@@ -1,8 +1,6 @@
 import { Server } from 'http';
 import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
-
-
 import { mockDB } from './src/tests/mocks/mock.db';
 
 let server: Server;
@@ -91,6 +89,16 @@ jest.mock('./src/database/module_db', () => ({
       }
     });
     return Promise.resolve();
+  }),
+  
+  updateModule: jest.fn().mockImplementation((courseId: string, moduleId: string, updatedData) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(null);
+    const moduleIndex = mockDB.modules.findIndex(mod => mod.id === moduleId);
+    if (moduleIndex === -1) return Promise.resolve(null);
+    const updatedModule = { ...mockDB.modules[moduleIndex], ...updatedData };
+    mockDB.modules[moduleIndex] = updatedModule; 
+    return Promise.resolve(updatedModule);
   }),
 }));
 
@@ -212,7 +220,93 @@ jest.mock('./src/database/task_db', () => ({
     mockDB.tasks.push(newTask);
     return Promise.resolve(newTask);
   }),
+
+  getTasksByStudentId: jest.fn().mockImplementation((studentId: string) => {
+    const enrolledCoursesIds = mockDB.enrollments
+    .filter((enrollment) => enrollment.userId === studentId)
+    .map((enrollment) => enrollment.courseId);
+
+    const tasks = mockDB.tasks.filter(
+      (task) => enrolledCoursesIds.includes(task.course_id) && task.published
+    );
+
+    return tasks.map((task) => ({
+      ...task,
+      due_date: new Date(task.due_date).toISOString(),
+      visible_from: task.visible_from ? new Date(task.visible_from).toISOString() : null,
+      visible_until: task.visible_until ? new Date(task.visible_until).toISOString() : null,
+      created_at: new Date(task.created_at).toISOString(),
+      updated_at: new Date(task.updated_at).toISOString(),
+      deleted_at: task.deleted_at ? new Date(task.deleted_at).toISOString() : null,
+    }));
+  }),
+
+  updateTask: jest.fn().mockImplementation((courseId: string, taskId: string, taskData) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(null);
+    const taskIndex = mockDB.tasks.findIndex(task => task.id === taskId);
+    if (taskIndex === -1) return Promise.resolve(null);
+    const updatedTask = { ...mockDB.tasks[taskIndex], ...taskData };
+    mockDB.tasks[taskIndex] = updatedTask; 
+    return Promise.resolve(updatedTask);
+  }),
+  
+  getTasksByCourseId: jest.fn().mockImplementation((courseId: string) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve([]);
+    const tasks = mockDB.tasks.filter(task => task.course_id === courseId);
+    return Promise.resolve(tasks.map((task) => ({
+      ...task,
+      due_date: new Date(task.due_date).toISOString(),
+      visible_from: task.visible_from ? new Date(task.visible_from).toISOString() : null,
+      visible_until: task.visible_until ? new Date(task.visible_until).toISOString() : null,
+      created_at: new Date(task.created_at).toISOString(),
+      updated_at: new Date(task.updated_at).toISOString(),
+      deleted_at: task.deleted_at ? new Date(task.deleted_at).toISOString() : null,
+    })));
+  }),
+
+  deleteTask: jest.fn().mockImplementation((taskId: string) => {
+    const taskIndex = mockDB.tasks.findIndex(task => task.id === taskId);
+    if (taskIndex === -1) return Promise.resolve(null);
+    const deletedTask = mockDB.tasks[taskIndex];
+    mockDB.tasks.splice(taskIndex, 1); 
+    return Promise.resolve(deletedTask);
+  }),
+
+  getTaskById: jest.fn().mockImplementation((courseId: string, taskId: string) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(null);
+    const task = mockDB.tasks.find(task => task.id === taskId && task.course_id === courseId);
+    if (!task) return Promise.resolve(null);
+    return Promise.resolve({
+      ...task,
+      due_date: new Date(task.due_date).toISOString(),
+      visible_from: task.visible_from ? new Date(task.visible_from).toISOString() : null,
+      visible_until: task.visible_until ? new Date(task.visible_until).toISOString() : null,
+      created_at: new Date(task.created_at).toISOString(),
+      updated_at: new Date(task.updated_at).toISOString(),
+      deleted_at: task.deleted_at ? new Date(task.deleted_at).toISOString() : null,
+    });
+  }),
+
+  createTaskSubmission: jest.fn().mockImplementation((task_id: string, student_id: string, answers: string[], file_url: string, submitted_at: Date, status: string) => {
+    const taskSub = {
+      id: uuidv4(),
+      task_id,
+      student_id,
+      answers,
+      file_url,
+      submitted_at: submitted_at.toISOString(),
+      status,
+    };
+    mockDB.taskSubmission.push(taskSub)
+    return Promise.resolve({
+      ...taskSub
+    })
+  }),
 }));
+
 
 
 beforeAll((done) => {

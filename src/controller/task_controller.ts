@@ -95,3 +95,20 @@ export const listTasksByInstructor = async (req: Request, res: Response, next: N
     next(error);
   }
 };
+
+// -------------------------- GET TASKS BY STUDENT ID ---------------------------
+
+// This endpoint retrieves all tasks assigned to a specific student
+// It is assumed that the student ID is passed as a URL parameter
+// Example: GET /tasks/students/:studentId
+export const getTasksByStudentId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { studentId } = req.params;
+    const tasks = await taskService.getTasksByStudentId(studentId);
+    res.status(StatusCodes.OK).json({ data: tasks });
+    logger.info(`Tasks retrieved for student with ID ${studentId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}
+
