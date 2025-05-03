@@ -74,7 +74,6 @@ export const submitTask = async (courseId: string, taskId: string, studentId: st
     throw { status: 400, message: 'La entrega tardía no está permitida para esta tarea' };
   }
   
-
   const submission = await databaseTask.createTaskSubmission(taskId, studentId, answers, fileUrl, now, isLate);
 
   return {
@@ -83,6 +82,24 @@ export const submitTask = async (courseId: string, taskId: string, studentId: st
     status: submission.status,
   };
 }
+
+// -------------------------------- INSTRUCTORS ---------------------------
+export const getTasksByInstructor = async (instructorId: string, page: number, pageSize: number) => {
+  const skip = (page - 1) * pageSize;
+
+  const [tasks, total] = await Promise.all([
+    databaseTask.findTasksByInstructor(instructorId, skip, pageSize),
+    databaseTask.countTasksByInstructor(instructorId),
+  ]);
+
+  return {
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+    data: tasks,
+  };
+};
 
 // -------------------------------- GET TASKS BY STUDENT ID -----------------------------
 

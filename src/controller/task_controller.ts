@@ -82,6 +82,20 @@ export const submitTask = async (req: Request, res: Response, next: NextFunction
   }
 }
 
+// -------------------------- INSTRUCTORS ---------------------------
+export const listTasksByInstructor = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { instructorId } = req.params;
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+
+    const result = await taskService.getTasksByInstructor(instructorId, page, pageSize);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // -------------------------- GET TASKS BY STUDENT ID ---------------------------
 
 // This endpoint retrieves all tasks assigned to a specific student
@@ -97,3 +111,4 @@ export const getTasksByStudentId = async (req: Request, res: Response, next: Nex
     next(error);
   }
 }
+

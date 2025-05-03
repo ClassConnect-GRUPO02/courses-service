@@ -152,6 +152,45 @@ export const createTaskSubmission = async (task_id: string, student_id: string, 
   return newSubmission;
 }
 
+export const findTasksByInstructor = async (instructorId: string, skip: number, take: number) => {
+  return prisma.task.findMany({
+    where: {
+      created_by: instructorId,
+      deleted_at: null,
+    },
+    skip,
+    take,
+    orderBy: {
+      due_date: 'asc',
+    },
+    select: {
+      id: true,
+      title: true,
+      course: {
+        select: {
+          name: true,
+        },
+      },
+      due_date: true,
+      published: true,
+      type: true,
+      _count: {
+        select: {
+          submissions: true,
+        },
+      },
+    },
+  });
+};
+
+export const countTasksByInstructor = async (instructorId: string) => {
+  return prisma.task.count({
+    where: {
+      created_by: instructorId,
+      deleted_at: null,
+    },
+  });
+};
 
 // Searches all published tasks in courses where the student is enrolled
 export const getTasksByStudentId = async (studentId: string): Promise<Task[]> => {
