@@ -226,4 +226,16 @@ describe('Integration Tests for modules of Courses API', () => {
     });
   });
 
+  describe('PATCH /courses/:id/modules/:moduleId', () => {
+    it('should update a module in a course', async () => {
+      const moduleId = 'm1';
+      const response = await request(app)
+        .patch(`/courses/c1/modules/${moduleId}`)
+        .send({
+          name: 'Updated Module' });
+      expect(response.status).toBe(StatusCodes.OK);
+      expect(response.body.data.name).toBe('Updated Module');
+    });
+  });
+
 });

@@ -94,7 +94,7 @@ export const mockDB = {
       title: 'Examen parcial',
       description: 'Examen de mitad de curso',
       instructions: 'Completar el examen en 60 minutos',
-      due_date: new Date('2024-05-20').toISOString(),
+      due_date: new Date('3050-08-30').toISOString(),
       allow_late: false,
       late_policy: null,
       has_timer: true,
@@ -185,5 +185,17 @@ export const mockDB = {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },
+  ],
+
+  taskSubmission: [
+    {
+      id: 's1',
+      task_id: 't1',
+      student_id: 'u2',
+      answers: ['Respuesta 1', 'Respuesta 2'],
+      file_url: 'https://example.com/solution1.pdf',
+      submitted_at: new Date('2024-05-09').toISOString(),
+      status: 'submitted',
+    }
   ]
 };
