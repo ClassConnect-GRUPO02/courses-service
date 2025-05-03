@@ -1,10 +1,8 @@
-import { Server } from 'http';
+import { get, Server } from 'http';
 import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
-
-
 import { mockDB } from './src/tests/mocks/mock.db';
-import { createTaskSubmission, getTaskById, getTasksByStudentId, updateTask } from './src/database/task_db';
+import { updateModule } from './src/database/module_db';
 
 let server: Server;
 
@@ -92,6 +90,16 @@ jest.mock('./src/database/module_db', () => ({
       }
     });
     return Promise.resolve();
+  }),
+  
+  updateModule: jest.fn().mockImplementation((courseId: string, moduleId: string, updatedData) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) return Promise.resolve(null);
+    const moduleIndex = mockDB.modules.findIndex(mod => mod.id === moduleId);
+    if (moduleIndex === -1) return Promise.resolve(null);
+    const updatedModule = { ...mockDB.modules[moduleIndex], ...updatedData };
+    mockDB.modules[moduleIndex] = updatedModule; 
+    return Promise.resolve(updatedModule);
   }),
 }));
 
