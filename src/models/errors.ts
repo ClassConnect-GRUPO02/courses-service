@@ -86,3 +86,13 @@ export class ResourceNotFoundError extends AppError {
     );
   }
 }
+
+export class NotEnrolledError extends AppError {
+  constructor(courseID: string, studentID: string) {
+    super(
+      'NotEnrolledError',
+      403,
+      `Student with ID ${studentID} is not enrolled in course with ID ${courseID}`
+    );
+  }
+}
