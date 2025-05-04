@@ -6,6 +6,7 @@ import * as instructorController from '../controller/instructor_controller';
 import * as taskController from '../controller/task_controller';
 import * as resourceController from '../controller/resource_controller';
 import * as feedbackController from '../controller/feedback_controller';
+import * as favoritesController from '../controller/favorites_controller';
 
 const router = express.Router();
 
@@ -58,5 +59,8 @@ router.post('/courses/:id/feedback', feedbackController.addFeedbackToCourse); //
 
 // ------------------------------ STUDENTS FEEDBACK -----------------------------
 router.post('/courses/:courseId/students/:studentId/feedback', feedbackController.addFeedbackToStudent); // Add feedback to student
+
+// ------------------------------ FAVORITE COURSES -----------------------------
+router.post('/students/:studentId/favorite-courses/:courseId', favoritesController.addCourseToFavorites); // Add course to favorites
 
 export default router;

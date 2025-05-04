@@ -146,3 +146,13 @@ export class AlreadyGaveFeedbackToStudentError extends AppError {
     );
   }
 }
+
+export class AlreadyFavoriteError extends AppError {
+  constructor(courseID: string, studentID: string) {
+    super(
+      'AlreadyFavoriteError',
+      400,
+      `Course with ID ${courseID} is already in favorites for student with ID ${studentID}`
+    );
+  }
+}
