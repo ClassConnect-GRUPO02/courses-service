@@ -136,3 +136,13 @@ export class AlreadyGaveFeedbackError extends AppError {
     );
   }
 }
+
+export class AlreadyGaveFeedbackToStudentError extends AppError {
+  constructor(courseID: string, studentID: string) {
+    super(
+      'AlreadyGaveFeedbackToStudentError',
+      400,
+      `Feedback already exists for student ${studentID} in course ${courseID}`
+    );
+  }
+}

@@ -35,3 +35,13 @@ export const addFeedbackToStudent = async (course_id: string, student_id: string
         },
     });
 }
+
+export const studentFeedbackAlreadyExists = async (course_id: string, student_id: string): Promise<boolean> => {
+    const feedback = await prisma.studentFeedback.findFirst({
+        where: {
+            course_id,
+            student_id,
+        },
+    });
+    return feedback !== null;
+}

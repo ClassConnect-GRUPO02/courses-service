@@ -19,11 +19,11 @@ export const addFeedbackToCourse = async (req: Request, res: Response, next: Nex
 // -------------------------- STUDENTS FEEDBACK ---------------------------
 export const addFeedbackToStudent = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { course_id, student_id } = req.params;
+    const { courseId, studentId } = req.params;
     const { instructor_id, comment, punctuation } = req.body;
-    const createdFeedback = await feedbackService.addFeedbackToStudent(course_id, student_id, instructor_id, comment, punctuation);
+    const createdFeedback = await feedbackService.addFeedbackToStudent(courseId, studentId, instructor_id, comment, punctuation);
     res.status(StatusCodes.CREATED).json({ data: createdFeedback });
-    logger.info(`Feedback added to student with ID ${student_id} in course with ID ${course_id} successfully`);
+    logger.info(`Feedback added to student with ID ${studentId} in course with ID ${courseId} successfully`);
   } catch (error) {
     next(error);
   }
