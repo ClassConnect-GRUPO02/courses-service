@@ -163,7 +163,7 @@ model CourseFeedback {
   comment     String
   punctuation Float
 
-  course Course @relation(fields: [course_id], references: [id])
+  course Course @relation(fields: [course_id], references: [id], onDelete: Cascade)
 
   @@unique([course_id, student_id]) // un usuario solo puede comentar una vez por curso
   @@map("course_feedback")
