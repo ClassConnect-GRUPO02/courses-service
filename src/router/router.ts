@@ -62,5 +62,6 @@ router.post('/courses/:courseId/students/:studentId/feedback', feedbackControlle
 
 // ------------------------------ FAVORITE COURSES -----------------------------
 router.post('/students/:studentId/favorite-courses/:courseId', favoritesController.addCourseToFavorites); // Add course to favorites
+router.delete('/students/:studentId/favorite-courses/:courseId', favoritesController.removeCourseFromFavorites); // Remove course from favorites
 
 export default router;

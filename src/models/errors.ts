@@ -156,3 +156,13 @@ export class AlreadyFavoriteError extends AppError {
     );
   }
 }
+
+export class NotFavoriteError extends AppError {
+  constructor(courseID: string, studentID: string) {
+    super(
+      'NotFavoriteError',
+      400,
+      `Course with ID ${courseID} is not in favorites for student with ID ${studentID}`
+    );
+  }
+}
