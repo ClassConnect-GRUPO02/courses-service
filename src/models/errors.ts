@@ -86,3 +86,43 @@ export class ResourceNotFoundError extends AppError {
     );
   }
 }
+
+export class NotEnrolledError extends AppError {
+  constructor(courseID: string, studentID: string) {
+    super(
+      'NotEnrolledError',
+      403,
+      `Student with ID ${studentID} is not enrolled in course with ID ${courseID}`
+    );
+  }
+}
+
+export class PunctuationError extends AppError {
+  constructor() {
+    super(
+      'PunctuationError',
+      400,
+      'Punctuation must be between 1 and 5'
+    );
+  }
+}
+
+export class CommentOrPuntuationNotFoundError extends AppError {
+  constructor() {
+    super(
+      'CommentOrPuntuationNotFoundError',
+      400,
+      'Comment or punctuation not found'
+    );
+  }
+}
+
+export class AlreadyGaveFeedbackError extends AppError {
+  constructor(courseID: string, studentID: string) {
+    super(
+      'AlreadyGaveFeedbackError',
+      400,
+      `Feedback already exists for course ${courseID} by student ${studentID}`
+    );
+  }
+}

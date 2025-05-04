@@ -27,6 +27,7 @@ model Course {
   enrollments       Enrollment[]
   instructors       CourseInstructor[]
   tasks             Task[]
+  feedback          CourseFeedback[]
 }
 
 model Module {
@@ -153,4 +154,17 @@ model TaskSubmission {
 enum SubmissionStatus {
   submitted
   late
+}
+
+model CourseFeedback {
+  id          String   @id @default(uuid())
+  course_id   String
+  student_id  String
+  comment     String
+  punctuation Float
+
+  course Course @relation(fields: [course_id], references: [id], onDelete: Cascade)
+
+  @@unique([course_id, student_id]) // un usuario solo puede comentar una vez por curso
+  @@map("course_feedback")
 }

@@ -5,6 +5,7 @@ import * as enrollmentController from '../controller/enrollment_controller';
 import * as instructorController from '../controller/instructor_controller';
 import * as taskController from '../controller/task_controller';
 import * as resourceController from '../controller/resource_controller';
+import * as feedbackController from '../controller/feedback_controller';
 
 const router = express.Router();
 
@@ -32,7 +33,6 @@ router.get('/courses/:id/enrollments/:userId', enrollmentController.isEnrolledIn
 router.get('/courses/:id/instructors/:instructorId', instructorController.isInstructorInCourse); // Check if user is instructor in course
 router.get('/instructors/:instructorId/tasks', taskController.listTasksByInstructor); // GET /instructors/:instructorId/tasks?page=1&pageSize=10
 
-
 // ----------------------------- TASKS AND EXAMS -----------------------------
 router.post('/courses/:id/tasks', taskController.addTaskToCourse); // Add task to course
 router.patch('/courses/:id/tasks/:taskId', taskController.updateTask); // Update task by ID inside course
@@ -53,5 +53,7 @@ router.get('/modules/:moduleId/resources', resourceController.getResourcesByModu
 router.patch('/modules/:moduleId/resources/order', resourceController.updateResourcesOrder); // Change resources order
 router.patch('/modules/:moduleId/resources/:resourceId', resourceController.updateResource); // Update specific resource by ID inside module
 
+// ----------------------------- COURSES FEEDBACK -----------------------------
+router.post('/courses/:id/feedback', feedbackController.addFeedbackToCourse); // Add feedback to course
 
 export default router;
