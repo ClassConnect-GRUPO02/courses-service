@@ -96,3 +96,33 @@ export class NotEnrolledError extends AppError {
     );
   }
 }
+
+export class PunctuationError extends AppError {
+  constructor() {
+    super(
+      'PunctuationError',
+      400,
+      'Punctuation must be between 1 and 5'
+    );
+  }
+}
+
+export class CommentOrPuntuationNotFoundError extends AppError {
+  constructor() {
+    super(
+      'CommentOrPuntuationNotFoundError',
+      400,
+      'Comment or punctuation not found'
+    );
+  }
+}
+
+export class AlreadyGaveFeedbackError extends AppError {
+  constructor(courseID: string, studentID: string) {
+    super(
+      'AlreadyGaveFeedbackError',
+      400,
+      `Feedback already exists for course ${courseID} by student ${studentID}`
+    );
+  }
+}
