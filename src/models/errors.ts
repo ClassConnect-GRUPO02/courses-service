@@ -97,6 +97,16 @@ export class NotEnrolledError extends AppError {
   }
 }
 
+export class NotInstructorError extends AppError {
+  constructor(courseID: string, instructorID: string) {
+    super(
+      'NotInstructorError',
+      403,
+      `Instructor with ID ${instructorID} is not instructor in course with ID ${courseID}`
+    );
+  }
+}
+
 export class PunctuationError extends AppError {
   constructor() {
     super(

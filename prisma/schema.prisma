@@ -28,6 +28,7 @@ model Course {
   instructors       CourseInstructor[]
   tasks             Task[]
   feedback          CourseFeedback[]
+  student_feedback  StudentFeedback[]
 }
 
 model Module {
@@ -167,4 +168,18 @@ model CourseFeedback {
 
   @@unique([course_id, student_id]) // un usuario solo puede comentar una vez por curso
   @@map("course_feedback")
+}
+
+model StudentFeedback {
+  id          String   @id @default(uuid())
+  course_id   String
+  student_id  String
+  instructor_id String
+  comment     String
+  punctuation Float
+
+  course Course @relation(fields: [course_id], references: [id])
+
+  @@unique([course_id, student_id])
+  @@map("student_feedback")
 }
