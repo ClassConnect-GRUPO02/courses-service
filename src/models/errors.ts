@@ -97,6 +97,16 @@ export class NotEnrolledError extends AppError {
   }
 }
 
+export class NotInstructorError extends AppError {
+  constructor(courseID: string, instructorID: string) {
+    super(
+      'NotInstructorError',
+      403,
+      `Instructor with ID ${instructorID} is not instructor in course with ID ${courseID}`
+    );
+  }
+}
+
 export class PunctuationError extends AppError {
   constructor() {
     super(
@@ -123,6 +133,16 @@ export class AlreadyGaveFeedbackError extends AppError {
       'AlreadyGaveFeedbackError',
       400,
       `Feedback already exists for course ${courseID} by student ${studentID}`
+    );
+  }
+}
+
+export class AlreadyGaveFeedbackToStudentError extends AppError {
+  constructor(courseID: string, studentID: string) {
+    super(
+      'AlreadyGaveFeedbackToStudentError',
+      400,
+      `Feedback already exists for student ${studentID} in course ${courseID}`
     );
   }
 }

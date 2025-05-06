@@ -22,3 +22,26 @@ export const feedbackAlreadyExists = async (course_id: string, student_id: strin
     });
     return feedback !== null;
 }
+
+export const addFeedbackToStudent = async (course_id: string, student_id: string, instructor_id: string, comment: string, punctuation: number) => {
+    return await prisma.studentFeedback.create({
+        data: {
+            id: uuidv4(),
+            course_id,
+            student_id,
+            instructor_id,
+            comment,
+            punctuation,
+        },
+    });
+}
+
+export const studentFeedbackAlreadyExists = async (course_id: string, student_id: string): Promise<boolean> => {
+    const feedback = await prisma.studentFeedback.findFirst({
+        where: {
+            course_id,
+            student_id,
+        },
+    });
+    return feedback !== null;
+}

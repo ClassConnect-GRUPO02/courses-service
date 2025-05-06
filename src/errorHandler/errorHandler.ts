@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { CourseCreationError, CourseFullError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError, AlreadyEnrolledError, ResourceCreationError, ResourceNotFoundError, NotEnrolledError, PunctuationError, CommentOrPuntuationNotFoundError, AlreadyGaveFeedbackError } from '../models/errors';
+import { CourseCreationError, CourseFullError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError, AlreadyEnrolledError, ResourceCreationError, ResourceNotFoundError, NotEnrolledError, PunctuationError, CommentOrPuntuationNotFoundError, AlreadyGaveFeedbackError, NotInstructorError, AlreadyGaveFeedbackToStudentError } from '../models/errors';
 import { NextFunction } from 'express';
 import logger from '../logger/logger';
  
 export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction): void => {
-  if (err instanceof CourseCreationError || err instanceof ModuleCreationError || err instanceof CourseFullError || err instanceof AlreadyEnrolledError || err instanceof ResourceCreationError || err instanceof PunctuationError || err instanceof CommentOrPuntuationNotFoundError || err instanceof AlreadyGaveFeedbackError) {
+  if (err instanceof CourseCreationError || err instanceof ModuleCreationError || err instanceof CourseFullError || err instanceof AlreadyEnrolledError || err instanceof ResourceCreationError || err instanceof PunctuationError || err instanceof CommentOrPuntuationNotFoundError || err instanceof AlreadyGaveFeedbackError || err instanceof AlreadyGaveFeedbackToStudentError) {
     res.status(StatusCodes.BAD_REQUEST).json({
       type: 'https://example.com/bad-request',
       title: 'Invalid Request',
@@ -41,10 +41,10 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       instance: req.originalUrl,
     });
     logger.error(err.message);
-  } else if (err instanceof NotEnrolledError) {
+  } else if (err instanceof NotEnrolledError || err instanceof NotInstructorError) {
     res.status(err.status).json({
       type: err.type,
-      title: 'Not Enrolled',
+      title: 'Not Enrolled or Not Instructor',
       status: StatusCodes.FORBIDDEN,
       detail: err.detail,
       instance: req.originalUrl,
