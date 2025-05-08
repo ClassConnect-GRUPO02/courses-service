@@ -38,3 +38,14 @@ export const isCourseFavorite = async (req: Request, res: Response, next: NextFu
     next(error);
   }
 }
+
+export const getFavoriteCourses = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { studentId } = req.params;
+    const favoriteCourses = await favoritesService.getFavoriteCourses(studentId);
+    res.status(StatusCodes.OK).json({ data: favoriteCourses });
+    logger.info(`Retrieved favorite courses for student with ID ${studentId}`);
+  } catch (error) {
+    next(error);
+  }
+}

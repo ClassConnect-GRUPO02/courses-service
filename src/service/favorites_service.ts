@@ -45,3 +45,7 @@ export const removeCourseFromFavorites = async (courseId: string, studentId: str
 export const isCourseFavorite = async (courseId: string, studentId: string) => {
   return await favorites_db.favoriteAlreadyExists(courseId, studentId);
 }
+
+export const getFavoriteCourses = async (studentId: string) => {
+  return await favorites_db.getFavoriteCourses(studentId);
+}

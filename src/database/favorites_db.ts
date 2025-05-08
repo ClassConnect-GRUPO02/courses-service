@@ -29,3 +29,11 @@ export const favoriteAlreadyExists = async (course_id: string, student_id: strin
   });
   return favorite !== null;
 }
+
+export const getFavoriteCourses = async (student_id: string) => {
+  return await prisma.favoriteCourse.findMany({
+    where: {
+      student_id,
+    },
+  });
+}
