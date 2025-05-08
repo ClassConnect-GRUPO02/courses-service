@@ -24,3 +24,17 @@ export const removeCourseFromFavorites = async (req: Request, res: Response, nex
     next(error);
   }
 }
+
+// Returns if a course is favorite for a student
+// GET /students/:studentId/favorite-courses/:courseId
+// Returns 200 OK with { data: true } if the course is favorite, or { data: false } if not
+export const isCourseFavorite = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { studentId, courseId } = req.params;
+    const isFavorite = await favoritesService.isCourseFavorite(courseId, studentId);
+    res.status(StatusCodes.OK).json({ data: isFavorite });
+    logger.info(`Checked if course with ID ${courseId} is favorite for student with ID ${studentId}`);
+  } catch (error) {
+    next(error);
+  }
+}
