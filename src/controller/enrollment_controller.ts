@@ -40,3 +40,14 @@ export const isEnrolledInCourse = async (req: Request, res: Response, next: Next
     next(error)
   }
 };
+
+export const getEnrollmentsByCourseId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const courseId = req.params.id;
+    const enrollments = await enrollmentService.getEnrollmentsByCourseId(courseId);
+    res.status(StatusCodes.OK).json({ data: enrollments });
+    logger.info(`Enrollments retrieved for course with ID ${courseId}`);
+  } catch (error) {
+    next(error);
+  }
+};

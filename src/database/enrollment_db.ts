@@ -64,3 +64,22 @@ export const isEnrolledInCourse = async (courseId: string, userId: string): Prom
 
   return !!enrollment;
 };
+
+export const getEnrollmentsByCourseId = async (courseId: string): Promise<Enrollment[]> => {
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+  });
+
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+
+  const enrollments = await prisma.enrollment.findMany({
+    where: { courseId },
+  });
+
+  return enrollments.map((enrollment) => ({
+    ...enrollment,
+    enrollmentDate: enrollment.enrollmentDate.toISOString(), // 👈 conversión a string
+  }));
+}

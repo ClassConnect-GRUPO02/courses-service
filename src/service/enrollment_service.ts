@@ -30,3 +30,11 @@ export const isEnrolledInCourse = async (courseId: string, userId: string): Prom
   }
   return await databaseEnrollment.isEnrolledInCourse(courseId, userId);
 }
+
+export const getEnrollmentsByCourseId = async (courseId: string): Promise<Enrollment[]> => {
+  const course = await database.getCourseById(courseId);
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+  return await databaseEnrollment.getEnrollmentsByCourseId(courseId);
+}

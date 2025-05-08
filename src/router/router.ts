@@ -29,6 +29,7 @@ router.patch('/courses/:id/modules/:moduleId', moduleController.updateModule); /
 router.post('/courses/:id/enrollments', enrollmentController.enrollStudentToCourse); // Enroll student in course
 router.get('/users/:id/courses', courseController.getCoursesByUserId); // Get all courses by user ID
 router.get('/courses/:id/enrollments/:userId', enrollmentController.isEnrolledInCourse);
+router.get('/courses/:id/enrollments', enrollmentController.getEnrollmentsByCourseId); // Get all enrollments by course ID
 
 // ----------------------------- INSTRUCTORS -----------------------------
 router.get('/courses/:id/instructors/:instructorId', instructorController.isInstructorInCourse); // Check if user is instructor in course
