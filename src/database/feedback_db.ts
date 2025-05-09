@@ -53,3 +53,11 @@ export const getFeedbacksAsStudent = async (student_id: string) => {
         },
     });
 }
+
+export const getFeedbacksByCourseId = async (course_id: string) => {
+    return await prisma.courseFeedback.findMany({
+        where: {
+            course_id,
+        },
+    });
+}
