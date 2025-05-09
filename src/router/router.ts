@@ -60,6 +60,8 @@ router.post('/courses/:id/feedback', feedbackController.addFeedbackToCourse); //
 
 // ------------------------------ STUDENTS FEEDBACK -----------------------------
 router.post('/courses/:courseId/students/:studentId/feedback', feedbackController.addFeedbackToStudent); // Add feedback to student
+router.get('/students/:studentId/feedback', feedbackController.getFeedbacksAsStudent); // Get all feedback by student ID
+router.get('/students/:studentId/feedback-summary', feedbackController.getStudentFeedbackSummary);
 
 // ------------------------------ FAVORITE COURSES -----------------------------
 router.post('/students/:studentId/favorite-courses/:courseId', favoritesController.addCourseToFavorites); // Add course to favorites
