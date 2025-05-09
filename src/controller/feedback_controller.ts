@@ -28,3 +28,25 @@ export const addFeedbackToStudent = async (req: Request, res: Response, next: Ne
     next(error);
   }
 }
+
+export const getFeedbacksAsStudent = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { studentId } = req.params;
+    const feedbacks = await feedbackService.getFeedbacksAsStudent(studentId);
+    res.status(StatusCodes.OK).json({ data: feedbacks });
+    logger.info(`Retrieved feedbacks for student with ID ${studentId}`);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const getStudentFeedbackSummary = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { studentId } = req.params;
+    const result = await feedbackService.getStudentFeedbackSummary(studentId);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+

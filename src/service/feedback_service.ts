@@ -2,6 +2,7 @@ import * as database from '../database/course_db';
 import * as enrollment_db from '../database/enrollment_db';
 import * as feedback_db from '../database/feedback_db';
 import * as instructor_db from '../database/instructor_db';
+import { generateFeedbackSummary } from '../lib/ai';
 import { AlreadyGaveFeedbackError, AlreadyGaveFeedbackToStudentError, CommentOrPuntuationNotFoundError, CourseNotFoundError, NotEnrolledError, NotInstructorError, PunctuationError } from '../models/errors';
 
 // Export a function to add feedback to a course
@@ -64,3 +65,24 @@ export const addFeedbackToStudent = async (courseId: string, studentId: string, 
 
     return await feedback_db.addFeedbackToStudent(courseId, studentId, instructorId, comment, punctuation);
 };
+
+// Export a function to get feedbacks as a student
+export const getFeedbacksAsStudent = async (studentId: string) => {
+    return await feedback_db.getFeedbacksAsStudent(studentId);
+};
+
+export const getStudentFeedbackSummary = async (studentId: string) => {
+    const feedbacks = await feedback_db.getFeedbacksAsStudent(studentId);
+  
+    if (feedbacks.length === 0) {
+      throw new Error('El alumno no tiene feedbacks.');
+    }
+  
+    const text = feedbacks
+      .map(f => `Comentario: ${f.comment}\nPuntuación: ${f.punctuation}`)
+      .join('\n\n');
+  
+    const summary = await generateFeedbackSummary(text);
+    return { summary };
+  };
+  
