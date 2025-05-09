@@ -1,3 +1,4 @@
+import e from 'express';
 import * as database from '../database/course_db';
 import * as enrollment_db from '../database/enrollment_db';
 import * as feedback_db from '../database/feedback_db';
@@ -70,6 +71,15 @@ export const addFeedbackToStudent = async (courseId: string, studentId: string, 
 export const getFeedbacksAsStudent = async (studentId: string) => {
     return await feedback_db.getFeedbacksAsStudent(studentId);
 };
+  
+export const getFeedbacksByCourseId = async (courseId: string) => {
+    const course = await database.getCourseById(courseId);
+    if (!course) {
+        throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+    }
+
+    return await feedback_db.getFeedbacksByCourseId(courseId);
+};
 
 export const getStudentFeedbackSummary = async (studentId: string) => {
     const feedbacks = await feedback_db.getFeedbacksAsStudent(studentId);
@@ -85,4 +95,18 @@ export const getStudentFeedbackSummary = async (studentId: string) => {
     const summary = await generateFeedbackSummary(text);
     return { summary };
   };
+
+export const getCourseFeedbackSummary = async (courseId: string) => {
+    const feedbacks = await feedback_db.getFeedbacksByCourseId(courseId);
   
+    if (feedbacks.length === 0) {
+      throw new Error('El curso no tiene feedbacks.');
+    }
+  
+    const text = feedbacks
+      .map(f => `Comentario: ${f.comment}\nPuntuación: ${f.punctuation}`)
+      .join('\n\n');
+  
+    const summary = await generateFeedbackSummary(text);
+    return { summary };
+  };

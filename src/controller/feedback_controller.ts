@@ -50,3 +50,23 @@ export const getStudentFeedbackSummary = async (req: Request, res: Response, nex
   }
 };
 
+export const getCourseFeedbackSummary = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const result = await feedbackService.getCourseFeedbackSummary(id);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getFeedbacksByCourseId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const feedbacks = await feedbackService.getFeedbacksByCourseId(id);
+    res.status(StatusCodes.OK).json({ data: feedbacks });
+    logger.info(`Retrieved feedbacks for course with ID ${id}`);
+  } catch (error) {
+    next(error);
+  }
+}

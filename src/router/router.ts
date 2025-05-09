@@ -57,6 +57,8 @@ router.patch('/modules/:moduleId/resources/:resourceId', resourceController.upda
 
 // ----------------------------- COURSES FEEDBACK -----------------------------
 router.post('/courses/:id/feedback', feedbackController.addFeedbackToCourse); // Add feedback to course
+router.get('/courses/:id/feedback', feedbackController.getFeedbacksByCourseId); // Get all feedback by course ID
+router.get('/courses/:id/feedback-summary', feedbackController.getCourseFeedbackSummary);
 
 // ------------------------------ STUDENTS FEEDBACK -----------------------------
 router.post('/courses/:courseId/students/:studentId/feedback', feedbackController.addFeedbackToStudent); // Add feedback to student
