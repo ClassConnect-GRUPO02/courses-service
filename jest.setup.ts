@@ -2,6 +2,7 @@ import { Server } from 'http';
 import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDB } from './src/tests/mocks/mock.db';
+import { getEnrollmentsByCourseId } from './src/database/enrollment_db';
 
 let server: Server;
 
@@ -130,6 +131,18 @@ jest.mock('./src/database/enrollment_db', () => ({
       (enrollment) => enrollment.courseId === courseId && enrollment.userId === userId
     );
     return Promise.resolve(!!found);
+  }),
+
+  getEnrollmentsByCourseId: jest.fn().mockImplementation((courseId: string) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) {
+      throw new Error(`Course with ID ${courseId} not found`);
+    }
+    const enrollments = mockDB.enrollments.filter(enrollment => enrollment.courseId === courseId);
+    return Promise.resolve(enrollments.map((enrollment) => ({
+      ...enrollment,
+      enrollmentDate: new Date(enrollment.enrollmentDate).toISOString(), // 👈 conversión a string
+    })));
   }),
 
 }));
