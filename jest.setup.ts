@@ -132,6 +132,18 @@ jest.mock('./src/database/enrollment_db', () => ({
     return Promise.resolve(!!found);
   }),
 
+  getEnrollmentsByCourseId: jest.fn().mockImplementation((courseId: string) => {
+    const course = mockDB.courses.find(course => course.id === courseId);
+    if (!course) {
+      throw new Error(`Course with ID ${courseId} not found`);
+    }
+    const enrollments = mockDB.enrollments.filter(enrollment => enrollment.courseId === courseId);
+    return Promise.resolve(enrollments.map((enrollment) => ({
+      ...enrollment,
+      enrollmentDate: new Date(enrollment.enrollmentDate).toISOString(), // 👈 conversión a string
+    })));
+  }),
+
 }));
 
 jest.mock('./src/database/instructor_db', () => ({
@@ -304,6 +316,38 @@ jest.mock('./src/database/task_db', () => ({
     return Promise.resolve({
       ...taskSub
     })
+  }),
+}));
+
+jest.mock('./src/database/favorites_db', () => ({
+  addCourseToFavorites: jest.fn().mockImplementation((courseId: string, studentId: string) => {
+    const newFavorite = {
+      id: uuidv4(),
+      course_id: courseId,
+      student_id: studentId,
+    };
+    mockDB.favorites.push(newFavorite);
+    return Promise.resolve(newFavorite);
+  }),
+  removeCourseFromFavorites: jest.fn().mockImplementation((courseId: string, studentId: string) => {
+    const favoriteIndex = mockDB.favorites.findIndex(fav => fav.course_id === courseId && fav.student_id === studentId);
+    if (favoriteIndex === -1) return Promise.resolve(null);
+    const deletedFavorite = mockDB.favorites[favoriteIndex];
+    mockDB.favorites.splice(favoriteIndex, 1);
+    return Promise.resolve(deletedFavorite);
+  }),
+
+  favoriteAlreadyExists: jest.fn().mockImplementation((courseId: string, studentId: string) => {
+    const found = mockDB.favorites.find(fav => fav.course_id === courseId && fav.student_id === studentId);
+    return Promise.resolve(!!found);
+  }),
+  getFavoriteCourses: jest.fn().mockImplementation((studentId: string) => {
+    const favorites = mockDB.favorites.filter(fav => fav.student_id === studentId);
+    return Promise.resolve(favorites.map(fav => ({
+      ...fav,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })));
   }),
 }));
 

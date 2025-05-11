@@ -28,8 +28,8 @@ router.patch('/courses/:id/modules/:moduleId', moduleController.updateModule); /
 // ----------------------------- ENROLLMENTS -----------------------------
 router.post('/courses/:id/enrollments', enrollmentController.enrollStudentToCourse); // Enroll student in course
 router.get('/users/:id/courses', courseController.getCoursesByUserId); // Get all courses by user ID
-router.get('/courses/:id/enrollments/:userId', enrollmentController.isEnrolledInCourse);
 router.get('/courses/:id/enrollments', enrollmentController.getEnrollmentsByCourseId); // Get all enrollments by course ID
+router.get('/courses/:id/enrollments/:userId', enrollmentController.isEnrolledInCourse);
 
 // ----------------------------- INSTRUCTORS -----------------------------
 router.get('/courses/:id/instructors/:instructorId', instructorController.isInstructorInCourse); // Check if user is instructor in course
@@ -74,7 +74,7 @@ router.get('/students/:studentId/feedback-summary', feedbackController.getStuden
 // ------------------------------ FAVORITE COURSES -----------------------------
 router.post('/students/:studentId/favorite-courses/:courseId', favoritesController.addCourseToFavorites); // Add course to favorites
 router.delete('/students/:studentId/favorite-courses/:courseId', favoritesController.removeCourseFromFavorites); // Remove course from favorites
-router.get('/students/:studentId/favorite-courses/:courseId', favoritesController.isCourseFavorite); // Check if course is favorite
 router.get('/students/:studentId/favorite-courses', favoritesController.getFavoriteCourses); // Get all favorite courses by student ID
+router.get('/students/:studentId/favorite-courses/:courseId', favoritesController.isCourseFavorite); // Check if course is favorite
 
 export default router;

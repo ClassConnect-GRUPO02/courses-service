@@ -86,4 +86,14 @@ describe('Integration Tests for Enrollments of Courses API', () => {
       expect(enrollmentResponse.body.isEnrolled).toBe(true);
     });
   });
+
+  describe('GET /courses/:id/enrollments', () => {
+    it('should return all enrollments for a course', async () => {
+      const courseId = "c1";
+      const enrollmentsResponse = await request(app)
+        .get(`/courses/${courseId}/enrollments`);
+      expect(enrollmentsResponse.status).toBe(StatusCodes.OK);
+      expect(enrollmentsResponse.body.data.length).toBe(5);
+    });
+  });
 });
