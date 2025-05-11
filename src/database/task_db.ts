@@ -258,3 +258,11 @@ export const updateTaskSubmission = async (
     },
   });
 };
+
+export const getTaskSubmissions = async (taskId: string): Promise<TaskSubmission[]> => {
+  return await prisma.taskSubmission.findMany({
+    where: {
+      task_id: taskId,
+    },
+  });
+}
