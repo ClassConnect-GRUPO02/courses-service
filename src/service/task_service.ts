@@ -109,3 +109,21 @@ export const getTasksByStudentId = async (studentId: string): Promise<Task[]> =>
   const tasks = await databaseTask.getTasksByStudentId(studentId);
   return tasks;
 }
+
+
+// -------------------------------- ADD FEEDBACK TO TASK -----------------------------
+export const addFeedbackToTask = async (taskId: string, studentId: string, grade: number, feedback: string) => {
+  const submission = await databaseTask.getTaskSubmission(taskId, studentId);
+  if (!submission) {
+    throw new Error(`No submission found for task ID ${taskId}`);
+  }
+  return await databaseTask.updateTaskSubmission(taskId, studentId, grade, feedback);
+}
+
+export const getTaskSubmission = async (taskId: string, studentId: string) => {
+  const submission = await databaseTask.getTaskSubmission(taskId, studentId);
+  if (!submission) {
+    throw new Error(`No submission found for task ID ${taskId}`);
+  }
+  return submission;
+}

@@ -46,6 +46,10 @@ router.get('/tasks/students/:studentId', taskController.getTasksByStudentId); //
 
 // ----------------------------- COMPLETE TASKS (STUDENTS) -----------------------------
 router.post('/courses/:id/tasks/:taskId/submissions', taskController.submitTask); // Complete task by ID inside course
+router.get('/tasks/:taskId/submissions/:studentId', taskController.getTaskSubmission); // Get task submission by ID inside course
+
+// ----------------------------- ADD FEEDBACK TO TASK --------------------------------
+router.patch('/tasks/:taskId/submissions/:studentId/feedback', taskController.addFeedbackToTask); // Grade task by ID inside course
 
 // ----------------------------- RESOURCES -----------------------------
 router.post('/modules/:moduleId/resources', resourceController.addResourceToModule); // Add resource to module

@@ -1,4 +1,3 @@
-import e from 'express';
 import * as database from '../database/course_db';
 import * as enrollment_db from '../database/enrollment_db';
 import * as feedback_db from '../database/feedback_db';
