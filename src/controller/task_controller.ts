@@ -143,3 +143,16 @@ export const getTaskSubmission = async (req: Request, res: Response, next: NextF
   }
 }
 
+// Retrieves all task submissions for a specific task
+// This endpoint is used to get all submissions for a specific task it must only be used by the instructors
+// router.get('/courses/:id/instructors/:instructorId/tasks/:taskId/submissions', taskController.getTaskSubmissions)
+export const getTaskSubmissions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, instructorId, taskId } = req.params;
+    const submissions = await taskService.getTaskSubmissions(id, instructorId, taskId);
+    res.status(StatusCodes.OK).json({ data: submissions });
+    logger.info(`Task submissions retrieved for task with ID ${taskId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}

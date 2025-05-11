@@ -2,6 +2,7 @@ import { Task } from '../models/task';
 import { CourseNotFoundError } from '../models/errors';
 import * as database from '../database/course_db';
 import * as databaseTask from '../database/task_db';
+import * as databaseInstructor from '../database/instructor_db';
 
 export const addTaskToCourse = async (courseId: string, task: Task): Promise<Task> => {
   const course = await database.getCourseById(courseId);
@@ -126,4 +127,13 @@ export const getTaskSubmission = async (taskId: string, studentId: string) => {
     throw new Error(`No submission found for task ID ${taskId}`);
   }
   return submission;
+}
+
+export const getTaskSubmissions = async (courseId: string, instructorId: string, taskId: string) => {
+  const isInstructor = await databaseInstructor.isInstructorInCourse(courseId, instructorId);
+  if (!isInstructor) {
+    throw new Error(`Instructor with ID ${instructorId} is not authorized to view submissions for course ID ${courseId}`);
+  }
+  const submissions = await databaseTask.getTaskSubmissions(taskId);
+  return submissions;
 }
