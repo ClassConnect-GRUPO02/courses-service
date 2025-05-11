@@ -74,7 +74,7 @@ router.get('/students/:studentId/feedback-summary', feedbackController.getStuden
 // ------------------------------ FAVORITE COURSES -----------------------------
 router.post('/students/:studentId/favorite-courses/:courseId', favoritesController.addCourseToFavorites); // Add course to favorites
 router.delete('/students/:studentId/favorite-courses/:courseId', favoritesController.removeCourseFromFavorites); // Remove course from favorites
-router.get('/students/:studentId/favorite-courses/:courseId', favoritesController.isCourseFavorite); // Check if course is favorite
 router.get('/students/:studentId/favorite-courses', favoritesController.getFavoriteCourses); // Get all favorite courses by student ID
+router.get('/students/:studentId/favorite-courses/:courseId', favoritesController.isCourseFavorite); // Check if course is favorite
 
 export default router;

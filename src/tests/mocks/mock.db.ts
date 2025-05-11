@@ -197,5 +197,10 @@ export const mockDB = {
       submitted_at: new Date('2024-05-09').toISOString(),
       status: 'submitted',
     }
+  ],
+
+  favorites: [
+    { id: 'f1', course_id: 'c1', student_id: 'u2' },
+    { id: 'f2', course_id: 'c1', student_id: 'u3' },
   ]
 };
