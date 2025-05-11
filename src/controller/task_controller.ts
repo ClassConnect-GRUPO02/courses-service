@@ -112,3 +112,34 @@ export const getTasksByStudentId = async (req: Request, res: Response, next: Nex
   }
 }
 
+// -------------------------- GRADE TASK ---------------------------
+
+// Adds feedback to a task
+// This endpoint is used to grade a task by the instructor
+// router.patch('/tasks/:taskId/submissions/feedback', taskController.addFeedbackToTask)
+export const addFeedbackToTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { taskId, studentId } = req.params;
+    const { grade, feedback } = req.body;
+    const updatedSubmission = await taskService.addFeedbackToTask(taskId, studentId, grade, feedback);
+    res.status(StatusCodes.OK).json({ data: updatedSubmission });
+    logger.info(`Feedback added to task with ID ${taskId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Retrieves a specific task submission for a student
+// This endpoint is used to get the submission details for a specific task
+// router.get('/tasks/:taskId/submissions/:studentId', taskController.getTaskSubmission)
+export const getTaskSubmission = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { taskId, studentId } = req.params;
+    const submission = await taskService.getTaskSubmission(taskId, studentId);
+    res.status(StatusCodes.OK).json({ data: submission });
+    logger.info(`Task submission retrieved for task with ID ${taskId} and student with ID ${studentId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}
+

@@ -228,3 +228,33 @@ export const getTasksByStudentId = async (studentId: string): Promise<Task[]> =>
     deleted_at: task.deleted_at ? task.deleted_at.toISOString() : null,
   }));
 };
+
+export const getTaskSubmission = async (taskId: string, studentId: string): Promise<TaskSubmission | null> => {
+  return await prisma.taskSubmission.findFirst({
+    where: {
+      task_id: taskId,
+      student_id: studentId,
+    }
+  });
+};
+
+export const updateTaskSubmission = async (
+  taskId: string,
+  studentId: string,
+  grade: number,
+  feedback: string
+): Promise<TaskSubmission> => {
+  return await prisma.taskSubmission.update({
+    where: {
+      task_id_student_id: {
+        task_id: taskId,
+        student_id: studentId,
+      },
+    },
+    data: {
+      grade,
+      feedback,
+      updated_at: new Date(),
+    },
+  });
+};
