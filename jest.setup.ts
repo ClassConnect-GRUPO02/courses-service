@@ -2,7 +2,6 @@ import { Server } from 'http';
 import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDB } from './src/tests/mocks/mock.db';
-import { getEnrollmentsByCourseId } from './src/database/enrollment_db';
 
 let server: Server;
 
