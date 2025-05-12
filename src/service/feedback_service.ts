@@ -2,7 +2,7 @@ import * as database from '../database/course_db';
 import * as enrollment_db from '../database/enrollment_db';
 import * as feedback_db from '../database/feedback_db';
 import * as instructor_db from '../database/instructor_db';
-import { generateFeedbackSummary } from '../lib/ai';
+import { generateCourseFeedbackSummary, generateFeedbackSummary } from '../lib/ai';
 import { AlreadyGaveFeedbackError, AlreadyGaveFeedbackToStudentError, CommentOrPuntuationNotFoundError, CourseNotFoundError, NotEnrolledError, NotInstructorError, PunctuationError } from '../models/errors';
 
 // Export a function to add feedback to a course
@@ -106,6 +106,6 @@ export const getCourseFeedbackSummary = async (courseId: string) => {
       .map(f => `Comentario: ${f.comment}\nPuntuación: ${f.punctuation}`)
       .join('\n\n');
   
-    const summary = await generateFeedbackSummary(text);
+    const summary = await generateCourseFeedbackSummary(text);
     return { summary };
   };
