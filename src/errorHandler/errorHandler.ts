@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { CourseCreationError, CourseFullError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError, AlreadyEnrolledError, ResourceCreationError, ResourceNotFoundError, NotEnrolledError, PunctuationError, CommentOrPuntuationNotFoundError, AlreadyGaveFeedbackError, NotInstructorError, AlreadyGaveFeedbackToStudentError, AlreadyFavoriteError, NotFavoriteError, AuthorizationError } from '../models/errors';
+import { CourseCreationError, CourseFullError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError, AlreadyEnrolledError, ResourceCreationError, ResourceNotFoundError, NotEnrolledError, PunctuationError, CommentOrPuntuationNotFoundError, AlreadyGaveFeedbackError, NotInstructorError, AlreadyGaveFeedbackToStudentError, AlreadyFavoriteError, NotFavoriteError, AuthorizationError, NotFoundError } from '../models/errors';
 import { NextFunction } from 'express';
 import logger from '../logger/logger';
  
@@ -49,7 +49,16 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       detail: err.detail,
       instance: req.originalUrl,
     });
-    logger.error(err.message);  
+    logger.error(err.message);
+  } else if (err instanceof NotFoundError) {
+    res.status(err.status).json({
+      type: err.type,
+      title: 'Item Not Found',
+      status: err.status,
+      detail: err.detail,
+      instance: req.originalUrl,
+    });
+    logger.error(err.message);
   } else {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       type: 'https://example.com/internal-server-error',

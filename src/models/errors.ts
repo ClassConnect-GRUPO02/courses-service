@@ -178,3 +178,13 @@ export class AuthorizationError extends AppError {
     );
   }
 }
+
+export class NotFoundError extends AppError {
+  constructor(id: string, type: string) {
+    super(
+      'NotFoundError',
+      StatusCodes.NOT_FOUND,
+      `${type} with id: ${id} not found`
+    );
+  }
+}

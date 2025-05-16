@@ -1,5 +1,5 @@
 import { Task } from '../models/task';
-import { AuthorizationError, CourseNotFoundError } from '../models/errors';
+import { AuthorizationError, CourseNotFoundError, NotFoundError } from '../models/errors';
 import * as database from '../database/course_db';
 import * as databaseTask from '../database/task_db';
 import * as databaseInstructor from '../database/instructor_db';
@@ -128,7 +128,7 @@ export const addFeedbackToTask = async (taskId: string, studentId: string, grade
 export const getTaskSubmission = async (taskId: string, studentId: string) => {
   const submission = await databaseTask.getTaskSubmission(taskId, studentId);
   if (!submission) {
-    throw new Error(`No submission found for task ID ${taskId}`);
+    throw new NotFoundError(taskId, "Task submission");
   }
   return submission;
 }
