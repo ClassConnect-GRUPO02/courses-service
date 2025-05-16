@@ -114,11 +114,10 @@ export const getTasksByCourseId = async (courseId: string): Promise<Task[]> => {
   }));
 }
 
-export const getTaskById = async (courseId: string, taskId: string): Promise<Task | null> => {
+export const getTaskById = async (taskId: string): Promise<Task | null> => {
   const task = await prisma.task.findFirst({
     where: {
       id: taskId,
-      course_id: courseId,
     },
   });
 

@@ -286,10 +286,8 @@ jest.mock('./src/database/task_db', () => ({
     return Promise.resolve(deletedTask);
   }),
 
-  getTaskById: jest.fn().mockImplementation((courseId: string, taskId: string) => {
-    const course = mockDB.courses.find(course => course.id === courseId);
-    if (!course) return Promise.resolve(null);
-    const task = mockDB.tasks.find(task => task.id === taskId && task.course_id === courseId);
+  getTaskById: jest.fn().mockImplementation((taskId: string) => {
+    const task = mockDB.tasks.find(task => task.id === taskId);
     if (!task) return Promise.resolve(null);
     return Promise.resolve({
       ...task,

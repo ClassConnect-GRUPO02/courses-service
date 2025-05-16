@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { CourseCreationError, CourseFullError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError, AlreadyEnrolledError, ResourceCreationError, ResourceNotFoundError, NotEnrolledError, PunctuationError, CommentOrPuntuationNotFoundError, AlreadyGaveFeedbackError, NotInstructorError, AlreadyGaveFeedbackToStudentError, AlreadyFavoriteError, NotFavoriteError } from '../models/errors';
+import { CourseCreationError, CourseFullError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError, AlreadyEnrolledError, ResourceCreationError, ResourceNotFoundError, NotEnrolledError, PunctuationError, CommentOrPuntuationNotFoundError, AlreadyGaveFeedbackError, NotInstructorError, AlreadyGaveFeedbackToStudentError, AlreadyFavoriteError, NotFavoriteError, AuthorizationError } from '../models/errors';
 import { NextFunction } from 'express';
 import logger from '../logger/logger';
  
@@ -41,7 +41,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       instance: req.originalUrl,
     });
     logger.error(err.message);
-  } else if (err instanceof NotEnrolledError || err instanceof NotInstructorError) {
+  } else if (err instanceof NotEnrolledError || err instanceof NotInstructorError || err instanceof AuthorizationError) {
     res.status(err.status).json({
       type: err.type,
       title: 'Not Enrolled or Not Instructor',

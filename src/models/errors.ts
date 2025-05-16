@@ -1,3 +1,5 @@
+import { StatusCodes } from 'http-status-codes';
+
 export class AppError extends Error {
   public readonly type: string;
   public readonly status: number;
@@ -163,6 +165,16 @@ export class NotFavoriteError extends AppError {
       'NotFavoriteError',
       400,
       `Course with ID ${courseID} is not in favorites for student with ID ${studentID}`
+    );
+  }
+}
+
+export class AuthorizationError extends AppError {
+  constructor(id: string) {
+    super(
+      'AuthorizationError',
+      StatusCodes.FORBIDDEN,
+      `User with id: ${id} is not authorized to perform this action`
     );
   }
 }
