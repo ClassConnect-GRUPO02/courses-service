@@ -4,6 +4,8 @@ import { StatusCodes } from 'http-status-codes';
 import { Task } from '../models/task';
 import { handleInvalidRequestError } from './course_controller';
 import * as taskService from '../service/task_service';
+import { authenticateJWT, AuthenticatedRequest } from "../lib/auth"
+
 
 // -------------------------- TASKS / EXAMS ---------------------------
 
@@ -117,7 +119,7 @@ export const getTasksByStudentId = async (req: Request, res: Response, next: Nex
 // Adds feedback to a task
 // This endpoint is used to grade a task by the instructor
 // router.patch('/tasks/:taskId/submissions/feedback', taskController.addFeedbackToTask)
-export const addFeedbackToTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const addFeedbackToTask = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { taskId, studentId } = req.params;
     const { grade, feedback } = req.body;

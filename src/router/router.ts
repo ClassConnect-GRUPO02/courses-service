@@ -7,6 +7,7 @@ import * as taskController from '../controller/task_controller';
 import * as resourceController from '../controller/resource_controller';
 import * as feedbackController from '../controller/feedback_controller';
 import * as favoritesController from '../controller/favorites_controller';
+import { authenticateJWT, AuthenticatedRequest } from "../lib/auth"
 
 const router = express.Router();
 
@@ -50,7 +51,7 @@ router.get('/tasks/:taskId/submissions/:studentId', taskController.getTaskSubmis
 
 // ----------------------------- ADD FEEDBACK TO TASK --------------------------------
 // This endpoint must only be used by instructors
-router.patch('/tasks/:taskId/submissions/:studentId/feedback', taskController.addFeedbackToTask); // Grade task by ID inside course
+router.patch('/tasks/:taskId/submissions/:studentId/feedback', authenticateJWT, taskController.addFeedbackToTask); // Grade task by ID inside course
 router.get('/courses/:id/instructors/:instructorId/tasks/:taskId/submissions', taskController.getTaskSubmissions); // Get all task submissions by ID inside course 
 
 // ----------------------------- RESOURCES -----------------------------
