@@ -392,13 +392,6 @@ jest.mock('./src/database/favorites_db', () => ({
 }));
 
 
-jest.mock('./src/lib/auth', () => ({
-  authenticateJWT: jest.fn().mockImplementation((req, res, next) => {
-    req.user = { Id: 'u1' };
-    next();
-  }),
-}));
-
 
 
 beforeAll((done) => {
