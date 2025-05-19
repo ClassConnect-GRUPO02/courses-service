@@ -13,7 +13,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       detail: err.message,
       instance: req.originalUrl,
     });
-    logger.error(err.message);
+    //logger.error(err.message);
   } else if (err instanceof CourseNotFoundError) {
     res.status(err.status).json({
       type: err.type,
@@ -22,7 +22,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       detail: err.detail,
       instance: req.originalUrl,
     });
-    logger.error(err.message);
+    //logger.error(err.message);
   } else if (err instanceof ModuleNotFoundError) {
     res.status(err.status).json({
       type: err.type,
@@ -31,7 +31,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       detail: err.detail,
       instance: req.originalUrl,
     });
-    logger.error(err.message);
+    //logger.error(err.message);
   } else if (err instanceof ResourceNotFoundError) {
     res.status(err.status).json({
       type: err.type,
@@ -40,7 +40,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       detail: err.detail,
       instance: req.originalUrl,
     });
-    logger.error(err.message);
+    //logger.error(err.message);
   } else if (err instanceof NotEnrolledError || err instanceof NotInstructorError || err instanceof AuthorizationError) {
     res.status(err.status).json({
       type: err.type,
@@ -49,7 +49,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       detail: err.detail,
       instance: req.originalUrl,
     });
-    logger.error(err.message);
+    //logger.error(err.message);
   } else if (err instanceof NotFoundError) {
     res.status(err.status).json({
       type: err.type,
@@ -58,7 +58,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       detail: err.detail,
       instance: req.originalUrl,
     });
-    logger.error(err.message);
+    //logger.error(err.message);
   } else {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       type: 'https://example.com/internal-server-error',
@@ -67,7 +67,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       detail: 'An unexpected error occurred.',
       instance: req.originalUrl,
     });
-    logger.error('An unexpected error occurred:', err);
+    //logger.error('An unexpected error occurred:', err);
   }
   next();
 };
