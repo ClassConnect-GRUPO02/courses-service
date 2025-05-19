@@ -2,13 +2,9 @@ import request from 'supertest';
 import app from '../app';
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
+import { userTypes } from '../lib/user_types';
 
 
-const token = jwt.sign(
-  { id: 'u1' }, // payload
-  process.env.SECRET_KEY!, // clave secreta
-  { algorithm: 'HS256' }
-);
 
 
 describe('Integration Tests for resources of Courses API', () => {
@@ -16,6 +12,13 @@ describe('Integration Tests for resources of Courses API', () => {
     it('should return 200 and the task submission for a valid taskId and studentId', async () => {
       const taskId = 't1';
       const studentId = 'u2';
+      const token = jwt.sign(
+        { id: 'u1',
+          userType: userTypes.STUDENT,
+         }, // payload
+        process.env.SECRET_KEY!, // clave secreta
+        { algorithm: 'HS256' }
+      );
 
 
       const response = await request(app)
@@ -39,6 +42,13 @@ describe('Integration Tests for resources of Courses API', () => {
       const taskId = 't1';
       const studentId = 'u2';
       const feedback = { grade: 85, feedback: 'Good job!' };
+      const token = jwt.sign(
+        { id: 'u1',
+          userType: userTypes.INSTRUCTOR,
+         }, // payload
+        process.env.SECRET_KEY!, // clave secreta
+        { algorithm: 'HS256' }
+      );
 
       const response = await request(app)
         .patch(`/tasks/${taskId}/submissions/${studentId}/feedback`)

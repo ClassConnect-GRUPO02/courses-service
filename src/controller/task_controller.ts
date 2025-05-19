@@ -5,6 +5,7 @@ import { Task } from '../models/task';
 import { handleInvalidRequestError } from './course_controller';
 import * as taskService from '../service/task_service';
 import { authenticateJWT, AuthenticatedRequest } from "../lib/auth"
+import { userTypes } from '../lib/user_types';
 
 
 // -------------------------- TASKS / EXAMS ---------------------------
@@ -124,6 +125,11 @@ export const addFeedbackToTask = async (req: AuthenticatedRequest, res: Response
     const { taskId, studentId } = req.params;
     const { grade, feedback } = req.body;
     const teacherId = req.user?.Id; // extraído del JWT
+    const userType = req.user?.userType; // extraído del JWT
+    if (userType !== userTypes.INSTRUCTOR) {
+      res.status(StatusCodes.FORBIDDEN).json({ message: "Only instructors can add feedback" });
+      return;
+    }
 
     if (!teacherId) {
       res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing teacher ID" });

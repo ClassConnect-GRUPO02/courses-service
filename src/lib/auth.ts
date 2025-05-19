@@ -7,7 +7,7 @@ const SECRET_KEY = process.env.SECRET_KEY as string; // clave pública del servi
 export interface AuthenticatedRequest extends Request {
   user?: {
     Id: string;
-    //role: string;
+    userType: string;
   };
 }
 
@@ -28,6 +28,7 @@ export function authenticateJWT(req: AuthenticatedRequest, res: Response, next: 
     const payload = jwt.verify(token, SECRET_KEY, { algorithms: ["HS256"] }) as any;
     req.user = {
       Id: payload.id,
+      userType: payload.userType,
     };
     next();
   } catch (err) {
