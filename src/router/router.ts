@@ -7,7 +7,7 @@ import * as taskController from '../controller/task_controller';
 import * as resourceController from '../controller/resource_controller';
 import * as feedbackController from '../controller/feedback_controller';
 import * as favoritesController from '../controller/favorites_controller';
-import { authenticateJWT, AuthenticatedRequest } from "../lib/auth"
+import { authenticateJWT } from "../lib/auth"
 
 const router = express.Router();
 

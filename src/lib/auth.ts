@@ -25,14 +25,14 @@ export function authenticateJWT(req: AuthenticatedRequest, res: Response, next: 
       res.status(500).json({ message: "Internal server error: missing SECRET_KEY" });
       return;
     }
-    const payload = jwt.verify(token, SECRET_KEY, { algorithms: ["HS256"] }) as any;
+    const payload = jwt.verify(token, SECRET_KEY, { algorithms: ["HS256"] }) as { id: string; userType: string };
     req.user = {
       Id: payload.id,
       userType: payload.userType,
     };
     next();
   } catch (err) {
-    res.status(401).json({ message: "Invalid or expired token" });
+    res.status(401).json({ message: "Invalid or expired token", err });
   }
 }
 

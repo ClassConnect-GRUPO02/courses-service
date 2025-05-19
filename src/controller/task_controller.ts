@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import { Task } from '../models/task';
 import { handleInvalidRequestError } from './course_controller';
 import * as taskService from '../service/task_service';
-import { authenticateJWT, AuthenticatedRequest } from "../lib/auth"
+import { AuthenticatedRequest } from "../lib/auth"
 import { userTypes } from '../lib/user_types';
 
 

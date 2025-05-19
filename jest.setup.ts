@@ -2,8 +2,7 @@ import { Server } from 'http';
 import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDB } from './src/tests/mocks/mock.db';
-import { findTasksByInstructor } from './src/database/task_db';
-import { authenticateJWT } from './src/lib/auth';
+
 
 let server: Server;
 
@@ -340,7 +339,7 @@ jest.mock('./src/database/task_db', () => ({
     const tasks = mockDB.tasks.filter(task => task.created_by === instructorId);
     return Promise.resolve(tasks.length);
   }),
-  updateTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string, grade: number, feedback: any) => {
+  updateTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string, grade: number, feedback: string) => {
     const submissionIndex = mockDB.taskSubmission.findIndex(
       sub => sub.task_id === taskId && sub.student_id === studentId
     );
