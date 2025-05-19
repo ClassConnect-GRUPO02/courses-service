@@ -5,26 +5,42 @@ import jwt from 'jsonwebtoken';
 import { userTypes } from '../lib/user_types';
 
 
-
-
 describe('Integration Tests for resources of Courses API', () => {
   describe('GET /tasks/:taskId/submissions/:studentId', () => {
     it('should return 200 and the task submission for a valid taskId and studentId', async () => {
       const taskId = 't1';
       const studentId = 'u2';
 
+      const token = jwt.sign(
+        { id: studentId,
+          userType: userTypes.STUDENT,
+         }, // payload
+        process.env.SECRET_KEY!, // clave secreta
+        { algorithm: 'HS256' }
+      );
+
       const response = await request(app)
         .get(`/tasks/${taskId}/submissions/${studentId}`)
+        .set('Authorization', `Bearer ${token}`);
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toHaveProperty('data');
     });
 
     it('should return 404 if the task submission is not found', async () => {
       const taskId = 'invalidTaskId';
-      const studentId = 'invalidStudentId';
+      const studentId = 'u2';
+
+      const token = jwt.sign(
+        { id: studentId,
+          userType: userTypes.STUDENT,
+         }, // payload
+        process.env.SECRET_KEY!, // clave secreta
+        { algorithm: 'HS256' }
+      );
 
       const response = await request(app)
         .get(`/tasks/${taskId}/submissions/${studentId}`)
+        .set('Authorization', `Bearer ${token}`);
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });
   });

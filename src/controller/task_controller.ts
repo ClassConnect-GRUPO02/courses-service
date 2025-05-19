@@ -147,9 +147,14 @@ export const addFeedbackToTask = async (req: AuthenticatedRequest, res: Response
 // Retrieves a specific task submission for a student
 // This endpoint is used to get the submission details for a specific task
 // router.get('/tasks/:taskId/submissions/:studentId', taskController.getTaskSubmission)
-export const getTaskSubmission = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getTaskSubmission = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { taskId, studentId } = req.params;
+    if (req.user?.Id !== studentId) {
+      res.status(StatusCodes.FORBIDDEN).json({ message: "You are not authorized to view this submission" });
+      return;
+    }
+
     const submission = await taskService.getTaskSubmission(taskId, studentId);
     res.status(StatusCodes.OK).json({ data: submission });
     logger.info(`Task submission retrieved for task with ID ${taskId} and student with ID ${studentId} successfully`);
@@ -161,8 +166,12 @@ export const getTaskSubmission = async (req: Request, res: Response, next: NextF
 // Retrieves all task submissions for a specific task
 // This endpoint is used to get all submissions for a specific task it must only be used by the instructors
 // router.get('/courses/:id/instructors/:instructorId/tasks/:taskId/submissions', taskController.getTaskSubmissions)
-export const getTaskSubmissions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getTaskSubmissions = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
+    if (req.user?.userType !== userTypes.INSTRUCTOR) {
+      res.status(StatusCodes.FORBIDDEN).json({ message: "Only instructors can view task submissions" });
+      return;
+    }
     const { id, instructorId, taskId } = req.params;
     const submissions = await taskService.getTaskSubmissions(id, instructorId, taskId);
     res.status(StatusCodes.OK).json({ data: submissions });
