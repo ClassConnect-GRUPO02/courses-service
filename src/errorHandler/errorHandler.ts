@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { CourseCreationError, CourseFullError, CourseNotFoundError, ModuleCreationError, ModuleNotFoundError, AlreadyEnrolledError, ResourceCreationError, ResourceNotFoundError, NotEnrolledError, PunctuationError, CommentOrPuntuationNotFoundError, AlreadyGaveFeedbackError, NotInstructorError, AlreadyGaveFeedbackToStudentError, AlreadyFavoriteError, NotFavoriteError, AuthorizationError, NotFoundError } from '../models/errors';
 import { NextFunction } from 'express';
-import logger from '../logger/logger';
  
 export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction): void => {
   if (err instanceof CourseCreationError || err instanceof ModuleCreationError || err instanceof CourseFullError || err instanceof AlreadyEnrolledError || err instanceof ResourceCreationError || err instanceof PunctuationError || err instanceof CommentOrPuntuationNotFoundError || err instanceof AlreadyGaveFeedbackError || err instanceof AlreadyGaveFeedbackToStudentError || err instanceof AlreadyFavoriteError || err instanceof NotFavoriteError) {
