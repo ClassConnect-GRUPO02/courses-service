@@ -3,6 +3,7 @@ import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDB } from './src/tests/mocks/mock.db';
 
+
 let server: Server;
 
 export interface Instructor {
@@ -286,10 +287,8 @@ jest.mock('./src/database/task_db', () => ({
     return Promise.resolve(deletedTask);
   }),
 
-  getTaskById: jest.fn().mockImplementation((courseId: string, taskId: string) => {
-    const course = mockDB.courses.find(course => course.id === courseId);
-    if (!course) return Promise.resolve(null);
-    const task = mockDB.tasks.find(task => task.id === taskId && task.course_id === courseId);
+  getTaskById: jest.fn().mockImplementation((taskId: string) => {
+    const task = mockDB.tasks.find(task => task.id === taskId);
     if (!task) return Promise.resolve(null);
     return Promise.resolve({
       ...task,
@@ -308,6 +307,9 @@ jest.mock('./src/database/task_db', () => ({
       task_id,
       student_id,
       answers,
+      grade: 0,
+      feedback: "",
+      time_spent: 0,
       file_url,
       submitted_at: submitted_at.toISOString(),
       status,
@@ -316,6 +318,43 @@ jest.mock('./src/database/task_db', () => ({
     return Promise.resolve({
       ...taskSub
     })
+  }),
+
+  getTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string) => {
+    const submission = mockDB.taskSubmission.find(sub => sub.task_id === taskId && sub.student_id === studentId);
+    if (!submission) return Promise.resolve(null);
+    return Promise.resolve({
+      ...submission,
+      submitted_at: new Date(submission.submitted_at).toISOString(),
+    });
+  }),
+
+  findTasksByInstructor: jest.fn().mockImplementation((instructorId: string, skip: number, pageSize: number) => {
+    const tasks = mockDB.tasks.filter(task => task.created_by === instructorId);
+    const total = tasks.length;
+    const paginatedTasks = tasks.slice(skip, skip + pageSize);
+    return Promise.resolve([paginatedTasks, total]);
+  }),
+  countTasksByInstructor: jest.fn().mockImplementation((instructorId: string) => {
+    const tasks = mockDB.tasks.filter(task => task.created_by === instructorId);
+    return Promise.resolve(tasks.length);
+  }),
+  updateTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string, grade: number, feedback: string) => {
+    const submissionIndex = mockDB.taskSubmission.findIndex(
+      sub => sub.task_id === taskId && sub.student_id === studentId
+    );
+
+    if (submissionIndex === -1) return Promise.resolve(null);
+
+    const updatedSubmission = {
+      ...mockDB.taskSubmission[submissionIndex],
+      grade,      
+      feedback     
+    };
+
+    mockDB.taskSubmission[submissionIndex] = updatedSubmission;
+
+    return Promise.resolve(updatedSubmission);
   }),
 }));
 
@@ -350,6 +389,7 @@ jest.mock('./src/database/favorites_db', () => ({
     })));
   }),
 }));
+
 
 
 

@@ -4,6 +4,9 @@ import { StatusCodes } from 'http-status-codes';
 import { Task } from '../models/task';
 import { handleInvalidRequestError } from './course_controller';
 import * as taskService from '../service/task_service';
+import { AuthenticatedRequest } from "../lib/auth"
+import { userTypes } from '../lib/user_types';
+
 
 // -------------------------- TASKS / EXAMS ---------------------------
 
@@ -61,7 +64,7 @@ export const getTasks = async (req: Request, res: Response, next: NextFunction):
 export const getTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id, taskId } = req.params;
-    const task = await taskService.getTaskById(id, taskId);
+    const task = await taskService.getTaskById(taskId);
     res.status(StatusCodes.OK).json({ data: task });
     logger.info(`Task with ID ${taskId} retrieved from course with ID ${id} successfully`);
   } catch (error) {
@@ -117,11 +120,23 @@ export const getTasksByStudentId = async (req: Request, res: Response, next: Nex
 // Adds feedback to a task
 // This endpoint is used to grade a task by the instructor
 // router.patch('/tasks/:taskId/submissions/feedback', taskController.addFeedbackToTask)
-export const addFeedbackToTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const addFeedbackToTask = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { taskId, studentId } = req.params;
     const { grade, feedback } = req.body;
-    const updatedSubmission = await taskService.addFeedbackToTask(taskId, studentId, grade, feedback);
+    const teacherId = req.user?.Id; // extraído del JWT
+    const userType = req.user?.userType; // extraído del JWT
+    if (userType !== userTypes.INSTRUCTOR) {
+      res.status(StatusCodes.FORBIDDEN).json({ message: "Only instructors can add feedback" });
+      return;
+    }
+
+    if (!teacherId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing teacher ID" });
+      return;
+    }
+
+    const updatedSubmission = await taskService.addFeedbackToTask(taskId, studentId, grade, feedback, teacherId);
     res.status(StatusCodes.OK).json({ data: updatedSubmission });
     logger.info(`Feedback added to task with ID ${taskId} successfully`);
   } catch (error) {

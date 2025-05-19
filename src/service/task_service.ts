@@ -1,5 +1,5 @@
 import { Task } from '../models/task';
-import { CourseNotFoundError } from '../models/errors';
+import { AuthorizationError, CourseNotFoundError, NotFoundError } from '../models/errors';
 import * as database from '../database/course_db';
 import * as databaseTask from '../database/task_db';
 import * as databaseInstructor from '../database/instructor_db';
@@ -48,15 +48,10 @@ export const getTasks = async (courseId: string): Promise<Task[]> => {
   return await databaseTask.getTasksByCourseId(courseId);
 }
 
-export const getTaskById = async (courseId: string, taskId: string): Promise<Task> => {
-  const course = await database.getCourseById(courseId);
-  if (!course) {
-    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
-  }
-
-  const task = await databaseTask.getTaskById(courseId, taskId);
+export const getTaskById = async (taskId: string): Promise<Task> => {
+  const task = await databaseTask.getTaskById(taskId);
   if (!task) {
-    throw new Error(`Task with ID ${taskId} not found in course ${courseId}`);
+    throw new Error(`Task with ID ${taskId} not found.`);
   }
 
   return task;
@@ -64,7 +59,7 @@ export const getTaskById = async (courseId: string, taskId: string): Promise<Tas
 
 // -------------------------------- COMPLETE TASKS (STUDENTS) -----------------------------
 export const submitTask = async (courseId: string, taskId: string, studentId: string, answers: string[], fileUrl: string) => {
-  const task = await databaseTask.getTaskById(courseId, taskId);
+  const task = await databaseTask.getTaskById(taskId);
   if (!task || task.course_id !== courseId) {
     throw { status: 404, message: 'Tarea no encontrada en este curso' };
   }
@@ -113,10 +108,19 @@ export const getTasksByStudentId = async (studentId: string): Promise<Task[]> =>
 
 
 // -------------------------------- ADD FEEDBACK TO TASK -----------------------------
-export const addFeedbackToTask = async (taskId: string, studentId: string, grade: number, feedback: string) => {
+export const addFeedbackToTask = async (taskId: string, studentId: string, grade: number, feedback: string, instructorId: string) => {
   const submission = await databaseTask.getTaskSubmission(taskId, studentId);
   if (!submission) {
     throw new Error(`No submission found for task ID ${taskId}`);
+  }
+  const task = await databaseTask.getTaskById(taskId);
+  if (!task) {
+    throw new Error(`Task with ID ${taskId} not found`);
+  }
+  const courseId = task.course_id;
+  const isInstructor = await databaseInstructor.isInstructorInCourse(courseId, instructorId);
+  if (!isInstructor) {
+    throw new AuthorizationError(instructorId);
   }
   return await databaseTask.updateTaskSubmission(taskId, studentId, grade, feedback);
 }
@@ -124,7 +128,7 @@ export const addFeedbackToTask = async (taskId: string, studentId: string, grade
 export const getTaskSubmission = async (taskId: string, studentId: string) => {
   const submission = await databaseTask.getTaskSubmission(taskId, studentId);
   if (!submission) {
-    throw new Error(`No submission found for task ID ${taskId}`);
+    throw new NotFoundError(taskId, "Task submission");
   }
   return submission;
 }

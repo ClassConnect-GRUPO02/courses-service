@@ -192,10 +192,13 @@ export const mockDB = {
       id: 's1',
       task_id: 't1',
       student_id: 'u2',
+      status: 'submitted',
       answers: ['Respuesta 1', 'Respuesta 2'],
+      grade: 0,
+      feedback: "",
+      time_spent: 45,
       file_url: 'https://example.com/solution1.pdf',
       submitted_at: new Date('2024-05-09').toISOString(),
-      status: 'submitted',
     }
   ],
 

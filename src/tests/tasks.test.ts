@@ -111,4 +111,20 @@ describe('Integration Tests for tasks of Courses API', () => {
       expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
     });
   });
+
+  describe('GET /instructors/:instructorId/tasks', () => {
+    it('should retrieve all tasks for an instructor', async () => {
+      const instructorId = 'i1';
+      const page = 1;
+      const pageSize = 10;
+
+      const response = await request(app)
+        .get(`/instructors/${instructorId}/tasks?page=${page}&pageSize=${pageSize}`)
+        .send();
+
+      expect(response.status).toBe(StatusCodes.OK);
+      expect(response.body.data).toBeDefined();
+      expect(Array.isArray(response.body.data)).toBe(true);
+    });
+  });
 });
