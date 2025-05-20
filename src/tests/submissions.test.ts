@@ -10,12 +10,13 @@ describe('Integration Tests for resources of Courses API', () => {
     it('should return 200 and the task submission for a valid taskId and studentId', async () => {
       const taskId = 't1';
       const studentId = 'u2';
+      const secretKeyBuffer = Buffer.from(process.env.SECRET_KEY!, 'hex');
 
       const token = jwt.sign(
         { id: studentId,
           userType: userTypes.STUDENT,
          }, // payload
-        process.env.SECRET_KEY!, // clave secreta
+        secretKeyBuffer, // clave secreta
         { algorithm: 'HS256' }
       );
 
@@ -29,12 +30,14 @@ describe('Integration Tests for resources of Courses API', () => {
     it('should return 404 if the task submission is not found', async () => {
       const taskId = 'invalidTaskId';
       const studentId = 'u2';
+      const secretKeyBuffer = Buffer.from(process.env.SECRET_KEY!, 'hex');
+
 
       const token = jwt.sign(
         { id: studentId,
           userType: userTypes.STUDENT,
          }, // payload
-        process.env.SECRET_KEY!, // clave secreta
+        secretKeyBuffer, // clave secreta
         { algorithm: 'HS256' }
       );
 
@@ -50,11 +53,13 @@ describe('Integration Tests for resources of Courses API', () => {
       const taskId = 't1';
       const studentId = 'u2';
       const feedback = { grade: 85, feedback: 'Good job!' };
+      const secretKeyBuffer = Buffer.from(process.env.SECRET_KEY!, 'hex');
+
       const token = jwt.sign(
         { id: 'u1',
           userType: userTypes.INSTRUCTOR,
          }, // payload
-        process.env.SECRET_KEY!, // clave secreta
+        secretKeyBuffer, // clave secreta
         { algorithm: 'HS256' }
       );
 
