@@ -18,5 +18,34 @@ describe('Integration Tests for Student Feedback API', () => {
     expect(createdFeedback.punctuation).toBe(mockStudentFeedbackData.punctuation);
   });
 
+  it('should return 400 if feedback already exists', async () => {
+    const courseId = 'c2';
+    const studentId = 'u7';
+    const feedbackRequest = mockStudentFeedbackData;
+    const response = await request(app)
+      .post(`/courses/${courseId}/students/${studentId}/feedback`)
+      .send(mockStudentFeedbackData);
+    expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+  });
+
+  it('should return 403 if user is not instructor', async () => {
+    const courseId = 'c1';
+    const studentId = 'u3';
+    const feedbackRequest = mockStudentFeedbackData;
+    const response = await request(app)
+      .post(`/courses/${courseId}/students/${studentId}/feedback`)
+      .send(mockStudentFeedbackData);
+    expect(response.status).toBe(StatusCodes.FORBIDDEN);
+  });
+
+  it ('should return 403 if student is not enrolled in course', async () => {
+    const courseId = 'c2';
+    const studentId = 'u4';
+    const feedbackRequest = mockStudentFeedbackData;
+    const response = await request(app)
+      .post(`/courses/${courseId}/students/${studentId}/feedback`)
+      .send(mockStudentFeedbackData);
+    expect(response.status).toBe(StatusCodes.FORBIDDEN);
+  });
 
 });
