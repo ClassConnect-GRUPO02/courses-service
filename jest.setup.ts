@@ -2,9 +2,6 @@ import { Server } from 'http';
 import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDB } from './src/tests/mocks/mock.db';
-import { getCourses } from './src/database/course_db';
-import { addFeedbackToCourse, feedbackAlreadyExists, getFeedbacksAsStudent, getFeedbacksByCourseId } from './src/database/feedback_db';
-
 
 let server: Server;
 

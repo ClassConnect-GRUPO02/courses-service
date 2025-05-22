@@ -8,7 +8,6 @@ describe('Integration Tests for Student Feedback API', () => {
     it('should add feedback to a student', async () => {
       const courseId = 'c2';
       const studentId = 'u7';
-      const feedbackRequest = mockStudentFeedbackData;
       const response = await request(app)
         .post(`/courses/${courseId}/students/${studentId}/feedback`)
         .send(mockStudentFeedbackData);
@@ -40,7 +39,6 @@ describe('Integration Tests for Student Feedback API', () => {
     it ('should return 403 if student is not enrolled in course', async () => {
       const courseId = 'c2';
       const studentId = 'u4';
-      const feedbackRequest = mockStudentFeedbackData;
       const response = await request(app)
         .post(`/courses/${courseId}/students/${studentId}/feedback`)
         .send(mockStudentFeedbackData);
