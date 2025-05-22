@@ -216,4 +216,13 @@ export const mockDB = {
       punctuation: 5,
     }
   ],
+
+  courseFeedback: [
+    { id: 'courseFeedback1',
+      course_id: 'c1',
+      student_id: 'u2',
+      comment: 'El curso es muy interesante y el instructor explica muy bien.',
+      punctuation: 4.5,
+    }
+  ]
 };

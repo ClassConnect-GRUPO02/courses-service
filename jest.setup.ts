@@ -3,6 +3,7 @@ import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDB } from './src/tests/mocks/mock.db';
 import { getCourses } from './src/database/course_db';
+import { addFeedbackToCourse, feedbackAlreadyExists, getFeedbacksAsStudent, getFeedbacksByCourseId } from './src/database/feedback_db';
 
 
 let server: Server;
@@ -420,6 +421,28 @@ jest.mock('./src/database/feedback_db', () => ({
   studentFeedbackAlreadyExists: jest.fn().mockImplementation((course_id: string, student_id: string) => {
     const found = mockDB.studentFeedback.find(feedback => feedback.course_id === course_id && feedback.student_id === student_id);
     return Promise.resolve(!!found);
+  }),
+
+  addFeedbackToCourse: jest.fn().mockImplementation((course_id: string, student_id: string, comment: string, punctuation: number) => {
+    const newFeedback = {
+      id: uuidv4(),
+      course_id,
+      student_id,
+      comment,
+      punctuation,
+    };
+    mockDB.courseFeedback.push(newFeedback);
+    return Promise.resolve(newFeedback);
+  }),
+
+  feedbackAlreadyExists: jest.fn().mockImplementation((course_id: string, student_id: string) => {
+    const found = mockDB.courseFeedback.find(feedback => feedback.course_id === course_id && feedback.student_id === student_id);
+    return Promise.resolve(!!found);
+  }),
+
+  getFeedbacksByCourseId: jest.fn().mockImplementation((course_id: string) => {
+    const feedbacks = mockDB.courseFeedback.filter(feedback => feedback.course_id === course_id);
+    return Promise.resolve(feedbacks);
   }),
 }));
 
