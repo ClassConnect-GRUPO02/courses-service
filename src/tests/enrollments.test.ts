@@ -96,4 +96,15 @@ describe('Integration Tests for Enrollments of Courses API', () => {
       expect(enrollmentsResponse.body.data.length).toBe(5);
     });
   });
+
+  describe('GET /users/:id/courses', () => {
+    it('should return all courses for a user ID', async () => {
+      const userId = "u3";
+      const coursesResponse = await request(app)
+        .get(`/users/${userId}/courses`);
+      expect(coursesResponse.status).toBe(StatusCodes.OK);
+      expect(coursesResponse.body.data.length).toBe(1);
+      expect(coursesResponse.body.data[0].id).toBe("c1");
+    });
+  });
 });

@@ -2,6 +2,7 @@ import { Server } from 'http';
 import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDB } from './src/tests/mocks/mock.db';
+import { getCourses } from './src/database/course_db';
 
 
 let server: Server;
@@ -46,6 +47,13 @@ jest.mock('./src/database/course_db', () => ({
     return Promise.resolve(deleted);
   }),
 
+  getCoursesByUserId: jest.fn().mockImplementation((userId: string) => {
+    const enrollments = mockDB.enrollments.filter(enrollment => enrollment.userId === userId);
+    const courseIds = enrollments.map(enrollment => enrollment.courseId);
+    const courses = mockDB.courses.filter(course => courseIds.includes(course.id));
+    return Promise.resolve(courses)
+  }),
+  
 }));
 
 jest.mock('./src/database/module_db', () => ({
