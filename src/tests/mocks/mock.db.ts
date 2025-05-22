@@ -205,5 +205,24 @@ export const mockDB = {
   favorites: [
     { id: 'f1', course_id: 'c1', student_id: 'u2' },
     { id: 'f2', course_id: 'c1', student_id: 'u3' },
+  ],
+
+  studentFeedback: [
+    { id: 'feedback1', 
+      course_id: 'c1',
+      student_id: 'u2',
+      instructor_id: 'u1',
+      comment: 'El estudiante es muy participativo y siempre entrega sus tareas a tiempo.',
+      punctuation: 5,
+    }
+  ],
+
+  courseFeedback: [
+    { id: 'courseFeedback1',
+      course_id: 'c1',
+      student_id: 'u2',
+      comment: 'El curso es muy interesante y el instructor explica muy bien.',
+      punctuation: 4.5,
+    }
   ]
 };
