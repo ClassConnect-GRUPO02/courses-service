@@ -53,7 +53,7 @@ jest.mock('./src/database/course_db', () => ({
     const courses = mockDB.courses.filter(course => courseIds.includes(course.id));
     return Promise.resolve(courses)
   }),
-  
+
 }));
 
 jest.mock('./src/database/module_db', () => ({
@@ -395,6 +395,31 @@ jest.mock('./src/database/favorites_db', () => ({
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })));
+  }),
+}));
+
+jest.mock('./src/database/feedback_db', () => ({
+  addFeedbackToStudent: jest.fn().mockImplementation((course_id: string, student_id: string, instructor_id: string, comment: string, punctuation: number) => {
+    const newFeedback = {
+      id: uuidv4(),
+      course_id,
+      student_id,
+      instructor_id,
+      comment,
+      punctuation,
+    };
+    mockDB.studentFeedback.push(newFeedback);
+    return Promise.resolve(newFeedback);
+  }),
+
+  getFeedbacksAsStudent: jest.fn().mockImplementation((student_id: string) => {
+    const feedbacks = mockDB.studentFeedback.filter(feedback => feedback.student_id === student_id);
+    return Promise.resolve(feedbacks);
+  }),
+
+  studentFeedbackAlreadyExists: jest.fn().mockImplementation((course_id: string, student_id: string) => {
+    const found = mockDB.studentFeedback.find(feedback => feedback.course_id === course_id && feedback.student_id === student_id);
+    return Promise.resolve(!!found);
   }),
 }));
 
