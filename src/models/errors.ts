@@ -109,6 +109,16 @@ export class NotInstructorError extends AppError {
   }
 }
 
+export class AlreadyInstructorError extends AppError {
+  constructor(courseID: string, instructorID: string) {
+    super(
+      'AlreadyInstructorError',
+      400,
+      `Instructor with ID ${instructorID} is already an instructor in course with ID ${courseID}`
+    );
+  }
+}
+
 export class PunctuationError extends AppError {
   constructor() {
     super(

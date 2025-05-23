@@ -15,3 +15,15 @@ export const isInstructorInCourse = async (req: Request, res: Response, next: Ne
     next(error);
   }
 }
+
+export const addInstructorToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, userId } = req.params;
+    const { instructorId } = req.body;
+    const instructor = await instructorService.addAuxInstructorToCourse(id, userId, instructorId);
+    res.status(StatusCodes.CREATED).json(instructor);
+    logger.info(`Instructor with ID ${instructorId} added to course with ID ${id}`);
+  } catch (error) {
+    next(error);
+  }
+}
