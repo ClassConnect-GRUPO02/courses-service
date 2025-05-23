@@ -1,19 +1,19 @@
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from './course_db';
-import { Task } from '../models/task';
+import { Task  } from '../models/task';
 import { SubmissionStatus, TaskSubmission } from '@prisma/client';
 
 export const addTaskToCourse = async (courseId: string, task: Task): Promise<Task> => {
+  const taskId = uuidv4();
 
   const newTask = await prisma.task.create({
     data: {
-      id: uuidv4(),
+      id: taskId,
       course_id: courseId,
       created_by: task.created_by,
       type: task.type,
       title: task.title,
       description: task.description,
-      instructions: task.instructions,
       due_date: new Date(task.due_date),
       allow_late: task.allow_late,
       late_policy: task.late_policy,
@@ -30,6 +30,19 @@ export const addTaskToCourse = async (courseId: string, task: Task): Promise<Tas
     },
   });
 
+  console.log('array is array', Array.isArray(task.questions));
+  console.log('task.questions', task.questions);
+  // Si el formato de respuesta es por preguntas, insertamos las preguntas
+  if (task.answer_format === 'preguntas_respuestas' && Array.isArray(task.questions)) {
+    await prisma.taskQuestion.createMany({
+      data: task.questions.map((question) => ({
+        id: uuidv4(),
+        task_id: taskId,
+        text: question.text,
+      })),
+    });
+  }
+
   return {
     ...newTask,
     id: newTask.id,
@@ -40,9 +53,13 @@ export const addTaskToCourse = async (courseId: string, task: Task): Promise<Tas
     updated_at: newTask.updated_at.toISOString(),
     deleted_at: newTask.deleted_at ? newTask.deleted_at.toISOString() : null,
   };
-}
+};
 
-export const updateTask = async (courseId: string, taskId: string, task: Partial<Task>): Promise<Task> => {
+export const updateTask = async (
+  courseId: string,
+  taskId: string,
+  task: Partial<Task>
+): Promise<Task> => {
   const existingTask = await prisma.task.findUnique({
     where: { id: taskId },
   });
@@ -51,17 +68,14 @@ export const updateTask = async (courseId: string, taskId: string, task: Partial
     throw new Error(`Task with ID ${taskId} not found`);
   }
 
-
   const updatedTask = await prisma.task.update({
     where: { id: taskId },
     data: {
-      id: existingTask.id,
       course_id: courseId,
       created_by: existingTask.created_by,
       type: task.type ?? existingTask.type,
       title: task.title ?? existingTask.title,
       description: task.description ?? existingTask.description,
-      instructions: task.instructions ?? existingTask.instructions,
       due_date: task.due_date ? new Date(task.due_date) : existingTask.due_date,
       allow_late: task.allow_late ?? existingTask.allow_late,
       late_policy: task.late_policy ?? existingTask.late_policy,
@@ -72,11 +86,27 @@ export const updateTask = async (courseId: string, taskId: string, task: Partial
       visible_until: task.visible_until ? new Date(task.visible_until) : existingTask.visible_until,
       allow_file_upload: task.allow_file_upload ?? existingTask.allow_file_upload,
       answer_format: task.answer_format ?? existingTask.answer_format,
-      created_at: existingTask.created_at,
       updated_at: new Date(),
-      deleted_at: existingTask.deleted_at,
     },
   });
+
+  // Actualizamos preguntas si corresponde
+  if (
+    (task.answer_format === 'preguntas_respuestas' || existingTask.answer_format === 'preguntas_respuestas') &&
+    Array.isArray(task.questions)
+  ) {
+    // 1. Eliminar preguntas anteriores
+    await prisma.taskQuestion.deleteMany({ where: { task_id: taskId } });
+
+    // 2. Insertar nuevas preguntas
+    await prisma.taskQuestion.createMany({
+      data: task.questions.map((question) => ({
+        id: uuidv4(),
+        task_id: taskId,
+        text: question.text,
+      })),
+    });
+  }
 
   return {
     ...updatedTask,
@@ -88,7 +118,8 @@ export const updateTask = async (courseId: string, taskId: string, task: Partial
     updated_at: updatedTask.updated_at.toISOString(),
     deleted_at: updatedTask.deleted_at ? updatedTask.deleted_at.toISOString() : null,
   };
-}
+};
+
 
 export const deleteTask = async (taskId: string): Promise<string> => {
   const deleted = await prisma.task.delete({
@@ -136,20 +167,51 @@ export const getTaskById = async (taskId: string): Promise<Task | null> => {
   };
 }
 
-export const createTaskSubmission = async (task_id: string, student_id: string, answers: string[], file_url: string, submitted_at: Date, status: SubmissionStatus): Promise<TaskSubmission> => {
-  const newSubmission = await prisma.taskSubmission.create({
+type AnswerInput = {
+  question_id: string;
+  answer_text: string;
+};
+
+export const createTaskSubmission = async (
+  task_id: string,
+  student_id: string,
+  answers: AnswerInput[],
+  file_url: string | null,
+  submitted_at: Date,
+  status: SubmissionStatus
+): Promise<TaskSubmission> => {
+  const submissionId = uuidv4();
+
+  // Crear la entrega
+  await prisma.taskSubmission.create({
     data: {
+      id: submissionId,
       task_id,
       student_id,
-      answers,
-      file_url,
       submitted_at,
       status,
+      file_url,
     },
   });
 
-  return newSubmission;
-}
+  // Crear respuestas asociadas a esa entrega
+  await prisma.studentAnswer.createMany({
+    data: answers.map((a) => ({
+      id: uuidv4(),
+      submission_id: submissionId,
+      question_id: a.question_id,
+      answer_text: a.answer_text,
+      selected_option_id: null, // ya que no usamos opción múltiple
+    })),
+  });
+
+  // Devolver la submission recién creada
+  const created = await prisma.taskSubmission.findUniqueOrThrow({
+    where: { id: submissionId },
+  });
+
+  return created;
+};
 
 export const findTasksByInstructor = async (instructorId: string, skip: number, take: number) => {
   return prisma.task.findMany({

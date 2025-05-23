@@ -58,7 +58,12 @@ export const getTaskById = async (taskId: string): Promise<Task> => {
 }
 
 // -------------------------------- COMPLETE TASKS (STUDENTS) -----------------------------
-export const submitTask = async (courseId: string, taskId: string, studentId: string, answers: string[], fileUrl: string) => {
+type AnswerInput = {
+  question_id: string;
+  answer_text: string;
+};
+
+export const submitTask = async (courseId: string, taskId: string, studentId: string, answers: AnswerInput[], fileUrl: string) => {
   const task = await databaseTask.getTaskById(taskId);
   if (!task || task.course_id !== courseId) {
     throw { status: 404, message: 'Tarea no encontrada en este curso' };

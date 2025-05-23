@@ -71,30 +71,29 @@ enum InstructorType {
 }
 
 model Task {
-  id                   String       @id @default(uuid())
-  course_id            String
-  created_by           String
-  type                 TaskType
-  title                String
-  description          String
-  instructions         String
-  due_date             DateTime
-  allow_late           Boolean
-  late_policy          LatePolicy
-  has_timer            Boolean
-  time_limit_minutes   Int? // opcional
-  published            Boolean
-  visible_from         DateTime?
-  visible_until        DateTime?
-  allow_file_upload    Boolean
-  answer_format        AnswerFormat
-  created_at           DateTime     @default(now())
-  updated_at           DateTime     @updatedAt
-  deleted_at           DateTime?
+  id                 String          @id @default(uuid())
+  course_id          String
+  created_by         String
+  type               TaskType
+  title              String
+  description        String
+  due_date           DateTime
+  allow_late         Boolean
+  late_policy        LatePolicy
+  has_timer          Boolean
+  time_limit_minutes Int?
+  published          Boolean
+  visible_from       DateTime?
+  visible_until      DateTime?
+  allow_file_upload  Boolean
+  answer_format      AnswerFormat
+  created_at         DateTime        @default(now())
+  updated_at         DateTime        @updatedAt
+  deleted_at         DateTime?
 
-  // Relaciones
-  course               Course       @relation(fields: [course_id], references: [id], onDelete: Cascade)
-  submissions TaskSubmission[]
+  course             Course          @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  submissions        TaskSubmission[]
+  questions          TaskQuestion[]
 
   @@map("tasks")
 }
@@ -114,10 +113,18 @@ enum LatePolicy {
 }
 
 enum AnswerFormat {
-  texto
-  opcion_multiple
+  preguntas_respuestas
   archivo
-  mixto
+}
+
+model TaskQuestion {
+  id        String     @id @default(uuid())
+  task_id   String
+  text      String     @db.Text
+  task      Task       @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  answers   StudentAnswer[]
+
+  @@map("task_question")
 }
 
 model Resource {
@@ -135,27 +142,41 @@ model Resource {
 }
 
 model TaskSubmission {
-  id           String    @id @default(uuid())
+  id            String           @id @default(uuid())
   task_id       String
-  task         Task      @relation(fields: [task_id], references: [id], onDelete: Cascade)
   student_id    String
   submitted_at  DateTime
-  status       SubmissionStatus
-  answers      Json
-  grade        Float?    // puede ser null hasta que se corrija
-  feedback     String?   @db.Text // retroalimentación opcional
-  file_url      String?   // para subida de archivos opcional
-  time_spent    Int?      // minutos utilizados si hay temporizador
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
+  status        SubmissionStatus
+  grade         Float?
+  feedback      String?          @db.Text
+  file_url      String?
+  time_spent    Int?
+  created_at    DateTime         @default(now())
+  updated_at    DateTime         @updatedAt
 
-  @@unique([task_id, student_id]) // Un alumno solo puede entregar una vez por tarea
+  task          Task             @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  answers       StudentAnswer[]
+
+  @@unique([task_id, student_id])
   @@map("task_submission")
 }
 
 enum SubmissionStatus {
   submitted
   late
+}
+
+model StudentAnswer {
+  id              String     @id @default(uuid())
+  submission_id   String
+  question_id     String
+  answer_text     String?    // Para respuestas tipo texto
+  selected_option_id String? // Para opción múltiple
+
+  submission      TaskSubmission @relation(fields: [submission_id], references: [id], onDelete: Cascade)
+  question        TaskQuestion   @relation(fields: [question_id], references: [id], onDelete: Cascade)
+
+  @@map("student_answer")
 }
 
 model CourseFeedback {

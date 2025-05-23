@@ -59,7 +59,6 @@ CREATE TABLE `tasks` (
     `type` ENUM('tarea', 'examen') NOT NULL,
     `title` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NOT NULL,
-    `instructions` VARCHAR(191) NOT NULL,
     `due_date` DATETIME(3) NOT NULL,
     `allow_late` BOOLEAN NOT NULL,
     `late_policy` ENUM('ninguna', 'descontar', 'penalizar', 'aceptar', 'aceptar_con_descuento', 'aceptar_con_penalizacion') NOT NULL,
@@ -69,10 +68,19 @@ CREATE TABLE `tasks` (
     `visible_from` DATETIME(3) NULL,
     `visible_until` DATETIME(3) NULL,
     `allow_file_upload` BOOLEAN NOT NULL,
-    `answer_format` ENUM('texto', 'opcion_multiple', 'archivo', 'mixto') NOT NULL,
+    `answer_format` ENUM('preguntas_respuestas', 'archivo') NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
     `deleted_at` DATETIME(3) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `task_question` (
+    `id` VARCHAR(191) NOT NULL,
+    `task_id` VARCHAR(191) NOT NULL,
+    `text` TEXT NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -98,15 +106,60 @@ CREATE TABLE `task_submission` (
     `student_id` VARCHAR(191) NOT NULL,
     `submitted_at` DATETIME(3) NOT NULL,
     `status` ENUM('submitted', 'late') NOT NULL,
-    `answers` JSON NOT NULL,
     `grade` DOUBLE NULL,
-    `feedback` VARCHAR(191) NULL,
+    `feedback` TEXT NULL,
     `file_url` VARCHAR(191) NULL,
     `time_spent` INTEGER NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `task_submission_task_id_student_id_key`(`task_id`, `student_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `student_answer` (
+    `id` VARCHAR(191) NOT NULL,
+    `submission_id` VARCHAR(191) NOT NULL,
+    `question_id` VARCHAR(191) NOT NULL,
+    `answer_text` VARCHAR(191) NULL,
+    `selected_option_id` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `course_feedback` (
+    `id` VARCHAR(191) NOT NULL,
+    `course_id` VARCHAR(191) NOT NULL,
+    `student_id` VARCHAR(191) NOT NULL,
+    `comment` VARCHAR(191) NOT NULL,
+    `punctuation` DOUBLE NOT NULL,
+
+    UNIQUE INDEX `course_feedback_course_id_student_id_key`(`course_id`, `student_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `student_feedback` (
+    `id` VARCHAR(191) NOT NULL,
+    `course_id` VARCHAR(191) NOT NULL,
+    `student_id` VARCHAR(191) NOT NULL,
+    `instructor_id` VARCHAR(191) NOT NULL,
+    `comment` VARCHAR(191) NOT NULL,
+    `punctuation` DOUBLE NOT NULL,
+
+    UNIQUE INDEX `student_feedback_course_id_student_id_key`(`course_id`, `student_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `favorite_courses` (
+    `id` VARCHAR(191) NOT NULL,
+    `course_id` VARCHAR(191) NOT NULL,
+    `student_id` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `favorite_courses_course_id_student_id_key`(`course_id`, `student_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -123,7 +176,25 @@ ALTER TABLE `courses_instructors` ADD CONSTRAINT `courses_instructors_courseId_f
 ALTER TABLE `tasks` ADD CONSTRAINT `tasks_course_id_fkey` FOREIGN KEY (`course_id`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `task_question` ADD CONSTRAINT `task_question_task_id_fkey` FOREIGN KEY (`task_id`) REFERENCES `tasks`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `resources` ADD CONSTRAINT `resources_moduleId_fkey` FOREIGN KEY (`moduleId`) REFERENCES `Module`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `task_submission` ADD CONSTRAINT `task_submission_task_id_fkey` FOREIGN KEY (`task_id`) REFERENCES `tasks`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `student_answer` ADD CONSTRAINT `student_answer_submission_id_fkey` FOREIGN KEY (`submission_id`) REFERENCES `task_submission`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `student_answer` ADD CONSTRAINT `student_answer_question_id_fkey` FOREIGN KEY (`question_id`) REFERENCES `task_question`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `course_feedback` ADD CONSTRAINT `course_feedback_course_id_fkey` FOREIGN KEY (`course_id`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `student_feedback` ADD CONSTRAINT `student_feedback_course_id_fkey` FOREIGN KEY (`course_id`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `favorite_courses` ADD CONSTRAINT `favorite_courses_course_id_fkey` FOREIGN KEY (`course_id`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
