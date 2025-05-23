@@ -109,6 +109,16 @@ export class NotInstructorError extends AppError {
   }
 }
 
+export class NotTitularError extends AppError {
+  constructor(courseID: string, instructorID: string) {
+    super(
+      'NotInstructorError',
+      403,
+      `Instructor with ID ${instructorID} is not a titular instructor in course with ID ${courseID}`
+    );
+  }
+}
+
 export class AlreadyInstructorError extends AppError {
   constructor(courseID: string, instructorID: string) {
     super(

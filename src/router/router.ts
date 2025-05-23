@@ -35,7 +35,8 @@ router.get('/courses/:id/enrollments/:userId', enrollmentController.isEnrolledIn
 // ----------------------------- INSTRUCTORS -----------------------------
 router.get('/courses/:id/instructors/:instructorId', instructorController.isInstructorInCourse); // Check if user is instructor in course
 router.get('/instructors/:instructorId/tasks', taskController.listTasksByInstructor); // GET /instructors/:instructorId/tasks?page=1&pageSize=10
-router.post('/courses/:id/instructors/:userId', instructorController.addInstructorToCourse); // Add instructor to course
+router.post('/courses/:id/instructors/:auxiliarId', instructorController.addInstructorToCourse); // Add instructor to course
+router.delete('/courses/:id/instructors/:auxiliarId', instructorController.removeInstructorFromCourse); // Remove instructor from course
 
 // ----------------------------- TASKS AND EXAMS -----------------------------
 router.post('/courses/:id/tasks', taskController.addTaskToCourse); // Add task to course

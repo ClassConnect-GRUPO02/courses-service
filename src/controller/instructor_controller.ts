@@ -18,11 +18,23 @@ export const isInstructorInCourse = async (req: Request, res: Response, next: Ne
 
 export const addInstructorToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { id, userId } = req.params;
-    const { instructorId } = req.body;
-    const instructor = await instructorService.addAuxInstructorToCourse(id, userId, instructorId);
+    const { id, auxiliarId } = req.params;
+    const { titularId } = req.body;
+    const instructor = await instructorService.addAuxInstructorToCourse(id, auxiliarId, titularId);
     res.status(StatusCodes.CREATED).json(instructor);
-    logger.info(`Instructor with ID ${instructorId} added to course with ID ${id}`);
+    logger.info(`Instructor with ID ${auxiliarId} added to course with ID ${id}`);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const removeInstructorFromCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, auxiliarId } = req.params;
+    const { titularId } = req.body;
+    const instructor = await instructorService.removeInstructorFromCourse(id, auxiliarId, titularId);
+    res.status(StatusCodes.OK).json(instructor);
+    logger.info(`Instructor with ID ${auxiliarId} removed from course with ID ${id}`);
   } catch (error) {
     next(error);
   }
