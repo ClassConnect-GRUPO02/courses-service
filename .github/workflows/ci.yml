@@ -13,7 +13,7 @@ jobs:
       OPENAI_API_KEY: 'test-api-key'
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       # ¡CAMBIO AQUÍ! Usar el nombre del servicio de Docker Compose como host
-      DATABASE_URL: "mysql://root:testpassword@mysql-test:3306/cursos_test" 
+      DATABASE_URL: "mysql://root:testpassword@127.0.0.1:3308/cursos_test" 
 
     steps:
       - name: Checkout código
