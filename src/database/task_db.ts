@@ -30,8 +30,6 @@ export const addTaskToCourse = async (courseId: string, task: Task): Promise<Tas
     },
   });
 
-  console.log('array is array', Array.isArray(task.questions));
-  console.log('task.questions', task.questions);
   // Si el formato de respuesta es por preguntas, insertamos las preguntas
   if (task.answer_format === 'preguntas_respuestas' && Array.isArray(task.questions)) {
     await prisma.taskQuestion.createMany({
@@ -132,6 +130,9 @@ export const deleteTask = async (taskId: string): Promise<string> => {
 export const getTasksByCourseId = async (courseId: string): Promise<Task[]> => {
   const tasks = await prisma.task.findMany({
     where: { course_id: courseId },
+    include: {
+      questions: true, // Explicitly include related questions
+    },
   });
 
   return tasks.map((task) => ({
@@ -142,6 +143,11 @@ export const getTasksByCourseId = async (courseId: string): Promise<Task[]> => {
     created_at: task.created_at.toISOString(),
     updated_at: task.updated_at.toISOString(),
     deleted_at: task.deleted_at ? task.deleted_at.toISOString() : null,
+    questions: task.questions
+      ? task.questions.map((question) => ({
+          ...question
+        }))
+      : [],
   }));
 }
 
@@ -149,6 +155,9 @@ export const getTaskById = async (taskId: string): Promise<Task | null> => {
   const task = await prisma.task.findFirst({
     where: {
       id: taskId,
+    },
+    include: {
+      questions: true, // Explicitly include related questions
     },
   });
 
@@ -164,6 +173,11 @@ export const getTaskById = async (taskId: string): Promise<Task | null> => {
     created_at: task.created_at.toISOString(),
     updated_at: task.updated_at.toISOString(),
     deleted_at: task.deleted_at ? task.deleted_at.toISOString() : null,
+    questions: task.questions
+      ? task.questions.map((question) => ({
+          ...question,
+        }))
+      : [],
   };
 }
 
@@ -295,7 +309,10 @@ export const getTaskSubmission = async (taskId: string, studentId: string): Prom
     where: {
       task_id: taskId,
       student_id: studentId,
-    }
+    },
+    include: {
+      answers: true,  // <- esto trae el array de respuestas
+    },
   });
 };
 
@@ -324,6 +341,9 @@ export const getTaskSubmissions = async (taskId: string): Promise<TaskSubmission
   return await prisma.taskSubmission.findMany({
     where: {
       task_id: taskId,
+    },
+    include: {
+      answers: true,  // <- esto trae el array de respuestas
     },
   });
 }
