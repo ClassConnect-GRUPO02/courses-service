@@ -12,7 +12,8 @@ jobs:
     env:
       OPENAI_API_KEY: 'test-api-key'
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      DATABASE_URL: "mysql://root:testpassword@127.0.0.1:3308/cursos_test"
+      # ¡CAMBIO AQUÍ! Usar el nombre del servicio de Docker Compose como host
+      DATABASE_URL: "mysql://root:testpassword@mysql-test:3306/cursos_test" 
 
     steps:
       - name: Checkout código
@@ -38,10 +39,8 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-        if: always() # Asegura que se suba incluso si los tests fallan
+        if: always()
 
       - name: Apagar Docker Compose para tests
-        # Este paso es CRÍTICO y debe ir al final para limpiar los recursos.
-        # Siempre se ejecuta, incluso si los pasos anteriores fallan.
         if: always()
         run: npm run test:teardown

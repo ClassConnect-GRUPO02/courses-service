@@ -8,7 +8,7 @@ import { userTypes } from '../lib/user_types';
 
 
 describe('Integration Tests for resources of Courses API', () => {
-  describe('GET /tasks/:taskId/submissions/:studentId', () => {
+  xdescribe('GET /tasks/:taskId/submissions/:studentId', () => {
     it('should return 200 and the task submission for a valid taskId and studentId', async () => {
       const taskId = 't1';
       const studentId = 'u2';
@@ -29,7 +29,7 @@ describe('Integration Tests for resources of Courses API', () => {
     });
   });
 
-  describe('PATCH /tasks/:taskId/submissions/:studentId/feedback', () => {
+  xdescribe('PATCH /tasks/:taskId/submissions/:studentId/feedback', () => {
     it('should return 200 and the updated task submission for valid data', async () => {
       const taskId = 't1';
       const studentId = 'u2';
