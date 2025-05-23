@@ -76,3 +76,15 @@ export const updateInstructorPermissions = async (courseId: string, auxiliarId: 
 
   return await databaseInstructor.updateInstructorPermissions(courseId, auxiliarId, can_create_content, can_grade, can_update_course);
 }
+
+export const getInstructorPermissions = async (courseId: string, instructorId: string): Promise<any> => {
+  const course = await database.getCourseById(courseId);
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+  const isInstructor = await databaseInstructor.isInstructorInCourse(courseId, instructorId);
+  if (!isInstructor) {
+    throw new NotInstructorError(courseId, instructorId);
+  }
+  return await databaseInstructor.getInstructorPermissions(courseId, instructorId);
+}

@@ -38,6 +38,8 @@ router.get('/instructors/:instructorId/tasks', taskController.listTasksByInstruc
 router.post('/courses/:id/instructors/:auxiliarId', instructorController.addInstructorToCourse); // Add instructor to course
 router.delete('/courses/:id/instructors/:auxiliarId', instructorController.removeInstructorFromCourse); // Remove instructor from course
 router.patch('/courses/:id/instructors/:auxiliarId', instructorController.updateInstructorPermissions); // Update instructor in course
+router.get('/courses/:id/instructors/:instructorId/permissions', instructorController.getInstructorPermissions); // Get all instructors by course ID
+
 
 // ----------------------------- TASKS AND EXAMS -----------------------------
 router.post('/courses/:id/tasks', taskController.addTaskToCourse); // Add task to course

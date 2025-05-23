@@ -51,3 +51,14 @@ export const updateInstructorPermissions = async (req: Request, res: Response, n
     next(error);
   }
 }
+
+export const getInstructorPermissions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, instructorId } = req.params;
+    const permissions = await instructorService.getInstructorPermissions(id, instructorId);
+    res.status(StatusCodes.OK).json(permissions);
+    logger.info(`Instructor permissions retrieved for user with ID ${instructorId} in course with ID ${id}`);
+  } catch (error) {
+    next(error);
+  }
+}

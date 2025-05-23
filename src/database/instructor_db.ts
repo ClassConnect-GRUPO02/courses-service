@@ -74,3 +74,14 @@ export const updateInstructorPermissions = async (courseId: string, instructorId
 
   return !!instructor;
 }
+
+export const getInstructorPermissions = async (courseId: string, instructorId: string): Promise<any> => {
+  const instructor = await prisma.courseInstructor.findFirst({
+    where: {
+      courseId,
+      userId: instructorId,
+    },
+  });
+
+  return instructor;
+}
