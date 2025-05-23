@@ -6,7 +6,7 @@
     "dev": "nodemon --ext ts --exec ts-node src/main.ts",
     "build": "tsc",
     "start": "node dist/main.js",
-    "test:setup": "docker-compose -f docker-compose.test.yml up -d",
+    "test:setup": "docker compose -f docker-compose.test.yml up -d",
     "test:migrate": "dotenv -e .env.test -- prisma migrate deploy",
     "seed:test": "dotenv -e .env.test -- ts-node prisma/seed.ts",
     "test": "npm run test:setup && npm run test:migrate && npm run seed:test && dotenv -e .env.test -- jest",
