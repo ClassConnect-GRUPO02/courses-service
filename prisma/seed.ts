@@ -1,8 +1,8 @@
 import { PrismaClient, InstructorType, TaskType, LatePolicy, AnswerFormat, SubmissionStatus } from '@prisma/client';
 const prisma = new PrismaClient();
 
+// This seed is used to populate the database with initial data for testing purposes.
 async function main() {
-  // Borrar datos en orden inverso a las dependencias
   await prisma.favoriteCourse.deleteMany();
   await prisma.studentFeedback.deleteMany();
   await prisma.courseFeedback.deleteMany();
@@ -14,7 +14,7 @@ async function main() {
   await prisma.course.deleteMany();
 
   // Crear cursos
-  const courses = await prisma.course.createMany({
+  await prisma.course.createMany({
     data: [
       {
         id: 'c1',
