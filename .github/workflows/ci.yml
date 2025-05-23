@@ -12,6 +12,7 @@ jobs:
     env:
       OPENAI_API_KEY: 'test-api-key'
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DATABASE_URL: "mysql://root:testpassword@127.0.0.1:3308/cursos_test"
 
     steps:
       - name: Checkout código
@@ -28,10 +29,19 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Correr tests con cobertura
+      - name: Ejecutar tests con preparación y limpieza (Setup, Migrate, Seed, Run)
+        # Este único comando ahora inicia DB, espera, migra, hace seed y corre tests.
+        # No hace el teardown, lo que permite que Codecov se ejecute después.
         run: npm test -- --coverage --coverageThreshold='{}'
 
       - name: Subir cobertura a Codecov
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+        if: always() # Asegura que se suba incluso si los tests fallan
+
+      - name: Apagar Docker Compose para tests
+        # Este paso es CRÍTICO y debe ir al final para limpiar los recursos.
+        # Siempre se ejecuta, incluso si los pasos anteriores fallan.
+        if: always()
+        run: npm run test:teardown

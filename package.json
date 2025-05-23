@@ -7,9 +7,12 @@
     "build": "tsc",
     "start": "node dist/main.js",
     "test:setup": "docker compose -f docker-compose.test.yml up -d",
+    "test:wait-db": "for i in `seq 1 10`; do docker exec cursos-db-test mysqladmin ping -h localhost -ptestpassword --silent > /dev/null 2>&1 && echo 'MySQL is ready.' && break || { echo 'Waiting for MySQL...'; sleep 5; }; done; docker exec cursos-db-test mysqladmin ping -h localhost -ptestpassword || { echo 'MySQL not ready after multiple attempts'; exit 1; }",
     "test:migrate": "dotenv -e .env.test -- prisma migrate deploy",
     "seed:test": "dotenv -e .env.test -- ts-node prisma/seed.ts",
-    "test": "npm run test:setup && npm run test:migrate && npm run seed:test && dotenv -e .env.test -- jest",
+    "test:run": "dotenv -e .env.test -- jest",
+    "test:teardown": "docker compose -f docker-compose.test.yml down -v",
+    "test": "npm run test:setup && npm run test:wait-db && npm run test:migrate && npm run seed:test && npm run test:run",
     "lint": "eslint \"**/*.ts\""
   },
   "repository": {
