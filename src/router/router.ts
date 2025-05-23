@@ -37,6 +37,7 @@ router.get('/courses/:id/instructors/:instructorId', instructorController.isInst
 router.get('/instructors/:instructorId/tasks', taskController.listTasksByInstructor); // GET /instructors/:instructorId/tasks?page=1&pageSize=10
 router.post('/courses/:id/instructors/:auxiliarId', instructorController.addInstructorToCourse); // Add instructor to course
 router.delete('/courses/:id/instructors/:auxiliarId', instructorController.removeInstructorFromCourse); // Remove instructor from course
+router.patch('/courses/:id/instructors/:auxiliarId', instructorController.updateInstructorPermissions); // Update instructor in course
 
 // ----------------------------- TASKS AND EXAMS -----------------------------
 router.post('/courses/:id/tasks', taskController.addTaskToCourse); // Add task to course

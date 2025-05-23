@@ -19,8 +19,8 @@ export const isInstructorInCourse = async (req: Request, res: Response, next: Ne
 export const addInstructorToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id, auxiliarId } = req.params;
-    const { titularId } = req.body;
-    const instructor = await instructorService.addAuxInstructorToCourse(id, auxiliarId, titularId);
+    const { titularId, can_create_content, can_grade, can_update_course } = req.body;
+    const instructor = await instructorService.addAuxInstructorToCourse(id, auxiliarId, titularId, can_create_content, can_grade, can_update_course);
     res.status(StatusCodes.CREATED).json(instructor);
     logger.info(`Instructor with ID ${auxiliarId} added to course with ID ${id}`);
   } catch (error) {
@@ -35,6 +35,18 @@ export const removeInstructorFromCourse = async (req: Request, res: Response, ne
     const instructor = await instructorService.removeInstructorFromCourse(id, auxiliarId, titularId);
     res.status(StatusCodes.OK).json(instructor);
     logger.info(`Instructor with ID ${auxiliarId} removed from course with ID ${id}`);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const updateInstructorPermissions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id, auxiliarId } = req.params;
+    const { titularId, can_create_content, can_grade, can_update_course } = req.body;
+    const instructor = await instructorService.updateInstructorPermissions(id, auxiliarId, titularId, can_create_content, can_grade, can_update_course);
+    res.status(StatusCodes.OK).json(instructor);
+    logger.info(`Instructor permissions updated for user with ID ${auxiliarId} in course with ID ${id}`);
   } catch (error) {
     next(error);
   }

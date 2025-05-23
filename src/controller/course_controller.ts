@@ -31,7 +31,7 @@ export const addCourse = async (req: Request, res: Response, next: NextFunction)
 
     const createdCourse = await courseService.createCourse(course);
     if (createdCourse) {
-      const instructor = await instructorService.addInstructorToCourse(createdCourse.id, courseData.creatorId, "TITULAR");
+      const instructor = await instructorService.addInstructorToCourse(createdCourse.id, courseData.creatorId, "TITULAR", true, true, true);
       if (instructor) {
         logger.info('Instructor added');
       } else {

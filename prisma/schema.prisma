@@ -60,6 +60,10 @@ model CourseInstructor {
   userId   String
   type     InstructorType
 
+  can_create_content     Boolean @default(false)
+  can_grade              Boolean @default(false)
+  can_update_course      Boolean @default(false)
+
   @@unique([courseId, userId]) // para que no se repita el mismo instructor en un curso
   @@map("courses_instructors")
 }
