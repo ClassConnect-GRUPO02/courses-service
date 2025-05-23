@@ -15,6 +15,10 @@ export const createCourse = async (course: Course): Promise<Course> => {
 };
 
 export const removeCourse = async (id: string): Promise<Course> => {
+  const course = await database.getCourseById(id);
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${id} not found`);
+  }
   return await database.deleteCourse(id);
 };
 

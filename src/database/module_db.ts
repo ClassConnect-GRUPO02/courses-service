@@ -70,6 +70,14 @@ export const getModuleById = async (courseId: string, moduleId: string): Promise
   });
 }
 
+export const getModuleByIdWithoutCourse = async (moduleId: string): Promise<Module | null> => {
+  return await prisma.module.findUnique({
+    where: {
+      id: moduleId,
+    },
+  });
+}
+
 export const updateModulesOrder = async (courseId: string, orderedModuleIds: string[]): Promise<void> => {
   const course = await prisma.course.findUnique({
     where: { id: courseId },

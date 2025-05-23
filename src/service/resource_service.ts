@@ -1,16 +1,20 @@
 import * as database from '../database/resource_db';
+import * as databaseModule from '../database/module_db';
 import { Resource } from "../models/resource";
 import { ModuleNotFoundError, ResourceNotFoundError } from "../models/errors";
 
 // --------------------------- RESOURCE ---------------------------------------------
 
 export const addResourceToModule = async (moduleId: string, resource: Resource): Promise<Resource> => {
-  const newResource = await database.addResourceToModule(moduleId, resource);
-  if (!newResource) {
+  const moduleExists = await databaseModule.getModuleByIdWithoutCourse(moduleId);
+  if (!moduleExists) {
     throw new ModuleNotFoundError(`Module with ID ${moduleId} not found`);
   }
+
+  const newResource = await database.addResourceToModule(moduleId, resource);
   return newResource;
-}
+};
+
 
 // Deletes resource from module
 export const deleteResourceFromModule = async (moduleId: string, resourceId: string): Promise<void> => {
