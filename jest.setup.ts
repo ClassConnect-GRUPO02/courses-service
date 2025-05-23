@@ -2,9 +2,12 @@ import { Server } from 'http';
 import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDB } from './src/tests/mocks/mock.db';
+import dotenv from 'dotenv';
+
+dotenv.config({path: '.env.test'});
 
 let server: Server;
-
+/*
 export interface Instructor {
   id: string;
   courseId: string;
@@ -443,7 +446,7 @@ jest.mock('./src/database/feedback_db', () => ({
   }),
 }));
 
-
+*/
 
 
 beforeAll((done) => {
