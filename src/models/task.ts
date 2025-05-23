@@ -8,7 +8,6 @@ export class Task {
     type: 'tarea' | 'examen';
     title: string;
     description: string;
-    instructions: string;
     due_date: string;
     allow_late: boolean;
     late_policy: 'ninguna' | 'descontar' | 'penalizar' | 'aceptar' | 'aceptar_con_descuento' | 'aceptar_con_penalizacion';
@@ -18,17 +17,17 @@ export class Task {
     visible_from?: string | null;
     visible_until?: string | null;
     allow_file_upload: boolean;
-    answer_format: 'texto' | 'opcion_multiple' | 'archivo' | 'mixto';
+    answer_format: 'preguntas_respuestas' | 'archivo';
     created_at?: string | null;
     updated_at?: string | null;
     deleted_at?: string | null;
+    questions?: TaskQuestion[];
 
     constructor(data: Partial<Task>) {
         if(!data.created_by) throw new TaskCreationError('The "created_by" field is required.');
         if(!data.type) throw new TaskCreationError('The "type" field is required.');
         if(!data.title) throw new TaskCreationError('The "title" field is required.');
         if(!data.description) throw new TaskCreationError('The "description" field is required.');
-        if(!data.instructions) throw new TaskCreationError('The "instructions" field is required.');
         if(!data.due_date) throw new TaskCreationError('The "due_date" field is required.');
         if(data.allow_late == undefined) throw new TaskCreationError('The "allow_late" field is required.');
         if(!data.late_policy) throw new TaskCreationError('The "late_policy" field is required.');
@@ -36,6 +35,8 @@ export class Task {
         if(data.published === undefined) throw new TaskCreationError('The "published" field is required.');
         if(data.allow_file_upload === undefined) throw new TaskCreationError('The "allow_file_upload" field is required.');
         if(!data.answer_format) throw new TaskCreationError('The "answer_format" field is required.');
+        if(data.answer_format === 'preguntas_respuestas' && !data.questions) {throw new TaskCreationError('Questions are required for preguntas_respuestas format.');
+}
 
         this.id = data.id || '';
         this.course_id = data.course_id || '';
@@ -43,7 +44,6 @@ export class Task {
         this.type = data.type;
         this.title = data.title;
         this.description = data.description;
-        this.instructions = data.instructions;
         this.due_date = validateDateString(data.due_date, "due_date");
         this.allow_late = data.allow_late;
         this.late_policy = data.late_policy;
@@ -57,5 +57,22 @@ export class Task {
         this.created_at = data.created_at ? validateDateString(data.created_at, "created_at") : null;
         this.updated_at = data.updated_at ? validateDateString(data.updated_at, "updated_at") : null;
         this.deleted_at = data.deleted_at ? validateDateString(data.deleted_at, "deleted_at") : null;
+        this.questions = data.questions ? data.questions.map(question => new TaskQuestion(question)) : [];
+    }
+}
+
+export class TaskQuestion {
+    id: string;
+    task_id: string;
+    text: string;
+
+    constructor(data: {
+        id?: string;
+        task_id?: string;
+        text: string;
+    }) {
+        this.id = data.id || '';
+        this.task_id = data.task_id || '';
+        this.text = data.text;
     }
 }
