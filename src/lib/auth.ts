@@ -2,7 +2,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const SECRET_KEY = process.env.SECRET_KEY as string; // clave pública del servicio de usuarios
+const SECRET_KEY_HEX = process.env.SECRET_KEY as string; // clave pública del servicio de usuarios
+const SECRET_KEY = Buffer.from(SECRET_KEY_HEX, "hex");
 
 export interface AuthenticatedRequest extends Request {
   user?: {
