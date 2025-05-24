@@ -30,6 +30,7 @@ model Course {
   feedback          CourseFeedback[]
   student_feedback  StudentFeedback[]
   favorites         FavoriteCourse[] 
+  course_activity_log CourseActivityLog[]
 }
 
 model Module {
@@ -219,4 +220,17 @@ model FavoriteCourse {
 
   @@unique([course_id, student_id])
   @@map("favorite_courses")  
+}
+
+model CourseActivityLog {
+  id           String   @id @default(uuid())
+  course_id    String
+  user_id      String
+  action       String   // 'task_created', 'feedback_given', etc.
+  metadata     Json?    // Información adicional como ID de la tarea, comentario, etc.
+  created_at   DateTime @default(now())
+
+  course       Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+
+  @@map("course_activity_log")
 }

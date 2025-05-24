@@ -18,7 +18,7 @@ export const enrollStudent = async (enrollment: Enrollment ): Promise<Enrollment
       throw new AlreadyEnrolledError(enrollment.courseId, enrollment.userId);
     }
     course.enrolled += 1;
-    await database.updateCourse(enrollment.courseId, course);
+    await database.updateCourse(enrollment.courseId, course, "");
     return enroll;
   }
 };

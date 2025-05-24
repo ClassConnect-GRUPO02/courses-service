@@ -4,16 +4,22 @@ import { Module } from '../models/module';
 import logger from '../logger/logger';
 import {handleInvalidRequestError} from './course_controller'
 import * as moduleService from '../service/module_service';
+import { AuthenticatedRequest } from '../lib/auth';
 
 
 // -------------------------- MODULES --------------------------
 
-export const addModuleToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const addModuleToCourse = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
     const moduleData = req.body;
     const module = new Module(moduleData);
-    const createdModule = await moduleService.addModuleToCourse(id, module);
+    const instructorId = req.user?.Id; // extracted from JWT
+    if (!instructorId) {
+      handleInvalidRequestError(res, 'Instructor ID is required');
+      return;
+    }
+    const createdModule = await moduleService.addModuleToCourse(id, module, instructorId);
     res.status(StatusCodes.CREATED).json({ data: createdModule });
     logger.info(`Module added to course with ID ${id} successfully`);
   } catch (error) {
@@ -21,14 +27,19 @@ export const addModuleToCourse = async (req: Request, res: Response, next: NextF
   }
 };
 
-export const deleteModule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const deleteModule = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id, moduleId } = req.params;
     if (!id || !moduleId) {
       handleInvalidRequestError(res, 'Invalid course or module ID');
       return;
     }
-    await moduleService.removeModule(id, moduleId);
+    const instructorId = req.user?.Id; // extracted from JWT
+    if (!instructorId) {
+      handleInvalidRequestError(res, 'Instructor ID is required');
+      return;
+    }
+    await moduleService.removeModule(id, moduleId, instructorId);
     res.status(StatusCodes.NO_CONTENT).send();
     logger.info(`Module with ID ${moduleId} deleted from course with ID ${id} successfully`);
   } catch (error) {
@@ -76,11 +87,16 @@ export const updateModuleOrder = async (req: Request, res: Response, next: NextF
   }
 };
 
-export const updateModule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const updateModule = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id, moduleId } = req.params;
     const moduleData: Partial<Module> = req.body;
-    const updatedModule = await moduleService.updateModule(id, moduleId, moduleData);
+    const instructorId = req.user?.Id; // extracted from JWT
+    if (!instructorId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing instructor ID" });
+      return;
+    }
+    const updatedModule = await moduleService.updateModule(id, moduleId, moduleData, instructorId);
     if (!updatedModule) {
       res.status(StatusCodes.NOT_FOUND).json({ error: `Module with ID ${moduleId} not found in course ${id}` });
       return;

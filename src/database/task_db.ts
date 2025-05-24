@@ -2,8 +2,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { prisma } from './course_db';
 import { Task  } from '../models/task';
 import { SubmissionStatus, TaskSubmission } from '@prisma/client';
+import { isTitularInCourse } from './instructor_db';
 
-export const addTaskToCourse = async (courseId: string, task: Task): Promise<Task> => {
+export const addTaskToCourse = async (courseId: string, task: Task, instructorId: string): Promise<Task> => {
   const taskId = uuidv4();
 
   const newTask = await prisma.task.create({
@@ -41,6 +42,21 @@ export const addTaskToCourse = async (courseId: string, task: Task): Promise<Tas
     });
   }
 
+  const isTitular = await isTitularInCourse(courseId, instructorId);
+  if (!isTitular) {
+    await prisma.courseActivityLog.create({
+      data: {
+        course_id: courseId,
+        user_id: instructorId,
+        action: "task_created",
+        metadata: {
+          task_id: newTask.id,
+          title: newTask.title,
+        }
+      }
+    });
+  }
+
   return {
     ...newTask,
     id: newTask.id,
@@ -56,7 +72,8 @@ export const addTaskToCourse = async (courseId: string, task: Task): Promise<Tas
 export const updateTask = async (
   courseId: string,
   taskId: string,
-  task: Partial<Task>
+  task: Partial<Task>,
+  instructorId: string
 ): Promise<Task> => {
   const existingTask = await prisma.task.findUnique({
     where: { id: taskId },
@@ -106,6 +123,21 @@ export const updateTask = async (
     });
   }
 
+  const isTitular = await isTitularInCourse(courseId, instructorId);
+  if (!isTitular) {
+    await prisma.courseActivityLog.create({
+      data: {
+        course_id: courseId,
+        user_id: instructorId,
+        action: "task_updated",
+        metadata: {
+          task_id: updatedTask.id,
+          title: updatedTask.title,
+        }
+      }
+    });
+  }
+
   return {
     ...updatedTask,
     id: updatedTask.id,
@@ -119,10 +151,25 @@ export const updateTask = async (
 };
 
 
-export const deleteTask = async (taskId: string): Promise<string> => {
+export const deleteTask = async (taskId: string, instructorId: string): Promise<string> => {
   const deleted = await prisma.task.delete({
     where: { id: taskId },
   });
+
+  const isTitular = await isTitularInCourse(deleted.course_id, instructorId);
+  if (!isTitular) {
+    await prisma.courseActivityLog.create({
+      data: {
+        course_id: deleted.course_id,
+        user_id: instructorId,
+        action: "task_deleted",
+        metadata: {
+          task_id: deleted.id,
+          title: deleted.title,
+        }
+      }
+    });
+  }
 
   return deleted.id;
 }
@@ -320,9 +367,10 @@ export const updateTaskSubmission = async (
   taskId: string,
   studentId: string,
   grade: number,
-  feedback: string
+  feedback: string,
+  instructorId: string
 ): Promise<TaskSubmission> => {
-  return await prisma.taskSubmission.update({
+  const updated_task_submission = await prisma.taskSubmission.update({
     where: {
       task_id_student_id: {
         task_id: taskId,
@@ -335,6 +383,32 @@ export const updateTaskSubmission = async (
       updated_at: new Date(),
     },
   });
+  const task = await prisma.task.findUnique({
+    where: { id: taskId },
+  });
+  const courseId = task?.course_id;
+  if (!courseId) {
+    throw new Error(`Task with ID ${taskId} not found`);
+  }
+  const isTitular = await isTitularInCourse(courseId, instructorId);
+  if (!isTitular) {
+    await prisma.courseActivityLog.create({
+      data: {
+        course_id: courseId,
+        user_id: instructorId,
+        action: "grade_task",
+        metadata: {
+          task_id: taskId,
+          student_id: studentId,
+          grade,
+          feedback,
+        }
+      }
+    });
+  }
+
+  return updated_task_submission;
+
 };
 
 export const getTaskSubmissions = async (taskId: string): Promise<TaskSubmission[]> => {

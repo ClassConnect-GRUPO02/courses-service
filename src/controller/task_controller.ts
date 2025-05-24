@@ -10,12 +10,17 @@ import { userTypes } from '../lib/user_types';
 
 // -------------------------- TASKS / EXAMS ---------------------------
 
-export const addTaskToCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const addTaskToCourse = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
     const taskData = req.body;
+    const instructorId = req.user?.Id; // extraído del JWT
+    if (!instructorId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing instructor ID" });
+      return;
+    }
     const task = new Task(taskData);
-    const createdTask = await taskService.addTaskToCourse(id, task);
+    const createdTask = await taskService.addTaskToCourse(id, task, instructorId);
     res.status(StatusCodes.CREATED).json({ data: createdTask });
     logger.info(`Task added to course with ID ${id} successfully`);
   } catch (error) {
@@ -23,11 +28,16 @@ export const addTaskToCourse = async (req: Request, res: Response, next: NextFun
   }
 }
 
-export const updateTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const updateTask = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id, taskId } = req.params;
     const taskData: Partial<Task> = req.body;
-    const updatedTask = await taskService.updateTask(id, taskId, taskData);
+    const instructorId = req.user?.Id; // extraído del JWT
+    if (!instructorId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing instructor ID" });
+      return;
+    }
+    const updatedTask = await taskService.updateTask(id, taskId, taskData, instructorId);
     res.status(StatusCodes.OK).json({ data: updatedTask });
     logger.info(`Task with ID ${taskId} updated in course with ID ${id} successfully`);
   } catch (error) {
@@ -35,14 +45,19 @@ export const updateTask = async (req: Request, res: Response, next: NextFunction
   }
 }
 
-export const deleteTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const deleteTask = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id, taskId } = req.params;
     if (!id || !taskId) {
       handleInvalidRequestError(res, 'Invalid course or task ID');
       return;
     }
-    await taskService.removeTask(id, taskId);
+    const instructorId = req.user?.Id; // extraído del JWT
+    if (!instructorId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing instructor ID" });
+      return;
+    }
+    await taskService.removeTask(id, taskId, instructorId);
     res.status(StatusCodes.NO_CONTENT).send();
     logger.info(`Task with ID ${taskId} deleted from course with ID ${id} successfully`);
   } catch (error) {

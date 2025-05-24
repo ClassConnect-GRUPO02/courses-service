@@ -4,6 +4,7 @@ import logger from '../logger/logger';
 import { StatusCodes } from 'http-status-codes';
 import { Course } from '../models/course';
 import * as instructorService from '../service/instructor_service';
+import { AuthenticatedRequest } from '../lib/auth';
 
 export const getCourses = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -70,12 +71,17 @@ export const deleteCourse = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
-export const updateCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const updateCourse = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
     const courseData: Partial<Course> = req.body;
+    const instructorId = req.user?.Id; // extracted from JWT
+    if (!instructorId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing instructor ID" });
+      return;
+    }
 
-    const updatedCourse = await courseService.updateCourse(id, courseData);
+    const updatedCourse = await courseService.updateCourse(id, courseData, instructorId);
 
     if (!updatedCourse) {
       res.status(StatusCodes.NOT_FOUND).json({ error: `Course with ID ${id} not found` });

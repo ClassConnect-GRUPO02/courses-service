@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { Course } from '../models/course';
 import { v4 as uuidv4 } from 'uuid';
 import { CourseNotFoundError } from '../models/errors';
+import { isTitularInCourse } from './instructor_db';
 
 export const prisma = new PrismaClient();
 
@@ -117,7 +118,7 @@ export const deleteCourse = async (id: string): Promise<Course> => {
   };
 };
 
-export const updateCourse = async (id: string, updateData: Partial<Course>): Promise<Course | null> => {
+export const updateCourse = async (id: string, updateData: Partial<Course>, instructorId: string): Promise<Course | null> => {
   const existingCourse = await prisma.course.findUnique({ where: { id } });
 
   if (!existingCourse) {
@@ -144,6 +145,22 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
       creatorId: updateData.creatorId ?? existingCourse.creatorId,
     },
   });
+
+  const isTitular = await isTitularInCourse(existingCourse.id, instructorId);
+  if (!isTitular && instructorId !== "") {
+    await prisma.courseActivityLog.create({
+      data: {
+        course_id: existingCourse.id,
+        user_id: instructorId,
+        action: "update_course",
+        metadata: {
+          course_id: updated.id,
+          course_name: updated.name,
+          course_description: updated.description,
+        },
+      },
+    });
+  }
 
   return {
     id: updated.id,
