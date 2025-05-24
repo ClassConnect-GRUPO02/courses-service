@@ -39,7 +39,7 @@ async function main() {
         modality: 'Online',
         prerequisites: 'html,css',
         imageUrl: 'https://image-url/1',
-        creatorId: 'u1',
+        creatorId: '5',
       },
       {
         id: 'c2',
@@ -55,7 +55,7 @@ async function main() {
         modality: 'Online',
         prerequisites: 'html,css',
         imageUrl: 'https://image-url/2',
-        creatorId: 'u2',
+        creatorId: '6',
       },
     ],
   });
@@ -75,7 +75,7 @@ async function main() {
   // Crear inscripciones (depende de Course)
   await prisma.enrollment.createMany({
     data: [
-      { id: 'e1', userId: 'u2', courseId: 'c1', enrollmentDate: new Date() },
+      { id: 'e1', userId: '7', courseId: 'c1', enrollmentDate: new Date() },
       { id: 'e2', userId: 'u3', courseId: 'c1', enrollmentDate: new Date() },
       { id: 'e3', userId: 'u4', courseId: 'c1', enrollmentDate: new Date() },
       { id: 'e4', userId: 'u5', courseId: 'c1', enrollmentDate: new Date() },
@@ -89,10 +89,10 @@ async function main() {
   // Crear instructores (depende de Course)
   await prisma.courseInstructor.createMany({
     data: [
-      { id: 'i1', courseId: 'c1', userId: 'u1', type: InstructorType.TITULAR },
-      { id: 'i2', courseId: 'c1', userId: 'u4', type: InstructorType.AUXILIAR },
+      { id: 'i1', courseId: 'c1', userId: '5', type: InstructorType.TITULAR },
+      { id: 'i2', courseId: 'c1', userId: '6', type: InstructorType.AUXILIAR },
       { id: 'i3', courseId: 'c1', userId: 'u5', type: InstructorType.AUXILIAR },
-      { id: 'i4', courseId: 'c2', userId: 'u2', type: InstructorType.TITULAR },
+      { id: 'i4', courseId: 'c2', userId: '6', type: InstructorType.TITULAR },
     ],
   });
 
@@ -102,7 +102,7 @@ async function main() {
       {
         id: 't1',
         course_id: 'c1',
-        created_by: 'u1',
+        created_by: '5',
         type: TaskType.tarea,
         title: 'Primer tarea',
         description: 'Ejercicio de variables',
@@ -123,7 +123,7 @@ async function main() {
       {
         id: 't2',
         course_id: 'c1',
-        created_by: 'u1',
+        created_by: '6',
         type: TaskType.examen,
         title: 'Examen parcial',
         description: 'Examen de mitad de curso',
@@ -144,7 +144,7 @@ async function main() {
       {
         id: 't3',
         course_id: 'c1',
-        created_by: 'u2',
+        created_by: '5',
         type: TaskType.tarea,
         title: 'Tarea de Python',
         description: 'Ejercicio de funciones',
@@ -165,7 +165,7 @@ async function main() {
       {
         id: 't4',
         course_id: 'c1',
-        created_by: 'u2',
+        created_by: '5',
         type: TaskType.examen,
         title: 'Examen de Python',
         description: 'Examen de mitad de curso de Python',
@@ -244,11 +244,11 @@ async function main() {
       {
         id: 's1',
         task_id: 't1',
-        student_id: 'u2',
+        student_id: '7',
         submitted_at: new Date('2024-05-09'),
         status: SubmissionStatus.submitted,
-        grade: 0,
-        feedback: "",
+        grade: 3,
+        feedback: "Mas o menos",
         file_url: 'https://example.com/solution1.pdf',
         time_spent: 45,
         created_at: new Date(),
@@ -291,7 +291,7 @@ async function main() {
   // Crear favoritos (depende de Course)
   await prisma.favoriteCourse.createMany({
     data: [
-      { id: 'f1', course_id: 'c1', student_id: 'u2' },
+      { id: 'f1', course_id: 'c1', student_id: '7' },
       { id: 'f2', course_id: 'c1', student_id: 'u3' },
     ],
   });
