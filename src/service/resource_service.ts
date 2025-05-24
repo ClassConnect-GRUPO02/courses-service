@@ -4,8 +4,8 @@ import { ModuleNotFoundError, ResourceNotFoundError } from "../models/errors";
 
 // --------------------------- RESOURCE ---------------------------------------------
 
-export const addResourceToModule = async (moduleId: string, resource: Resource): Promise<Resource> => {
-  const newResource = await database.addResourceToModule(moduleId, resource);
+export const addResourceToModule = async (moduleId: string, resource: Resource, instructorId: string): Promise<Resource> => {
+  const newResource = await database.addResourceToModule(moduleId, resource, instructorId);
   if (!newResource) {
     throw new ModuleNotFoundError(`Module with ID ${moduleId} not found`);
   }
@@ -13,8 +13,8 @@ export const addResourceToModule = async (moduleId: string, resource: Resource):
 }
 
 // Deletes resource from module
-export const deleteResourceFromModule = async (moduleId: string, resourceId: string): Promise<void> => {
-  const isDeleted = await database.deleteResourceFromModule(moduleId, resourceId);
+export const deleteResourceFromModule = async (moduleId: string, resourceId: string, instructorId: string): Promise<void> => {
+  const isDeleted = await database.deleteResourceFromModule(moduleId, resourceId, instructorId);
   if (!isDeleted) {
     throw new ResourceNotFoundError(`Resource with ID ${resourceId} not found in module ${moduleId}`);
   }
@@ -26,8 +26,8 @@ export const getResourcesByModuleId = async (moduleId: string): Promise<Resource
 }
 
 // Updates resource by ID inside module
-export const updateResource = async (moduleId: string, resourceId: string, resourceData: Partial<Resource>): Promise<Resource> => {
-  const resource = await database.updateResource(moduleId, resourceId, resourceData);
+export const updateResource = async (moduleId: string, resourceId: string, resourceData: Partial<Resource>, instructorId: string): Promise<Resource> => {
+  const resource = await database.updateResource(moduleId, resourceId, resourceData, instructorId);
   if (!resource) {
     throw new ResourceNotFoundError(`Resource with ID ${resourceId} not found in module ${moduleId}`);
   }

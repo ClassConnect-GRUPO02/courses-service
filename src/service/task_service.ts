@@ -4,22 +4,22 @@ import * as database from '../database/course_db';
 import * as databaseTask from '../database/task_db';
 import * as databaseInstructor from '../database/instructor_db';
 
-export const addTaskToCourse = async (courseId: string, task: Task): Promise<Task> => {
+export const addTaskToCourse = async (courseId: string, task: Task, instructorId: string): Promise<Task> => {
   const course = await database.getCourseById(courseId);
   if (!course) {
     throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
   }
 
-  return await databaseTask.addTaskToCourse(courseId, task);
+  return await databaseTask.addTaskToCourse(courseId, task, instructorId);
 }
 
-export const updateTask = async (courseId: string, taskId: string, task: Partial<Task>): Promise<Task> => {
+export const updateTask = async (courseId: string, taskId: string, task: Partial<Task>, instructorId: string): Promise<Task> => {
   const course = await database.getCourseById(courseId);
   if (!course) {
     throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
   }
 
-  const updatedTask = await databaseTask.updateTask(courseId, taskId, task);
+  const updatedTask = await databaseTask.updateTask(courseId, taskId, task, instructorId);
   if (!updatedTask) {
     throw new Error(`Task with ID ${taskId} not found in course ${courseId}`);
   }
@@ -27,13 +27,13 @@ export const updateTask = async (courseId: string, taskId: string, task: Partial
   return updatedTask;
 }
 
-export const removeTask = async (courseId: string, taskId: string): Promise<void> => {
+export const removeTask = async (courseId: string, taskId: string, instructorId: string): Promise<void> => {
   const course = await database.getCourseById(courseId);
   if (!course) {
     throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
   }
 
-  const isDeleted = await databaseTask.deleteTask(taskId);
+  const isDeleted = await databaseTask.deleteTask(taskId, instructorId);
   if (!isDeleted) {
     throw new Error(`Task with ID ${taskId} not found in course ${courseId}`);
   }
@@ -127,7 +127,7 @@ export const addFeedbackToTask = async (taskId: string, studentId: string, grade
   if (!isInstructor) {
     throw new AuthorizationError(instructorId);
   }
-  return await databaseTask.updateTaskSubmission(taskId, studentId, grade, feedback);
+  return await databaseTask.updateTaskSubmission(taskId, studentId, grade, feedback, instructorId);
 }
 
 export const getTaskSubmission = async (taskId: string, studentId: string) => {

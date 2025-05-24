@@ -2,11 +2,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { prisma } from './course_db';
 import { Module } from '../models/module';
 import { CourseNotFoundError } from '../models/errors';
+import { isTitularInCourse } from './instructor_db';
 
 // Adds a new module to a course
 // Throws an error if the course is not found
 // Returns the created Module object
-export const addModuleToCourse = async (courseId: string, module: Module): Promise<Module | null> => {
+export const addModuleToCourse = async (courseId: string, module: Module, instructorId: string): Promise<Module | null> => {
   const course = await prisma.course.findUnique({
     where: { id: courseId },
   });
@@ -23,6 +24,22 @@ export const addModuleToCourse = async (courseId: string, module: Module): Promi
       courseId: courseId,
     },
   });
+
+  const isTitular = await isTitularInCourse(courseId, instructorId);
+  if (!isTitular) {
+    await prisma.courseActivityLog.create({
+      data: {
+        course_id: courseId,
+        user_id: instructorId,
+        action: "add_module_to_course",
+        metadata: {
+          module_id: newModule.id,
+          module_name: module.name,
+        }
+      }
+    });
+  }
+
   return {
     ...newModule,
     id: newModule.id,
@@ -39,7 +56,7 @@ export const getModulesByCourseId = async (courseId: string): Promise<Module[]> 
 };
 
 // Deletes a module by its ID returning true if it was found and deleted, false otherwise
-export const deleteModule = async (courseId: string, moduleId: string): Promise<boolean> => {
+export const deleteModule = async (courseId: string, moduleId: string, instructorId: string): Promise<boolean> => {
   const module = await prisma.module.findFirst({
     where: {
       id: moduleId,
@@ -54,6 +71,21 @@ export const deleteModule = async (courseId: string, moduleId: string): Promise<
   await prisma.module.delete({
     where: { id: moduleId },
   });
+
+  const isTitular = await isTitularInCourse(courseId, instructorId);
+  if (!isTitular) {
+    await prisma.courseActivityLog.create({
+      data: {
+        course_id: courseId,
+        user_id: instructorId,
+        action: "delete_module_from_course",
+        metadata: {
+          module_id: moduleId,
+          module_name: module.name,
+        }
+      }
+    });
+  }
   
   return true;
 };
@@ -89,7 +121,7 @@ export const updateModulesOrder = async (courseId: string, orderedModuleIds: str
   );
 };
 
-export const updateModule = async (courseId: string, moduleId: string, updateData: Partial<Module>): Promise<Module | null> => {
+export const updateModule = async (courseId: string, moduleId: string, updateData: Partial<Module>, instructorId: string): Promise<Module | null> => {
   const existingModule = await prisma.module.findUnique({
     where: { id: moduleId },
   });
@@ -107,6 +139,21 @@ export const updateModule = async (courseId: string, moduleId: string, updateDat
       order: updateData.order ?? existingModule.order,
     },
   });
+
+  const isTitular = await isTitularInCourse(courseId, instructorId);
+  if (!isTitular) {
+    await prisma.courseActivityLog.create({
+      data: {
+        course_id: courseId,
+        user_id: instructorId,
+        action: "update_module_in_course",
+        metadata: {
+          module_id: updatedModule.id,
+          module_name: updatedModule.name,
+        }
+      }
+    });
+  }
 
   return updatedModule;
 }

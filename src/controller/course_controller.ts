@@ -4,6 +4,7 @@ import logger from '../logger/logger';
 import { StatusCodes } from 'http-status-codes';
 import { Course } from '../models/course';
 import * as instructorService from '../service/instructor_service';
+import { AuthenticatedRequest } from '../lib/auth';
 
 export const getCourses = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -31,7 +32,7 @@ export const addCourse = async (req: Request, res: Response, next: NextFunction)
 
     const createdCourse = await courseService.createCourse(course);
     if (createdCourse) {
-      const instructor = await instructorService.addInstructorToCourse(createdCourse.id, courseData.creatorId, "TITULAR");
+      const instructor = await instructorService.addInstructorToCourse(createdCourse.id, courseData.creatorId, "TITULAR", true, true, true);
       if (instructor) {
         logger.info('Instructor added');
       } else {
@@ -70,12 +71,17 @@ export const deleteCourse = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
-export const updateCourse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const updateCourse = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
     const courseData: Partial<Course> = req.body;
+    const instructorId = req.user?.Id; // extracted from JWT
+    if (!instructorId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing instructor ID" });
+      return;
+    }
 
-    const updatedCourse = await courseService.updateCourse(id, courseData);
+    const updatedCourse = await courseService.updateCourse(id, courseData, instructorId);
 
     if (!updatedCourse) {
       res.status(StatusCodes.NOT_FOUND).json({ error: `Course with ID ${id} not found` });
@@ -95,6 +101,23 @@ export const getCoursesByUserId = async (req: Request, res: Response, next: Next
     const courses = await courseService.getCoursesByUserId(id);
     res.status(StatusCodes.OK).json({ data: courses });
     logger.info(`Courses retrieved for user with ID ${id} successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// -------------------------- ACTIVITY LOGGING --------------------------
+export const getCourseActivityLog = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const instructorId = req.user?.Id; // extracted from JWT
+    if (!instructorId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing instructor ID" });
+      return;
+    }
+    const activityLog = await courseService.getCourseActivityLog(id, instructorId);
+    res.status(StatusCodes.OK).json({ data: activityLog });
+    logger.info(`Activity log retrieved for course with ID ${id} successfully`);
   } catch (error) {
     next(error);
   }

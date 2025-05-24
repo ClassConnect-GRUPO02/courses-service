@@ -2,10 +2,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { prisma } from './course_db';
 import { Resource } from '../models/resource';
 import { ModuleNotFoundError } from '../models/errors';
+import { isTitularInCourse } from './instructor_db';
 
 // ---------------------- RESOURCE --------------------------------------
 
-export const addResourceToModule = async (moduleId: string, resource: Resource): Promise<Resource> => {
+export const addResourceToModule = async (moduleId: string, resource: Resource, instructorId: string): Promise<Resource> => {
   const newResource = await prisma.resource.create({
     data: {
       id: uuidv4(),
@@ -17,10 +18,34 @@ export const addResourceToModule = async (moduleId: string, resource: Resource):
     },
   });
 
+  const module = await prisma.module.findUnique({
+    where: { id: moduleId },
+  });
+
+  if (!module || !module.courseId) {
+    throw new ModuleNotFoundError(`Module with ID ${moduleId} not found or missing courseId`);
+  }
+
+  const isTitular = await isTitularInCourse(module.courseId, instructorId);
+  if (!isTitular) {
+    await prisma.courseActivityLog.create({
+      data: {
+        course_id: module.courseId,
+        user_id: instructorId,
+        action: "add_resource_to_module",
+        metadata: {
+          resource_id: newResource.id,
+          module_id: moduleId,
+          resource_description: resource.description,
+        }
+      }
+    });
+  }
+
   return {...newResource, id: newResource.id };
 }
 
-export const deleteResourceFromModule = async (moduleId: string, resourceId: string): Promise<boolean> => {
+export const deleteResourceFromModule = async (moduleId: string, resourceId: string, instructorId: string): Promise<boolean> => {
   const resource = await prisma.resource.findFirst({
     where: {
       id: resourceId,
@@ -35,6 +60,29 @@ export const deleteResourceFromModule = async (moduleId: string, resourceId: str
   await prisma.resource.delete({
     where: { id: resourceId },
   });
+
+  const module = await prisma.module.findUnique({
+    where: { id: moduleId },
+  });
+  if (!module || !module.courseId) {
+    throw new ModuleNotFoundError(`Module with ID ${moduleId} not found or missing courseId`);
+  }
+  const isTitular = await isTitularInCourse(module.courseId, instructorId);
+  if (!isTitular) {
+    await prisma.courseActivityLog.create({
+      data: {
+        course_id: module.courseId,
+        user_id: instructorId,
+        action: "delete_resource_from_module",
+        metadata: {
+          resource_id: resourceId,
+          module_id: moduleId,
+          resource_description: resource.description,
+        }
+      }
+    });
+  }
+
   return true;
 }
 
@@ -54,7 +102,7 @@ export const getResourcesByModuleId = async (moduleId: string): Promise<Resource
 
 // Updates resource by ID inside module
 // Returns the updated Resource object or null if not found
-export const updateResource = async (moduleId: string, resourceId: string, updateData: Partial<Resource>): Promise<Resource | null> => {
+export const updateResource = async (moduleId: string, resourceId: string, updateData: Partial<Resource>, instructorId: string): Promise<Resource | null> => {
   const existingResource = await prisma.resource.findUnique({
     where: { id: resourceId },
   });
@@ -72,6 +120,31 @@ export const updateResource = async (moduleId: string, resourceId: string, updat
       order: updateData.order ?? existingResource.order,
     },
   });
+
+  const module = await prisma.module.findUnique({
+    where: { id: moduleId },
+  });
+
+  if (!module || !module.courseId) {
+    throw new ModuleNotFoundError(`Module with ID ${moduleId} not found or missing courseId`);
+  }
+
+  const isTitular = await isTitularInCourse(module.courseId, instructorId);
+
+  if (!isTitular) {
+    await prisma.courseActivityLog.create({
+      data: {
+        course_id: module.courseId,
+        user_id: instructorId,
+        action: "update_resource_in_module",
+        metadata: {
+          resource_id: updatedResource.id,
+          module_id: moduleId,
+          resource_description: updateData.description ?? existingResource.description,
+        }
+      }
+    });
+  }
 
   return updatedResource;
 }

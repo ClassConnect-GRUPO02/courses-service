@@ -1,7 +1,17 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { Course } from '../models/course';
 import { v4 as uuidv4 } from 'uuid';
 import { CourseNotFoundError } from '../models/errors';
+import { isTitularInCourse } from './instructor_db';
+
+export interface CourseActivityLog {
+  id: string;
+  courseId: string;
+  userId: string;
+  action: string;
+  metadata: Prisma.JsonValue | null; // JSON válido o null
+  createdAt: string;
+}
 
 export const prisma = new PrismaClient();
 
@@ -117,7 +127,7 @@ export const deleteCourse = async (id: string): Promise<Course> => {
   };
 };
 
-export const updateCourse = async (id: string, updateData: Partial<Course>): Promise<Course | null> => {
+export const updateCourse = async (id: string, updateData: Partial<Course>, instructorId: string): Promise<Course | null> => {
   const existingCourse = await prisma.course.findUnique({ where: { id } });
 
   if (!existingCourse) {
@@ -145,6 +155,22 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
     },
   });
 
+  const isTitular = await isTitularInCourse(existingCourse.id, instructorId);
+  if (!isTitular && instructorId !== "") {
+    await prisma.courseActivityLog.create({
+      data: {
+        course_id: existingCourse.id,
+        user_id: instructorId,
+        action: "update_course",
+        metadata: {
+          course_id: updated.id,
+          course_name: updated.name,
+          course_description: updated.description,
+        },
+      },
+    });
+  }
+
   return {
     id: updated.id,
     name: updated.name,
@@ -162,9 +188,6 @@ export const updateCourse = async (id: string, updateData: Partial<Course>): Pro
     creatorId: updated.creatorId,
   };
 };
-
-
-
 
 // Retrieves all courses for a specific user ID
 // Returns an array of Course objects
@@ -198,6 +221,21 @@ export const getCoursesByUserId = async (userId: string): Promise<Course[]> => {
     creatorId: enrollment.course.creatorId,
   }));
 }
+
+export const getCourseActivityLog = async (courseId: string): Promise<CourseActivityLog[]> => {
+  const courseActivityLog = await prisma.courseActivityLog.findMany({
+    where: { course_id: courseId },
+  });
+
+  return courseActivityLog.map((log): CourseActivityLog => ({
+    id: log.id,
+    courseId: log.course_id,
+    userId: log.user_id,
+    action: log.action,
+    metadata: log.metadata,
+    createdAt: log.created_at.toISOString(),
+  }));
+};
 
 
 

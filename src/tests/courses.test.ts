@@ -2,6 +2,8 @@ import request from 'supertest';
 import app from '../app';
 import { StatusCodes } from 'http-status-codes';
 import { mockCourseRequestData } from './mocks/mock.course';
+import jwt from 'jsonwebtoken';
+import { userTypes } from '../lib/user_types';
 
 describe('Integration Tests for Courses API', () => {
   let createdCourseId: string;
@@ -12,9 +14,17 @@ describe('Integration Tests for Courses API', () => {
     level: "Intermediate"
   };
 
+  const token = jwt.sign(
+    { id: 'u1',
+      userType: userTypes.INSTRUCTOR,
+      }, // payload
+    process.env.SECRET_KEY!, // clave secreta
+    { algorithm: 'HS256' }
+  );
+
   describe('GET /courses', () => {
     it('should return an empty list of courses initially', async () => {
-      const response = await request(app).get('/courses');
+      const response = await request(app).get('/courses').set('Authorization', `Bearer ${token}`);
       expect(response.status).toBe(StatusCodes.OK);
       expect(Array.isArray(response.body.data)).toBe(true);
       expect(response.body.data.length).toBe(2);
@@ -37,6 +47,7 @@ describe('Integration Tests for Courses API', () => {
     it('should update the course by ID', async () => {
       const response = await request(app)
         .patch(`/courses/${createdCourseId}`)
+        .set('Authorization', `Bearer ${token}`)
         .send(updatedData);
   
       // Verificamos que el status de la respuesta sea correcto
@@ -54,6 +65,7 @@ describe('Integration Tests for Courses API', () => {
     it('should return 404 when trying to update non-existing course', async () => {
       const response = await request(app)
         .patch('/courses/99999999')
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: "Fake update" });
 
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
@@ -62,7 +74,8 @@ describe('Integration Tests for Courses API', () => {
 
   describe('GET /courses/:id', () => {
     it('should return the updated course by ID', async () => {
-      const response = await request(app).get(`/courses/${createdCourseId}`);
+      const response = await request(app).get(`/courses/${createdCourseId}`)
+        .set('Authorization', `Bearer ${token}`);
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body.name).toBe(updatedData.name);
     });
@@ -70,12 +83,14 @@ describe('Integration Tests for Courses API', () => {
 
   describe('DELETE /courses/:id', () => {
     it('should delete the course by ID', async () => {
-      const response = await request(app).delete(`/courses/${createdCourseId}`);
+      const response = await request(app).delete(`/courses/${createdCourseId}`)
+        .set('Authorization', `Bearer ${token}`);
       expect(response.status).toBe(StatusCodes.NO_CONTENT);
     });
 
     it('should return 404 when deleting a non-existing course', async () => {
-      const response = await request(app).delete(`/courses/99999999`);
+      const response = await request(app).delete(`/courses/99999999`)
+        .set('Authorization', `Bearer ${token}`);
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });
   });
