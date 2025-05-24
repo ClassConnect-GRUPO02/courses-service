@@ -106,6 +106,23 @@ export const getCoursesByUserId = async (req: Request, res: Response, next: Next
   }
 };
 
+// -------------------------- ACTIVITY LOGGING --------------------------
+export const getCourseActivityLog = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const instructorId = req.user?.Id; // extracted from JWT
+    if (!instructorId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing instructor ID" });
+      return;
+    }
+    const activityLog = await courseService.getCourseActivityLog(id, instructorId);
+    res.status(StatusCodes.OK).json({ data: activityLog });
+    logger.info(`Activity log retrieved for course with ID ${id} successfully`);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // -------------------------- ERROR HANDLING --------------------------
 
 /*const handleCourseNotFoundError = (error: CourseNotFoundError, req: Request, res: Response): void => {

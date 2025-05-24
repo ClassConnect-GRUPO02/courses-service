@@ -180,9 +180,6 @@ export const updateCourse = async (id: string, updateData: Partial<Course>, inst
   };
 };
 
-
-
-
 // Retrieves all courses for a specific user ID
 // Returns an array of Course objects
 // Throws an error if the user is not found
@@ -213,6 +210,21 @@ export const getCoursesByUserId = async (userId: string): Promise<Course[]> => {
     prerequisites: enrollment.course.prerequisites.split(','),
     imageUrl: enrollment.course.imageUrl,
     creatorId: enrollment.course.creatorId,
+  }));
+}
+
+export const getCourseActivityLog = async (courseId: string): Promise<any[]> => {
+  const courseActivityLog = await prisma.courseActivityLog.findMany({
+    where: { course_id: courseId },
+  });
+
+  return courseActivityLog.map((log) => ({
+    id: log.id,
+    courseId: log.course_id,
+    userId: log.user_id,
+    action: log.action,
+    metadata: log.metadata,
+    createdAt: log.created_at.toISOString(),
   }));
 }
 

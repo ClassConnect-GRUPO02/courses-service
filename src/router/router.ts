@@ -82,4 +82,7 @@ router.delete('/students/:studentId/favorite-courses/:courseId', favoritesContro
 router.get('/students/:studentId/favorite-courses', favoritesController.getFavoriteCourses); // Get all favorite courses by student ID
 router.get('/students/:studentId/favorite-courses/:courseId', favoritesController.isCourseFavorite); // Check if course is favorite
 
+// ------------------------------ ACTIVITY LOG -----------------------------
+router.get('/courses/:id/activity-log', authenticateJWT, courseController.getCourseActivityLog); // Get activity log by course ID
+
 export default router;

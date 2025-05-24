@@ -1,6 +1,7 @@
 import { Course } from '../models/course';
 import * as database from '../database/course_db';
-import { CourseNotFoundError } from '../models/errors';
+import { CourseNotFoundError, NotTitularError } from '../models/errors';
+import { isTitularInCourse } from '../database/instructor_db';
 
 export const getAllCourses = async (): Promise<Course[]> => {
   return await database.getCourses();
@@ -30,6 +31,15 @@ export const getCoursesByUserId = async (userId: string): Promise<Course[]> => {
   return await database.getCoursesByUserId(userId);
 };
 
+export const getCourseActivityLog = async (courseId: string, instructorId: string): Promise<any[]> => {
+
+  const isTitular = await isTitularInCourse(courseId, instructorId);
+  if (!isTitular) {
+    throw new NotTitularError(courseId, instructorId);
+  }
+
+  return await database.getCourseActivityLog(courseId);
+}
 
 
 
