@@ -1,6 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from './course_db';
-import { InstructorType } from '@prisma/client'
+import { $Enums, InstructorType } from '@prisma/client'
+
+export interface InstructorPermissions {
+  id: string;
+  userId: string;
+  courseId: string;
+  type: $Enums.InstructorType;
+  can_create_content: boolean;
+  can_grade: boolean;
+  can_update_course: boolean;
+}
 
 export const addInstructorToCourse = async (courseId: string, instructorId: string, type: string, can_create_content: boolean, can_grade: boolean, can_update_course: boolean): Promise<boolean> => {
   
@@ -75,7 +85,10 @@ export const updateInstructorPermissions = async (courseId: string, instructorId
   return !!instructor;
 }
 
-export const getInstructorPermissions = async (courseId: string, instructorId: string): Promise<any> => {
+export const getInstructorPermissions = async (
+  courseId: string,
+  instructorId: string
+): Promise<InstructorPermissions | null> => {
   const instructor = await prisma.courseInstructor.findFirst({
     where: {
       courseId,
@@ -84,4 +97,4 @@ export const getInstructorPermissions = async (courseId: string, instructorId: s
   });
 
   return instructor;
-}
+};

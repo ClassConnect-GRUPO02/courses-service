@@ -1,8 +1,17 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { Course } from '../models/course';
 import { v4 as uuidv4 } from 'uuid';
 import { CourseNotFoundError } from '../models/errors';
 import { isTitularInCourse } from './instructor_db';
+
+export interface CourseActivityLog {
+  id: string;
+  courseId: string;
+  userId: string;
+  action: string;
+  metadata: Prisma.JsonValue | null; // JSON válido o null
+  createdAt: string;
+}
 
 export const prisma = new PrismaClient();
 
@@ -213,12 +222,12 @@ export const getCoursesByUserId = async (userId: string): Promise<Course[]> => {
   }));
 }
 
-export const getCourseActivityLog = async (courseId: string): Promise<any[]> => {
+export const getCourseActivityLog = async (courseId: string): Promise<CourseActivityLog[]> => {
   const courseActivityLog = await prisma.courseActivityLog.findMany({
     where: { course_id: courseId },
   });
 
-  return courseActivityLog.map((log) => ({
+  return courseActivityLog.map((log): CourseActivityLog => ({
     id: log.id,
     courseId: log.course_id,
     userId: log.user_id,
@@ -226,7 +235,7 @@ export const getCourseActivityLog = async (courseId: string): Promise<any[]> => 
     metadata: log.metadata,
     createdAt: log.created_at.toISOString(),
   }));
-}
+};
 
 
 
