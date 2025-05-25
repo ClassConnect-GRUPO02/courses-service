@@ -34,11 +34,14 @@ describe('Integration Tests for resources of Courses API', () => {
       const taskId = 't1';
       const studentId = 'u2';
       const feedback = { grade: 85, feedback: 'Good job!' };
+
+      const SECRET_KEY = Buffer.from(process.env.SECRET_KEY as string, "hex");
+
       const token = jwt.sign(
         { id: 'u1',
           userType: userTypes.INSTRUCTOR,
          }, // payload
-        process.env.SECRET_KEY!, // clave secreta
+        SECRET_KEY!, // clave secreta
         { algorithm: 'HS256' }
       );
 

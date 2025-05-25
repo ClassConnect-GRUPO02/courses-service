@@ -14,11 +14,13 @@ describe('Integration Tests for Courses API', () => {
     level: "Intermediate"
   };
 
+  const SECRET_KEY = Buffer.from(process.env.SECRET_KEY as string, "hex");
+
   const token = jwt.sign(
     { id: 'u1',
       userType: userTypes.INSTRUCTOR,
       }, // payload
-    process.env.SECRET_KEY!, // clave secreta
+    SECRET_KEY!, // clave secreta
     { algorithm: 'HS256' }
   );
 

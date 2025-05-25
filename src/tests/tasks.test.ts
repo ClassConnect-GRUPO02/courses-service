@@ -8,11 +8,13 @@ import { userTypes } from '../lib/user_types';
 
 describe('Integration Tests for tasks of Courses API', () => {
 
+  const SECRET_KEY = Buffer.from(process.env.SECRET_KEY as string, "hex");
+
   const token = jwt.sign(
   { id: 'u1',
     userType: userTypes.INSTRUCTOR,
     }, // payload
-  process.env.SECRET_KEY!, // clave secreta
+  SECRET_KEY!, // clave secreta
   { algorithm: 'HS256' }
 );
 
