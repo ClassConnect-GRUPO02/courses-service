@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response } from 'express';
 import logger from '../logger/logger';
 import { StatusCodes } from 'http-status-codes';
 import { AuthenticatedRequest } from '../lib/auth';
 import * as chatService from '../service/chat_service';
 
-export const sendMessage = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const sendMessage = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.Id;
     const userType = req.user?.userType;

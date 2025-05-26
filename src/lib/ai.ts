@@ -3,6 +3,7 @@ import * as course_service from '../service/course_service';
 import * as task_service from '../service/task_service';
 import * as module_service from '../service/module_service';
 import logger from '../logger/logger';
+import { ChatMessage } from '../models/chat_message';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -54,7 +55,7 @@ Evitá saludos, preguntas o texto adicional irrelevante. El objetivo es proporci
   return chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo generar el resumen del curso.';
 };
 
-export const processMessageStudent = async (userId: string, message: string, history: any[]): Promise<any> => {
+export const processMessageStudent = async (userId: string, message: string, history: ChatMessage[]): Promise<string> => {
   let dynamicContext = await tryToGetContextStudent(userId, message, history);
 
   if (!dynamicContext) {
@@ -85,11 +86,13 @@ export const processMessageStudent = async (userId: string, message: string, his
   return chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo procesar el mensaje.';
 }
 
-const tryToGetContextStudent = async (userId: string, message: string, history: any[]): Promise<string | void> => {
+const tryToGetContextStudent = async (userId: string, message: string, history: ChatMessage[]): Promise<string | void> => {
   const lowerMessage = message.toLowerCase();
   let identifiedCourse = null;
   let identifiedTask = null;
   let contextInfo = '';
+
+  logger.debug(`history: ${JSON.stringify(history)}`);
   
   const allCourses = await course_service.getCoursesByUserId(userId); // Obtener todos los cursos del usuario para poder buscar
   allCourses.sort((a, b) => b.name.length - a.name.length);
@@ -120,11 +123,9 @@ const tryToGetContextStudent = async (userId: string, message: string, history: 
     Prerrequisitos: ${identifiedCourse.prerequisites.join(', ')}
     `;
     
-    let identifiedModule = null;
     const modules = await module_service.getModules(identifiedCourse.id);
     for (const module of modules) {
       if (lowerMessage.includes(module.name.toLowerCase())) {
-        identifiedModule = module;
         contextInfo += `
         ### Información del módulo: ${module.name}
         Descripción: ${module.description}
@@ -195,7 +196,7 @@ const getGeneralContextStudent = async(userId: string): Promise<string> => {
   
 };
 
-export const processMessageInstructor = async (userId: string, message: string, history: any[]): Promise<any> => {
+export const processMessageInstructor = async (userId: string, message: string, history: ChatMessage[]): Promise<string> => {
   const systemPrompt = `
     Eres un asistente virtual que ayuda a los docentes a resolver dudas sobre sus cursos, tareas y módulos.
     Utiliza la información proporcionada a continuación para responder las preguntas del usuario.
