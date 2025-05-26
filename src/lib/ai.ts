@@ -4,7 +4,6 @@ import * as task_service from '../service/task_service';
 import * as module_service from '../service/module_service';
 import logger from '../logger/logger';
 import { ChatMessage } from '../models/chat_message';
-import { text } from 'express';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
