@@ -57,7 +57,7 @@ router.get('/tasks/:taskId/submissions/:studentId', taskController.getTaskSubmis
 // ----------------------------- ADD FEEDBACK TO TASK --------------------------------
 // This endpoint must only be used by instructors
 router.patch('/tasks/:taskId/submissions/:studentId/feedback', authenticateJWT, taskController.addFeedbackToTask); // Grade task by ID inside course
-router.get('/courses/:id/instructors/:instructorId/tasks/:taskId/submissions', taskController.getTaskSubmissions); // Get all task submissions by ID inside course 
+router.get('/courses/:id/instructors/:instructorId/tasks/:taskId/submissions', authenticateJWT, taskController.getTaskSubmissions); // Get all task submissions by ID inside course 
 
 // ----------------------------- RESOURCES -----------------------------
 router.post('/modules/:moduleId/resources', authenticateJWT, resourceController.addResourceToModule); // Add resource to module
@@ -88,5 +88,7 @@ router.get('/courses/:id/activity-log', authenticateJWT, courseController.getCou
 
 // ------------------------------ CHAT ----------------------------------
 router.post('/chat', authenticateJWT, chatController.sendMessage); // Send message in chat
+
+router.get('/ia-feedback/:taskSubmissionId', authenticateJWT, taskController.getFeedbackWithAI); // Get AI feedback for task submission
 
 export default router;

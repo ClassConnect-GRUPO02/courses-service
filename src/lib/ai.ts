@@ -249,3 +249,27 @@ const getGeneralContextInstructor = async (userId: string): Promise<string> => {
 
   return contextInfo;
 };
+
+
+// This function generates a resume using AI based on the provided text.
+// It is used to generate a resume for a task submission feedback.
+export const generateAIResume = async (text: string): Promise<string> => {
+  const chatCompletion = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages: [
+      {
+        role: 'system',
+        content: `Eres un asistente virtual que ayuda a generar resúmenes de feedback de tareas.
+        Utiliza la información proporcionada a continuación para generar un resumen conciso y claro.`,
+      },
+      {
+        role: 'user',
+        content: `Genera un resumen del siguiente feedback:\n\n${text}`,
+      },
+    ],
+    temperature: 0.7,
+    max_tokens: 150,
+  });
+
+  return chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo generar el resumen.';
+}

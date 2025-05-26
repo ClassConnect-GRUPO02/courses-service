@@ -421,3 +421,11 @@ export const getTaskSubmissions = async (taskId: string): Promise<TaskSubmission
     },
   });
 }
+
+export const getTaskSubmissionById = async (submissionId: string): Promise<TaskSubmission | null> => {
+  return await prisma.taskSubmission.findUnique({
+    where: {
+      id: submissionId,
+    },
+  });
+}
