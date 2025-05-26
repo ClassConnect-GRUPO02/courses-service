@@ -237,8 +237,33 @@ export const getCourseActivityLog = async (courseId: string): Promise<CourseActi
   }));
 };
 
+// Receives an array of course IDs and returns the corresponding Course objects
+export const getCoursesByIds = async (courseIds: string[]): Promise<Course[]> => {
+  const courses = await prisma.course.findMany({
+    where: {
+      id: {
+        in: courseIds,
+      },
+    },
+  });
 
-
+  return courses.map((course) => ({
+    id: course.id,
+    name: course.name,
+    description: course.description,
+    shortDescription: course.shortDescription,
+    startDate: course.startDate.toISOString(),
+    endDate: course.endDate.toISOString(),
+    capacity: course.capacity,
+    enrolled: course.enrolled,
+    category: course.category,
+    level: course.level as Course['level'],
+    modality: course.modality as Course['modality'],
+    prerequisites: course.prerequisites.split(','),
+    imageUrl: course.imageUrl,
+    creatorId: course.creatorId,
+  }));
+}
 
 
 

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from './course_db';
 import { $Enums, InstructorType } from '@prisma/client'
+import logger from '../logger/logger';
 
 export interface InstructorPermissions {
   id: string;
@@ -98,3 +99,18 @@ export const getInstructorPermissions = async (
 
   return instructor;
 };
+
+// Receives an instructor ID and returns a list of course IDs they are associated with
+export const getCoursesIdsByInstructorId = async (instructorId: string): Promise<string[]> => {
+  const instructors = await prisma.courseInstructor.findMany({
+    where: {
+      userId: instructorId,
+    },
+    select: {
+      courseId: true,
+    },
+  });
+
+  logger.debug(`Courses for instructor: ${instructorId}`, instructors);
+  return instructors.map(instructor => instructor.courseId);
+}

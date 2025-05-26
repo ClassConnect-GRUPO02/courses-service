@@ -7,6 +7,7 @@ import * as taskController from '../controller/task_controller';
 import * as resourceController from '../controller/resource_controller';
 import * as feedbackController from '../controller/feedback_controller';
 import * as favoritesController from '../controller/favorites_controller';
+import * as chatController from '../controller/chat_controller';
 import { authenticateJWT } from "../lib/auth"
 
 const router = express.Router();
@@ -84,5 +85,8 @@ router.get('/students/:studentId/favorite-courses/:courseId', favoritesControlle
 
 // ------------------------------ ACTIVITY LOG -----------------------------
 router.get('/courses/:id/activity-log', authenticateJWT, courseController.getCourseActivityLog); // Get activity log by course ID
+
+// ------------------------------ CHAT ----------------------------------
+router.post('/chat', authenticateJWT, chatController.sendMessage); // Send message in chat
 
 export default router;

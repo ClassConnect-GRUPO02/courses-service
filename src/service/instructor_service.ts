@@ -101,3 +101,9 @@ export const getInstructorPermissions = async (
 
   return permissions;
 };
+
+// Receives an instructorId and returns the list of course IDs they are associated with
+export const getCoursesIdsByInstructorId = async (instructorId: string): Promise<string[]> => {
+  const coursesIds = await databaseInstructor.getCoursesIdsByInstructorId(instructorId);
+  return coursesIds
+}
