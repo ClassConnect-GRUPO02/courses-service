@@ -1,4 +1,4 @@
-import {processMessageStudent} from '../lib/ai';
+import {processMessageInstructor, processMessageStudent} from '../lib/ai';
 import { userTypes } from '../lib/user_types';
 import logger from '../logger/logger';
 
@@ -8,11 +8,10 @@ export const sendMessage = async (userId: string, message: string, history: any[
       const response = await processMessageStudent(userId, message, history);
       return response;
     }
-    if (userType == userTypes.INSTRUCTOR) {
-      // Implement logic for instructor
-      return { message: 'Instructor functionality not implemented yet' };
+    else if (userType == userTypes.INSTRUCTOR) {
+      const response = await processMessageInstructor(userId, message, history);
+      return response;
     }
-    logger.error('Invalid user type:', userType);
   } catch (error) {
     logger.error('Error in chatService.sendMessage:', error);
     throw error;

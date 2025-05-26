@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import * as course_service from '../service/course_service';
 import * as task_service from '../service/task_service';
 import * as module_service from '../service/module_service';
+import logger from '../logger/logger';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -54,10 +55,10 @@ Evitá saludos, preguntas o texto adicional irrelevante. El objetivo es proporci
 };
 
 export const processMessageStudent = async (userId: string, message: string, history: any[]): Promise<any> => {
-  let dynamicContext = await tryToGetContext(userId, message, history);
+  let dynamicContext = await tryToGetContextStudent(userId, message, history);
 
   if (!dynamicContext) {
-    dynamicContext = await getGeneralContext(userId);
+    dynamicContext = await getGeneralContextStudent(userId);
   }
 
   const systemPrompt = `
@@ -78,13 +79,13 @@ export const processMessageStudent = async (userId: string, message: string, his
       { role: 'user', content: message },
     ],
     temperature: 0.7,
-    max_tokens: 200,
+    max_tokens: 500,
   });
 
   return chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo procesar el mensaje.';
 }
 
-export const tryToGetContext = async (userId: string, message: string, history: any[]): Promise<string | void> => {
+const tryToGetContextStudent = async (userId: string, message: string, history: any[]): Promise<string | void> => {
   const lowerMessage = message.toLowerCase();
   let identifiedCourse = null;
   let identifiedTask = null;
@@ -113,8 +114,8 @@ export const tryToGetContext = async (userId: string, message: string, history: 
     ### Información detallada del curso: ${identifiedCourse.name}
     Descripción: ${identifiedCourse.description}
     Nivel: ${identifiedCourse.level}, Categoría: ${identifiedCourse.category}, Modalidad: ${identifiedCourse.modality}
-    Fecha de inicio: ${new Date(identifiedCourse.startDate).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-    Fecha de finalización: ${new Date(identifiedCourse.endDate).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+    Fecha inicio: ${new Date(identifiedCourse.startDate).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+    Fecha finalización: ${new Date(identifiedCourse.endDate).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
     Capacidad: ${identifiedCourse.capacity}, Inscritos: ${identifiedCourse.enrolled}
     Prerrequisitos: ${identifiedCourse.prerequisites.join(', ')}
     `;
@@ -143,6 +144,9 @@ export const tryToGetContext = async (userId: string, message: string, history: 
   `;
   }
 
+  logger.debug(`specific contextInfo: ${contextInfo}`);
+
+
   if (contextInfo) {
     return contextInfo.trim();
   } else { 
@@ -150,12 +154,12 @@ export const tryToGetContext = async (userId: string, message: string, history: 
   }
 }
 
-export const getGeneralContext = async(userId: string): Promise<string> => {
+const getGeneralContextStudent = async(userId: string): Promise<string> => {
   let contextInfo = '';
-  const allEnrolledCourses = await course_service.getCoursesByUserId(userId);
+  const allCourses = await course_service.getAllCourses();
   const allTasks = await task_service.getTasksByStudentId(userId);
 
-  for (const course of allEnrolledCourses) {
+  for (const course of allCourses) {
     contextInfo += `
     ### Información del curso: ${course.name}
     Descripción: ${course.description}
@@ -184,7 +188,63 @@ export const getGeneralContext = async(userId: string): Promise<string> => {
     Permitir entregas tardías: ${task.allow_late ? 'Sí' : 'No'}
     `;
   }
+  logger.debug(`general contextInfo student: ${contextInfo}`);
+
   
   return contextInfo
   
+};
+
+export const processMessageInstructor = async (userId: string, message: string, history: any[]): Promise<any> => {
+  const systemPrompt = `
+    Eres un asistente virtual que ayuda a los docentes a resolver dudas sobre sus cursos, tareas y módulos.
+    Utiliza la información proporcionada a continuación para responder las preguntas del usuario.
+    Si la información no es suficiente para responder la pregunta, informa al usuario que no dispones de esa información en tu contexto.
+
+    ${await getGeneralContextInstructor(userId)}
+
+    Responde de forma clara, concisa y útil, priorizando la información más relevante para la pregunta del usuario.
+  `.trim();
+
+  const chatCompletion = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages: [
+      { role: 'system', content: systemPrompt },
+      ...history,
+      { role: 'user', content: message },
+    ],
+    temperature: 0.7,
+    max_tokens: 500,
+  });
+
+  return chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo procesar el mensaje.';
+}
+
+const getGeneralContextInstructor = async (userId: string): Promise<string> => {
+  let contextInfo = '';
+  const allCourses = await course_service.getCoursesByInstructorId(userId);
+
+  for (const course of allCourses) {
+    contextInfo += `
+    ### Información del curso: ${course.name}
+    Descripción: ${course.description}
+    Nivel: ${course.level}, Categoría: ${course.category}, Modalidad: ${course.modality}
+    Fecha de inicio: ${new Date(course.startDate).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+    Fecha de finalización: ${new Date(course.endDate).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+    Capacidad: ${course.capacity}, Inscritos: ${course.enrolled}
+    Prerrequisitos: ${course.prerequisites.join(', ')}
+    `;
+    
+    const modules = await module_service.getModules(course.id);
+    for (const module of modules) {
+      contextInfo += `
+      ### Información del módulo: ${module.name}
+      Descripción: ${module.description}
+      Orden: ${module.order}
+      `;
+    }
+    logger.debug(`general contextInfo instructor: ${contextInfo}`);
+  }
+
+  return contextInfo;
 };

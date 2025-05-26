@@ -14,6 +14,8 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response, next
       return;
     }
 
+    logger.debug(`User ID: ${userId}, User Type: ${userType}`);
+
     const message = req.body.message;
     const history = req.body.history || [];
     const response = await chatService.sendMessage(userId, message, history, userType);
