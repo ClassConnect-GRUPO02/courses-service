@@ -176,13 +176,46 @@ export const getTaskSubmission = async (req: Request, res: Response, next: NextF
 // Retrieves all task submissions for a specific task
 // This endpoint is used to get all submissions for a specific task it must only be used by the instructors
 // router.get('/courses/:id/instructors/:instructorId/tasks/:taskId/submissions', taskController.getTaskSubmissions)
-export const getTaskSubmissions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getTaskSubmissions = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
+    if (req.user?.userType !== userTypes.INSTRUCTOR) {
+      res.status(StatusCodes.FORBIDDEN).json({ message: "Only instructors can access task submissions" });
+      return;
+    } else if (req.user?.Id !== req.params.instructorId) {
+      res.status(StatusCodes.FORBIDDEN).json({ message: "You are not authorized to access this resource" });
+      return;
+    }
     const { id, instructorId, taskId } = req.params;
     const submissions = await taskService.getTaskSubmissions(id, instructorId, taskId);
     res.status(StatusCodes.OK).json({ data: submissions });
     logger.info(`Task submissions retrieved for task with ID ${taskId} successfully`);
   } catch (error) {
     next(error);
+  }
+}
+
+
+// Generates a resume of the feedback provided (Only used by instructors)
+export const getFeedbackWithAI = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { taskSubmissionId } = req.params;
+    const userId = req.user?.Id;
+    const userType = req.user?.userType;
+
+    if (!userId || !userType) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ error: 'Unauthorized' });
+      return;
+    } else if (userType !== userTypes.INSTRUCTOR) {
+      res.status(StatusCodes.FORBIDDEN).json({ error: 'Only instructors can do this operation' });
+      return;
+    }
+    logger.debug(`User ID: ${userId}, User Type: ${userType}`);
+
+    const response = await taskService.getFeedbackWithAI(taskSubmissionId, userId);
+    res.status(StatusCodes.OK).json({ data: response });
+
+  } catch (error) {
+    logger.error('Error getting feedback with IA:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
   }
 }

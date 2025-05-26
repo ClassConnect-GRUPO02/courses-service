@@ -3,6 +3,7 @@ import { AuthorizationError, CourseNotFoundError, NotFoundError } from '../model
 import * as database from '../database/course_db';
 import * as databaseTask from '../database/task_db';
 import * as databaseInstructor from '../database/instructor_db';
+import { generateAIResume } from '../lib/ai';
 
 export const addTaskToCourse = async (courseId: string, task: Task, instructorId: string): Promise<Task> => {
   const course = await database.getCourseById(courseId);
@@ -145,4 +146,26 @@ export const getTaskSubmissions = async (courseId: string, instructorId: string,
   }
   const submissions = await databaseTask.getTaskSubmissions(taskId);
   return submissions;
+}
+
+export const getFeedbackWithAI = async (taskSubmissionId: string, userId: string) => {
+  const submission = await databaseTask.getTaskSubmissionById(taskSubmissionId);
+  if (!submission) {
+    throw new NotFoundError(taskSubmissionId, "Task submission");
+  }
+  const taskId = submission.task_id;
+  const task = await databaseTask.getTaskById(taskId);
+  if (!task) {
+    throw new NotFoundError(taskId, "Task");
+  }
+  const courseId = task.course_id;
+  const isInstructor = await databaseInstructor.isInstructorInCourse(courseId, userId);
+  if (!isInstructor) {
+    throw new AuthorizationError(userId);
+  }
+  const feedback = submission.feedback;
+  if (!feedback) {
+    throw new NotFoundError(taskSubmissionId, "Feedback for task submission");
+  }
+  return generateAIResume(feedback);
 }
