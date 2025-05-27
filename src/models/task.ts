@@ -8,6 +8,7 @@ export class Task {
     type: 'tarea' | 'examen';
     title: string;
     description: string;
+    file_url?: string | null;
     due_date: string;
     allow_late: boolean;
     late_policy: 'ninguna' | 'descontar' | 'penalizar' | 'aceptar' | 'aceptar_con_descuento' | 'aceptar_con_penalizacion';
@@ -44,6 +45,7 @@ export class Task {
         this.type = data.type;
         this.title = data.title;
         this.description = data.description;
+        this.file_url = data.file_url ?? null;
         this.due_date = validateDateString(data.due_date, "due_date");
         this.allow_late = data.allow_late;
         this.late_policy = data.late_policy;
