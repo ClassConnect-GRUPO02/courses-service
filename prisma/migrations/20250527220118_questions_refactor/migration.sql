@@ -46,6 +46,9 @@ CREATE TABLE `courses_instructors` (
     `courseId` VARCHAR(191) NOT NULL,
     `userId` VARCHAR(191) NOT NULL,
     `type` ENUM('TITULAR', 'AUXILIAR') NOT NULL,
+    `can_create_content` BOOLEAN NOT NULL DEFAULT false,
+    `can_grade` BOOLEAN NOT NULL DEFAULT false,
+    `can_update_course` BOOLEAN NOT NULL DEFAULT false,
 
     UNIQUE INDEX `courses_instructors_courseId_userId_key`(`courseId`, `userId`),
     PRIMARY KEY (`id`)
@@ -59,6 +62,7 @@ CREATE TABLE `tasks` (
     `type` ENUM('tarea', 'examen') NOT NULL,
     `title` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NOT NULL,
+    `file_url` VARCHAR(191) NULL,
     `due_date` DATETIME(3) NOT NULL,
     `allow_late` BOOLEAN NOT NULL,
     `late_policy` ENUM('ninguna', 'descontar', 'penalizar', 'aceptar', 'aceptar_con_descuento', 'aceptar_con_penalizacion') NOT NULL,
@@ -81,6 +85,7 @@ CREATE TABLE `task_question` (
     `id` VARCHAR(191) NOT NULL,
     `task_id` VARCHAR(191) NOT NULL,
     `text` TEXT NOT NULL,
+    `points` DOUBLE NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -163,6 +168,18 @@ CREATE TABLE `favorite_courses` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `course_activity_log` (
+    `id` VARCHAR(191) NOT NULL,
+    `course_id` VARCHAR(191) NOT NULL,
+    `user_id` VARCHAR(191) NOT NULL,
+    `action` VARCHAR(191) NOT NULL,
+    `metadata` JSON NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Module` ADD CONSTRAINT `Module_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -198,3 +215,6 @@ ALTER TABLE `student_feedback` ADD CONSTRAINT `student_feedback_course_id_fkey` 
 
 -- AddForeignKey
 ALTER TABLE `favorite_courses` ADD CONSTRAINT `favorite_courses_course_id_fkey` FOREIGN KEY (`course_id`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `course_activity_log` ADD CONSTRAINT `course_activity_log_course_id_fkey` FOREIGN KEY (`course_id`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

@@ -3,7 +3,7 @@ import { AuthorizationError, CourseNotFoundError, NotFoundError } from '../model
 import * as database from '../database/course_db';
 import * as databaseTask from '../database/task_db';
 import * as databaseInstructor from '../database/instructor_db';
-import { generateAIResume } from '../lib/ai';
+import { generateAIGrading, generateAIResume } from '../lib/ai';
 import { isEnrolledInCourse } from '../database/enrollment_db';
 import { TaskSubmission } from '@prisma/client';
 
@@ -12,7 +12,7 @@ export const addTaskToCourse = async (courseId: string, task: Task, instructorId
   if (!course) {
     throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
   }
-
+  
   return await databaseTask.addTaskToCourse(courseId, task, instructorId);
 }
 
@@ -139,18 +139,17 @@ export const gradeTaskWithAI = async (taskId: string, studentId: string) => {
     throw new NotFoundError(taskId, "Task submission");
   }
   const task = await databaseTask.getTaskById(taskId);
-  if (!task) {
+  if (!task || !task.questions) {
     throw new NotFoundError(taskId, "Task");
   }
   const courseId = task.course_id;
-  const isStudent = await isEnrolledInCourse(courseId, studentId);
-  if (!isStudent) {
-    throw new AuthorizationError(studentId);
-  }
   
   // Assuming generateAIResume is a function that generates feedback using AI
   // Fetch answers for the submission from the database
+  console.log("task questions:", task.questions);
+  console.log("submission answers:", submission.answers);
   const aiFeedback = await generateAIGrading(task.questions, submission.answers);
+  console.log("AI Feedback:", aiFeedback);
   
   return await databaseTask.updateTaskSubmission(taskId, studentId, aiFeedback.grade, aiFeedback.feedback, "AI-GENERATED");
 }

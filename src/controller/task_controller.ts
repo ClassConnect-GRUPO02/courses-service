@@ -19,6 +19,7 @@ export const addTaskToCourse = async (req: AuthenticatedRequest, res: Response, 
       res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing instructor ID" });
       return;
     }
+    taskData.created_by = instructorId; // Asignar el instructor como creador de la tarea
     const task = new Task(taskData);
     const createdTask = await taskService.addTaskToCourse(id, task, instructorId);
     res.status(StatusCodes.CREATED).json({ data: createdTask });

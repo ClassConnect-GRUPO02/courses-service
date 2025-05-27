@@ -250,7 +250,6 @@ const getGeneralContextInstructor = async (userId: string): Promise<string> => {
   return contextInfo;
 };
 
-
 // This function generates a resume using AI based on the provided text.
 // It is used to generate a resume for a task submission feedback.
 export const generateAIResume = async (text: string): Promise<string> => {
@@ -272,4 +271,64 @@ export const generateAIResume = async (text: string): Promise<string> => {
   });
 
   return chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo generar el resumen.';
+}
+
+export const generateAIGrading = async (questions: any[], answers: any[]): Promise<{ grade: number, feedback: string }> => {
+  const chatCompletion = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages: [
+      {
+        role: 'system',
+        content: `Eres un asistente virtual encargado de calificar tareas de estudiantes a partir de preguntas y respuestas.
+
+        Debes:
+        - Leer cuidadosamente cada pregunta y su respuesta correspondiente.
+        - Evaluar cada respuesta individualmente y asignarle una puntuación parcial.
+          - Si una pregunta incluye el campo "points", usa ese valor como el puntaje máximo para esa pregunta.
+          - Si una pregunta **no** incluye el campo "points", asume que todas las preguntas valen el mismo puntaje y repártelo equitativamente (por ejemplo, si hay 4 preguntas, cada una vale 2.5 puntos).
+        - Calcular la nota final sobre 10 puntos, proporcionalmente al total obtenido frente al total posible.
+        - Generar un objeto JSON con el siguiente formato:
+
+        {
+          "grade": número entre 0 y 10 con un decimal (ej: 7.5),
+          "feedback": "Texto constructivo y específico para el estudiante, indicando cuánto se asignó en cada respuesta y por qué."
+        }
+
+        Además:
+        - Si alguna respuesta no puede ser evaluada automáticamente (por ejemplo, es ambigua, está incompleta o es demasiado abierta), marca claramente que requiere revisión manual por parte del docente.
+        - El feedback debe ser claro, detallado y útil para que el estudiante entienda qué hizo bien y qué debe mejorar.
+        - Devuelve **únicamente** el objeto JSON, sin ningún texto adicional ni formato markdown.`,
+      },
+      {
+        role: 'user',
+        content: `Califica las siguientes respuestas a las preguntas:\n\n${JSON.stringify({ questions, answers })}\n\nDevuelve solo un objeto JSON con esta estructura:
+        {
+          "grade": número entre 0 y 10,
+          "feedback": "texto con feedback constructivo y específico"
+        }
+        `
+      },
+    ],
+    temperature: 0.7,
+    max_tokens: 500,
+  });
+
+ const responseContent = chatCompletion.choices[0]?.message?.content?.trim() ?? '';
+  console.log("AI grading response:", responseContent);
+
+  let grade = 0;
+  let feedback = 'No se pudo generar el feedback.';
+
+  try {
+    const parsed = JSON.parse(responseContent);
+    grade = parseFloat(parsed.grade) || 0;
+    feedback = parsed.feedback || feedback;
+  } catch (e) {
+    console.error("Error parsing AI grading response as JSON:", e);
+  }
+
+  return {
+    grade,
+    feedback,
+  };
 }

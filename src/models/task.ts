@@ -65,6 +65,7 @@ export class TaskQuestion {
     id: string;
     task_id: string;
     text: string;
+    points?: number;
 
     constructor(data: {
         id?: string;

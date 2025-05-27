@@ -82,6 +82,7 @@ model Task {
   type               TaskType
   title              String
   description        String
+  file_url           String?
   due_date           DateTime
   allow_late         Boolean
   late_policy        LatePolicy
@@ -91,7 +92,6 @@ model Task {
   visible_from       DateTime?
   visible_until      DateTime?
   allow_file_upload  Boolean
-  
   answer_format      AnswerFormat
   created_at         DateTime        @default(now())
   updated_at         DateTime        @updatedAt
@@ -127,6 +127,7 @@ model TaskQuestion {
   id        String     @id @default(uuid())
   task_id   String
   text      String     @db.Text
+  points    Float?
   task      Task       @relation(fields: [task_id], references: [id], onDelete: Cascade)
   answers   StudentAnswer[]
 

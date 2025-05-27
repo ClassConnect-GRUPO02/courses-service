@@ -192,7 +192,8 @@ export const getTasksByCourseId = async (courseId: string): Promise<Task[]> => {
     deleted_at: task.deleted_at ? task.deleted_at.toISOString() : null,
     questions: task.questions
       ? task.questions.map((question) => ({
-          ...question
+          ...question,
+          points: question.points === null ? undefined : question.points, // <-- aquí
         }))
       : [],
   }));
@@ -223,6 +224,7 @@ export const getTaskById = async (taskId: string): Promise<Task | null> => {
     questions: task.questions
       ? task.questions.map((question) => ({
           ...question,
+          points: question.points === null ? undefined : question.points, // <-- aquí
         }))
       : [],
   };
