@@ -91,4 +91,7 @@ router.post('/chat', authenticateJWT, chatController.sendMessage); // Send messa
 
 router.get('/ia-feedback/:taskSubmissionId', authenticateJWT, taskController.getFeedbackWithAI); // Get AI feedback for task submission
 
+// ------------------------------ AI GRADING -----------------------------}
+router.patch('/tasks/:taskId/submissions/:studentId/grade', authenticateJWT, taskController.gradeTaskWithAI); // Grade task with AI
+
 export default router;

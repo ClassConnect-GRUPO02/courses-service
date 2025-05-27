@@ -91,6 +91,7 @@ model Task {
   visible_from       DateTime?
   visible_until      DateTime?
   allow_file_upload  Boolean
+  
   answer_format      AnswerFormat
   created_at         DateTime        @default(now())
   updated_at         DateTime        @updatedAt

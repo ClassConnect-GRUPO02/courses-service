@@ -4,6 +4,8 @@ import * as database from '../database/course_db';
 import * as databaseTask from '../database/task_db';
 import * as databaseInstructor from '../database/instructor_db';
 import { generateAIResume } from '../lib/ai';
+import { isEnrolledInCourse } from '../database/enrollment_db';
+import { TaskSubmission } from '@prisma/client';
 
 export const addTaskToCourse = async (courseId: string, task: Task, instructorId: string): Promise<Task> => {
   const course = await database.getCourseById(courseId);
@@ -129,6 +131,28 @@ export const addFeedbackToTask = async (taskId: string, studentId: string, grade
     throw new AuthorizationError(instructorId);
   }
   return await databaseTask.updateTaskSubmission(taskId, studentId, grade, feedback, instructorId);
+}
+
+export const gradeTaskWithAI = async (taskId: string, studentId: string) => {
+  const submission = await databaseTask.getTaskSubmission(taskId, studentId) as (TaskSubmission & { answers: any[] }) | null;
+  if (!submission) {
+    throw new NotFoundError(taskId, "Task submission");
+  }
+  const task = await databaseTask.getTaskById(taskId);
+  if (!task) {
+    throw new NotFoundError(taskId, "Task");
+  }
+  const courseId = task.course_id;
+  const isStudent = await isEnrolledInCourse(courseId, studentId);
+  if (!isStudent) {
+    throw new AuthorizationError(studentId);
+  }
+  
+  // Assuming generateAIResume is a function that generates feedback using AI
+  // Fetch answers for the submission from the database
+  const aiFeedback = await generateAIGrading(task.questions, submission.answers);
+  
+  return await databaseTask.updateTaskSubmission(taskId, studentId, aiFeedback.grade, aiFeedback.feedback, "AI-GENERATED");
 }
 
 export const getTaskSubmission = async (taskId: string, studentId: string) => {
