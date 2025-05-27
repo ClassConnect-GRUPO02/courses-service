@@ -82,6 +82,7 @@ model Task {
   type               TaskType
   title              String
   description        String
+  file_url           String?
   due_date           DateTime
   allow_late         Boolean
   late_policy        LatePolicy
