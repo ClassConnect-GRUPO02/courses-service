@@ -51,8 +51,9 @@ router.get('/courses/:id/tasks/:taskId', taskController.getTask); // Get task by
 router.get('/tasks/students/:studentId', taskController.getTasksByStudentId); // Get all tasks by student ID
 
 // ----------------------------- COMPLETE TASKS (STUDENTS) -----------------------------
-router.post('/courses/:id/tasks/:taskId/submissions', taskController.submitTask); // Complete task by ID inside course
-router.get('/tasks/:taskId/submissions/:studentId', taskController.getTaskSubmission); // Get task submission by ID inside course
+router.post('/courses/:id/tasks/:taskId/start-exam', authenticateJWT, taskController.startExam); // Start exam by student
+router.post('/courses/:id/tasks/:taskId/submissions', taskController.submitTask); // Submit task/exam by student
+router.get('/tasks/:taskId/submissions/:studentId', authenticateJWT, taskController.getTaskSubmission); // Used by student to get their own task submission
 
 // ----------------------------- ADD FEEDBACK TO TASK --------------------------------
 // This endpoint must only be used by instructors

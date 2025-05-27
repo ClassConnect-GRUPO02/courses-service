@@ -64,6 +64,31 @@ type AnswerInput = {
   answer_text: string;
 };
 
+// Starts an exam for a student by creating an empty submission
+export const startExam = async (courseId: string, taskId: string, studentId: string) => {
+  const task = await databaseTask.getTaskById(taskId);
+  if (!task || task.course_id !== courseId) {
+    throw { status: 404, message: 'Tarea no encontrada en este curso' };
+  }
+  if (task.type !== 'examen') {
+    throw { status: 400, message: 'La tarea no es un examen' };
+  }
+
+  const now = new Date();
+  if (now > new Date(task.due_date)) {
+    throw { status: 400, message: 'No puedes iniciar el examen después de la fecha de entrega' };
+  }
+  // Verifies if the student has already started this exam
+  const existing = await databaseTask.getTaskSubmission(taskId, studentId);
+  if (existing) {
+    throw { status: 400, message: 'Ya has iniciado este examen' };
+  }
+  // Creates empty submission
+  const submission = await databaseTask.createEmptyTaskSubmission(taskId, studentId, now);
+  return submission;
+};
+
+
 export const submitTask = async (courseId: string, taskId: string, studentId: string, answers: AnswerInput[], fileUrl: string) => {
   const task = await databaseTask.getTaskById(taskId);
   if (!task || task.course_id !== courseId) {
@@ -71,19 +96,54 @@ export const submitTask = async (courseId: string, taskId: string, studentId: st
   }
 
   const now = new Date();
-  const isLate = task.due_date && now > new Date(task.due_date) ? 'late' : 'submitted';
-  if (task.allow_late === false && isLate === 'late') {
-    throw { status: 400, message: 'La entrega tardía no está permitida para esta tarea' };
-  }
-  
-  const submission = await databaseTask.createTaskSubmission(taskId, studentId, answers, fileUrl, now, isLate);
 
-  return {
-    message: 'Entrega registrada exitosamente',
-    submittedAt: submission.submitted_at,
-    status: submission.status,
-  };
-}
+  if (task.type === 'examen') {
+    // Must exist a submission to submit answers
+    const submission = await databaseTask.getTaskSubmission(taskId, studentId);
+    if (!submission) {
+      throw { status: 400, message: 'Debes iniciar el examen antes de entregar' };
+    }
+    // If the exam has a timer, check if the time limit is exceeded
+    if (task.has_timer && task.time_limit_minutes && submission.started_at) {
+      const elapsed = (now.getTime() - new Date(submission.started_at).getTime()) / 60000; // Time consumed
+      if (elapsed > task.time_limit_minutes) { // Time consumed exceeds time limit
+        if (!task.allow_late) {
+          throw { status: 400, message: 'Tiempo límite excedido para este examen' };
+        }
+      }
+    }
+    // Verifies if it is late compared to the due date
+    const isLate = task.due_date && now > new Date(task.due_date) ? 'late' : 'submitted';
+    if (task.allow_late === false && isLate === 'late') {
+      throw { status: 400, message: 'La entrega tardía no está permitida para este examen' };
+    }
+    // Updates submission with answers and updates status
+    const updated = await databaseTask.updateTaskSubmissionWithAnswers(
+      submission.id,
+      answers,
+      fileUrl,
+      now,
+      isLate
+    );
+    return {
+      message: 'Examen entregado exitosamente',
+      submittedAt: updated.submitted_at,
+      status: updated.status,
+    };
+  } else {
+    // Common task submission (not an exam). Creates a new submission directly
+    const isLate = task.due_date && now > new Date(task.due_date) ? 'late' : 'submitted';
+    if (task.allow_late === false && isLate === 'late') {
+      throw { status: 400, message: 'La entrega tardía no está permitida para esta tarea' };
+    }
+    const submission = await databaseTask.createTaskSubmission(taskId, studentId, answers, fileUrl, now, isLate);
+    return {
+      message: 'Tarea entregada exitosamente',
+      submittedAt: submission.submitted_at,
+      status: submission.status,
+    };
+  }
+};
 
 // -------------------------------- INSTRUCTORS ---------------------------
 export const getTasksByInstructor = async (instructorId: string, page: number, pageSize: number) => {

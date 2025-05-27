@@ -8,8 +8,8 @@ export const mockTaskRequestData = {
   allow_late: true,
   late_policy: 'ninguna' as const,
   has_timer: false,
+  time_limit_minutes: null,
   published: true,
   allow_file_upload: true,
   answer_format: 'archivo' as const,
-  time_limit_minutes: null,
 };

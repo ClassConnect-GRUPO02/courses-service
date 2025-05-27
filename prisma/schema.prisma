@@ -85,8 +85,8 @@ model Task {
   due_date           DateTime
   allow_late         Boolean
   late_policy        LatePolicy
-  has_timer          Boolean
-  time_limit_minutes Int?
+  has_timer          Boolean     // Para examen
+  time_limit_minutes Int?        // Para examen
   published          Boolean
   visible_from       DateTime?
   visible_until      DateTime?
@@ -150,7 +150,8 @@ model TaskSubmission {
   id            String           @id @default(uuid())
   task_id       String
   student_id    String
-  submitted_at  DateTime
+  started_at    DateTime   // Para examen
+  submitted_at  DateTime?
   status        SubmissionStatus
   grade         Float?
   feedback      String?          @db.Text
@@ -167,6 +168,7 @@ model TaskSubmission {
 }
 
 enum SubmissionStatus {
+  started
   submitted
   late
 }
