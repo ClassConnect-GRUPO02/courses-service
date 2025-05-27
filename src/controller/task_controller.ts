@@ -238,3 +238,19 @@ export const getFeedbackWithAI = async (req: AuthenticatedRequest, res: Response
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
   }
 }
+
+export const getTaskTimer = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { taskId } = req.params;
+    const studentId = req.user?.Id; // extraído del JWT
+    if (!studentId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing student ID" });
+      return;
+    }
+    const timer = await taskService.getTaskTimer(taskId, studentId);
+    res.status(StatusCodes.OK).json({ data: timer });
+    logger.info(`Task timer retrieved for task with ID ${taskId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}

@@ -229,3 +229,23 @@ export const getFeedbackWithAI = async (taskSubmissionId: string, userId: string
   }
   return generateAIResume(feedback);
 }
+
+export const getTaskTimer = async (taskId: string, studentId: string) => {
+  const task = await databaseTask.getTaskById(taskId);
+  if (!task) {
+    throw new NotFoundError(taskId, "Task");
+  }
+  const submission = await databaseTask.getTaskSubmission(taskId, studentId);
+  if (!submission) {
+    throw new NotFoundError(taskId, "Task submission");
+  }
+  if (!task.has_timer || !task.time_limit_minutes) {
+    throw new Error("This task does not have a timer.");
+  }
+  
+  const startedAt = new Date(submission.started_at);
+  const now = new Date();
+  const elapsedMinutes = Math.floor((now.getTime() - startedAt.getTime()) / (1000 * 60));
+  
+  return Math.max(0, task.time_limit_minutes - elapsedMinutes)
+}
