@@ -2,6 +2,7 @@ import { Server } from 'http';
 import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDB } from './src/tests/mocks/mock.db';
+import { AnswerInput } from './src/database/task_db';
 
 let server: Server;
 
@@ -307,23 +308,58 @@ jest.mock('./src/database/task_db', () => ({
     });
   }),
 
-  createTaskSubmission: jest.fn().mockImplementation((task_id: string, student_id: string, answers: string[], file_url: string, submitted_at: Date, status: string) => {
-    const taskSub = {
+  createEmptyTaskSubmission: jest.fn().mockImplementation(
+    (task_id: string, student_id: string, started_at: Date) => {
+      const submission = {
+        id: uuidv4(),
+        task_id,
+        student_id,
+        started_at: started_at.toISOString(),
+        submitted_at: '',
+        status: 'started',
+        answers: [],
+        file_url: '',
+        grade: 0,
+        feedback: '',
+        time_spent: 0,
+      };
+      mockDB.taskSubmission.push(submission);
+      return Promise.resolve({ ...submission });
+    }),
+
+  updateTaskSubmissionWithAnswers: jest.fn().mockImplementation(
+  async (
+    submissionId: string,
+    answers: AnswerInput[],
+    file_url: string | null,
+    submitted_at: Date,
+    status: 'submitted' | 'late'
+  ) => {
+    // Elimina respuestas anteriores
+    mockDB.studentAnswer = mockDB.studentAnswer.filter(
+      (a) => a.submission_id !== submissionId
+    );
+
+    // Agrega nuevas respuestas
+    const newAnswers = answers.map((a) => ({
       id: uuidv4(),
-      task_id,
-      student_id,
-      answers,
-      grade: 0,
-      feedback: "",
-      time_spent: 0,
-      file_url,
-      submitted_at: submitted_at.toISOString(),
-      status,
-    };
-    mockDB.taskSubmission.push(taskSub)
-    return Promise.resolve({
-      ...taskSub
-    })
+      submission_id: submissionId,
+      question_id: a.question_id,
+      answer_text: a.answer_text,
+      selected_option_id: null,
+    }));
+
+    mockDB.studentAnswer.push(...newAnswers);
+
+    // Actualiza la submission
+    const submission = mockDB.taskSubmission.find((s) => s.id === submissionId);
+    if (!submission) throw new Error('Submission not found');
+
+    submission.submitted_at = submitted_at.toISOString();
+    submission.status = status;
+    submission.file_url = file_url? file_url : '';
+
+    return Promise.resolve({ ...submission });
   }),
 
   getTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string) => {
@@ -362,6 +398,7 @@ jest.mock('./src/database/task_db', () => ({
 
     return Promise.resolve(updatedSubmission);
   }),
+
 }));
 
 jest.mock('./src/database/favorites_db', () => ({

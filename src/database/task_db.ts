@@ -228,7 +228,7 @@ export const getTaskById = async (taskId: string): Promise<Task | null> => {
   };
 }
 
-type AnswerInput = {
+export type AnswerInput = {
   question_id: string;
   answer_text: string;
 };
