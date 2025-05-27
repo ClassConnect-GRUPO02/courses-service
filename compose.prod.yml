@@ -26,7 +26,7 @@ services:
       SECRET_KEY: 
       OPENAI_API_KEY: 
 
-  mysql:
+  db:
     image: mysql:8.0
     container_name: cursos-db
     restart: always
