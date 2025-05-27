@@ -38,6 +38,7 @@ export const addTaskToCourse = async (courseId: string, task: Task, instructorId
         id: uuidv4(),
         task_id: taskId,
         text: question.text,
+        points: question.points !== undefined ? question.points : 0, // Aseguramos que points tenga un valor por defecto
       })),
     });
   }
@@ -66,6 +67,7 @@ export const addTaskToCourse = async (courseId: string, task: Task, instructorId
     created_at: newTask.created_at.toISOString(),
     updated_at: newTask.updated_at.toISOString(),
     deleted_at: newTask.deleted_at ? newTask.deleted_at.toISOString() : null,
+    
   };
 };
 

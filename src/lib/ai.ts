@@ -275,45 +275,47 @@ export const generateAIResume = async (text: string): Promise<string> => {
 
 export const generateAIGrading = async (questions: any[], answers: any[]): Promise<{ grade: number, feedback: string }> => {
   const chatCompletion = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4o',
     messages: [
       {
         role: 'system',
         content: `Eres un asistente virtual encargado de calificar tareas de estudiantes a partir de preguntas y respuestas.
 
-        Debes:
-        - Leer cuidadosamente cada pregunta y su respuesta correspondiente.
-        - Evaluar cada respuesta individualmente y asignarle una puntuación parcial.
-          - Si una pregunta incluye el campo "points", usa ese valor como el puntaje máximo para esa pregunta.
-          - Si una pregunta **no** incluye el campo "points", asume que todas las preguntas valen el mismo puntaje y repártelo equitativamente (por ejemplo, si hay 4 preguntas, cada una vale 2.5 puntos).
-        - Calcular la nota final sobre 10 puntos, proporcionalmente al total obtenido frente al total posible.
-        - Generar un objeto JSON con el siguiente formato:
+          Debes:
+          - Leer cuidadosamente cada pregunta y su respuesta correspondiente. Para asociar las respuestas con las preguntas, usa el campo 'id' de la pregunta con el 'question_id' de la respuesta.
+          - Evaluar cada respuesta individualmente y asignarle una puntuación parcial (entre 0 y el valor de 'points' de esa pregunta. Si la respuesta es correcta el puntaje será completo).
+          - Sumar todos los puntos obtenidos y convertir la nota final a una escala de 0 a 10 usando una regla de tres simple:
+            (puntos obtenidos / puntos máximos) * 10.
+          Antes de devolver el objeto JSON, realiza internamente el cálculo paso a paso de la nota total, sumando los puntos obtenidos y aplicando la regla de tres simple: (obtenido / total) * 10. Asegúrate de que el número sea correcto y consistente con el desglose del feedback.
+          - Generar un objeto JSON con el siguiente formato:
 
-        {
-          "grade": número entre 0 y 10 con un decimal (ej: 7.5),
-          "feedback": "Texto constructivo y específico para el estudiante, indicando cuánto se asignó en cada respuesta y por qué."
-        }
+          {
+            "grade": número entre 0 y 10 con un decimal (ej: 7.5),
+            "feedback": "Texto constructivo y específico para el estudiante, indicando cuánto se asignó en cada respuesta y por qué."
+          }
 
-        Además:
-        - Si alguna respuesta no puede ser evaluada automáticamente (por ejemplo, es ambigua, está incompleta o es demasiado abierta), marca claramente que requiere revisión manual por parte del docente.
-        - El feedback debe ser claro, detallado y útil para que el estudiante entienda qué hizo bien y qué debe mejorar.
-        - Devuelve **únicamente** el objeto JSON, sin ningún texto adicional ni formato markdown.`,
+          Además:
+          - Si alguna respuesta no puede ser evaluada automáticamente (por ejemplo, es ambigua, está incompleta o es demasiado abierta), indica que requiere revisión manual por parte del docente.
+          - El feedback debe ser claro, detallado y útil para que el estudiante entienda qué hizo bien y qué debe mejorar.
+          - Devuelve **únicamente** el objeto JSON, sin ningún texto adicional ni formato markdown.
+          
+          "Ejemplo:
+            Pregunta: ¿Cuál es la capital de Francia? (points: 2)
+            Respuesta: París
+
+            Feedback: Correcto. París es la capital de Francia. Puntuación: 2/2"`,
       },
       {
         role: 'user',
-        content: `Califica las siguientes respuestas a las preguntas:\n\n${JSON.stringify({ questions, answers })}\n\nDevuelve solo un objeto JSON con esta estructura:
-        {
-          "grade": número entre 0 y 10,
-          "feedback": "texto con feedback constructivo y específico"
-        }
-        `
+        content: `Aquí tienes las preguntas y respuestas para evaluar:\n\n${JSON.stringify({ questions, answers })}`
       },
     ],
-    temperature: 0.7,
+    temperature: 0,
     max_tokens: 500,
   });
 
- const responseContent = chatCompletion.choices[0]?.message?.content?.trim() ?? '';
+  console.log("Preguntas y respuestas recibidas para calificación:", JSON.stringify({ questions, answers }, null, 2));
+  const responseContent = chatCompletion.choices[0]?.message?.content?.trim() ?? '';
   console.log("AI grading response:", responseContent);
 
   let grade = 0;

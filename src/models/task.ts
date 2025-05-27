@@ -71,9 +71,11 @@ export class TaskQuestion {
         id?: string;
         task_id?: string;
         text: string;
+        points?: number;
     }) {
         this.id = data.id || '';
         this.task_id = data.task_id || '';
         this.text = data.text;
+        this.points = data.points !== undefined ? data.points : 0;
     }
 }
