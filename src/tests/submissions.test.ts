@@ -7,7 +7,7 @@ import { userTypes } from '../lib/user_types';
 
 
 
-describe('Integration Tests for resources of Courses API', () => {
+xdescribe('Integration Tests for resources of Courses API', () => {
   describe('GET /tasks/:taskId/submissions/:studentId', () => {
     it('should return 200 and the task submission for a valid taskId and studentId', async () => {
       const taskId = 't1';

@@ -230,11 +230,61 @@ export const getTaskById = async (taskId: string): Promise<Task | null> => {
   };
 }
 
-type AnswerInput = {
+export type AnswerInput = {
   question_id: string;
   answer_text: string;
 };
 
+// Creates empty task submission when a student starts an exam 
+// (this is used when a student starts an exam)
+export const createEmptyTaskSubmission = async (
+  task_id: string,
+  student_id: string,
+  started_at: Date
+) => {
+  return await prisma.taskSubmission.create({
+    data: {
+      task_id,
+      student_id,
+      started_at,
+      submitted_at: null,
+      status: 'started',
+    },
+  });
+};
+
+// Updates submission with answers and file URL and marks it as submitted or late
+export const updateTaskSubmissionWithAnswers = async (
+  submissionId: string,
+  answers: AnswerInput[],
+  file_url: string | null,
+  submitted_at: Date,
+  status: 'submitted' | 'late'
+) => {
+  // Deletes previous answers if any
+  await prisma.studentAnswer.deleteMany({ where: { submission_id: submissionId } });
+  // Adds new answers
+  await prisma.studentAnswer.createMany({
+    data: answers.map(a => ({
+      submission_id: submissionId,
+      question_id: a.question_id,
+      answer_text: a.answer_text,
+      selected_option_id: null,
+    })),
+  });
+  // Updates the submission with the file URL and status
+  return await prisma.taskSubmission.update({
+    where: { id: submissionId },
+    data: {
+      submitted_at,
+      status,
+      file_url,
+    },
+  });
+};
+
+// Cretaes a new task submission with answers and file URL 
+// (this is used when a student submits a task)
 export const createTaskSubmission = async (
   task_id: string,
   student_id: string,
@@ -251,6 +301,7 @@ export const createTaskSubmission = async (
       id: submissionId,
       task_id,
       student_id,
+      started_at: submitted_at, // Uso la misma fecha para started_at que para submitted_at
       submitted_at,
       status,
       file_url,

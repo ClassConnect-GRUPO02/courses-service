@@ -188,6 +188,7 @@ export const mockDB = {
       id: 's1',
       task_id: 't1',
       student_id: 'u2',
+      started_at: new Date('2024-05-01').toISOString(),
       status: 'submitted',
       answers: ['Respuesta 1', 'Respuesta 2'],
       grade: 0,
@@ -220,5 +221,35 @@ export const mockDB = {
       comment: 'El curso es muy interesante y el instructor explica muy bien.',
       punctuation: 4.5,
     }
-  ]
+  ],
+
+  taskQuestion: [
+    {
+      id: 'q1',
+      task_id: 't2',
+      text: '¿Qué es una variable en JavaScript?'
+    },
+    {
+      id: 'q2',
+      task_id: 't2',
+      text: '¿Cuál es la diferencia entre `let` y `const`?'
+    },
+  ],
+
+  studentAnswer:[
+    {
+      id: 'ans1',
+      submission_id: 's2', // Asumiendo que 's2' es una entrega de 't2' (examen)
+      question_id: 'q1',
+      answer_text: 'Una variable es un contenedor para almacenar datos.'
+    },
+    {
+      id: 'ans2',
+      submission_id: 's2',
+      question_id: 'q2',
+      answer_text: '`let` permite reasignación, `const` no.'
+    },
+  ],
+
+
 };
