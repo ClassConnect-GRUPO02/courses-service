@@ -92,3 +92,6 @@ jobs:
             sleep 5
             # Check if the service is still running
             docker ps | grep courses-service-api-1
+            
+            # Remove unused images
+            docker image prune -f
