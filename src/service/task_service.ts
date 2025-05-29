@@ -235,17 +235,25 @@ export const getTaskTimer = async (taskId: string, studentId: string) => {
   if (!task) {
     throw new NotFoundError(taskId, "Task");
   }
+
   const submission = await databaseTask.getTaskSubmission(taskId, studentId);
   if (!submission) {
     throw new NotFoundError(taskId, "Task submission");
   }
+
   if (!task.has_timer || !task.time_limit_minutes) {
     throw new Error("This task does not have a timer.");
   }
-  
+
   const startedAt = new Date(submission.started_at);
   const now = new Date();
-  const elapsedMinutes = Math.floor((now.getTime() - startedAt.getTime()) / (1000 * 60));
-  
-  return Math.max(0, task.time_limit_minutes - elapsedMinutes)
-}
+  const timeLimit = new Date(startedAt.getTime() + task.time_limit_minutes * 60000);
+  const remainingMilliseconds = timeLimit.getTime() - now.getTime();
+
+  const remainingSeconds = Math.max(0, Math.floor(remainingMilliseconds / 1000));
+  const hours = Math.floor(remainingSeconds / 3600);
+  const minutes = Math.floor((remainingSeconds % 3600) / 60);
+  const seconds = remainingSeconds % 60;
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
