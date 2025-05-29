@@ -18,6 +18,7 @@ describe('Integration Tests for tasks of Courses API', () => {
     { algorithm: 'HS256' }
   );
 
+  /*
   const tokenStudent = jwt.sign(
     { id: 'u2',
       userType: userTypes.STUDENT,
@@ -25,6 +26,7 @@ describe('Integration Tests for tasks of Courses API', () => {
     SECRET_KEY!, // clave secreta
     { algorithm: 'HS256' }
   );
+  */
 
   describe('GET /tasks/student/:studentId', () => {
     it('should retrieve all tasks assigned to a student', async () => {
