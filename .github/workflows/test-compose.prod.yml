@@ -18,16 +18,25 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -f Dockerfile -t courses-service  .
-          echo "IMAGE_URI=courses-service" > .env
 
-      - name: Run docker compose up
+      - name: Set up environment variables
         run: |
-          set -e
-          docker network create traefik-shared
+          export OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}"
+          export SECRET_KEY=${{ secrets.SECRET_KEY }}
+          
+          # Save them to .env
+          echo "IMAGE_URI=courses-service" >> .env
+          echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env
+          echo "SECRET_KEY=$SECRET_KEY" >> .env
 
+      - name: Start the services
+        run: |
+          docker network create traefik-shared
           docker compose -f compose.prod.yml pull
           docker compose -f compose.prod.yml up -d
 
+      - name: Check whether the services are still running
+        run: |
           sleep 5
           # Check if the service is still running
           docker ps | grep courses-service-api-1
