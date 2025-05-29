@@ -85,7 +85,7 @@ jobs:
             export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
 
             docker compose -f compose.prod.yml pull
-            docker compose -f compose.prod.yml up -d --remove-orphans --abort-on-container-failure
+            docker compose -f compose.prod.yml up -d --remove-orphans
 
             sleep 5
             # Check if the service is still running
