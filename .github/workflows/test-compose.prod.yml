@@ -1,0 +1,41 @@
+name: Test compose.prod.yml
+
+on:
+  pull_request:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up environment variables
+        run: |
+          export OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}"
+          export SECRET_KEY=${{ secrets.SECRET_KEY }}
+
+      - name: Build Docker image
+        run: |
+          docker build -f Dockerfile -t courses-service  .
+
+      - name: Set up environment variables
+        run: |
+          export OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}"
+          export SECRET_KEY=${{ secrets.SECRET_KEY }}
+          
+          # Save them to .env
+          echo "IMAGE_URI=courses-service" >> .env
+          echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env
+          echo "SECRET_KEY=$SECRET_KEY" >> .env
+
+      - name: Start the services
+        run: |
+          docker network create traefik-shared
+          docker compose -f compose.prod.yml up -d
+
+      - name: Check whether the services are still running
+        run: |
+          sleep 5
+          # Check if the service is still running
+          docker ps | grep courses-service-api-1
