@@ -1,0 +1,33 @@
+name: Test compose.prod.yml
+
+on:
+  pull_request:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up environment variables
+        run: |
+          export OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}"
+          export SECRET_KEY=${{ secrets.SECRET_KEY }}
+
+      - name: Build Docker image
+        run: |
+          docker build -f Dockerfile -t courses-service  .
+          export IMAGE_URI=courses-service
+
+      - name: Run docker compose up
+        run: |
+          set -e
+          docker network create traefik-shared
+
+          docker compose -f compose.prod.yml pull
+          docker compose -f compose.prod.yml up -d
+
+          sleep 5
+          # Check if the service is still running
+          docker ps | grep courses-service-api-1
