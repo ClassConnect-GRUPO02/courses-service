@@ -417,6 +417,19 @@ export const getTaskSubmission = async (taskId: string, studentId: string): Prom
   });
 };
 
+export const getTaskSubmissionStarted = async (taskId: string, studentId: string): Promise<TaskSubmission | null> => {
+  return await prisma.taskSubmission.findFirst({
+    where: {
+      task_id: taskId,
+      student_id: studentId,
+      status: SubmissionStatus.started,
+    },
+    include: {
+      answers: true,  // <- esto trae el array de respuestas
+    },
+  });
+};
+
 export const updateTaskSubmission = async (
   taskId: string,
   studentId: string,
