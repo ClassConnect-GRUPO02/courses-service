@@ -4,7 +4,6 @@ import * as database from '../database/course_db';
 import * as databaseTask from '../database/task_db';
 import * as databaseInstructor from '../database/instructor_db';
 import { generateAIResume } from '../lib/ai';
-import { SubmissionStatus } from '@prisma/client';
 
 export const addTaskToCourse = async (courseId: string, task: Task, instructorId: string): Promise<Task> => {
   const course = await database.getCourseById(courseId);
