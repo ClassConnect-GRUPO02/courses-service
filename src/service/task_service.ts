@@ -4,6 +4,7 @@ import * as database from '../database/course_db';
 import * as databaseTask from '../database/task_db';
 import * as databaseInstructor from '../database/instructor_db';
 import { generateAIResume } from '../lib/ai';
+import { SubmissionStatus } from '@prisma/client';
 
 export const addTaskToCourse = async (courseId: string, task: Task, instructorId: string): Promise<Task> => {
   const course = await database.getCourseById(courseId);
@@ -99,7 +100,7 @@ export const submitTask = async (courseId: string, taskId: string, studentId: st
 
   if (task.type === 'examen') {
     // Must exist a submission to submit answers
-    const submission = await databaseTask.getTaskSubmission(taskId, studentId);
+    const submission = await databaseTask.getTaskSubmissionStarted(taskId, studentId);
     if (!submission) {
       throw { status: 400, message: 'Debes iniciar el examen antes de entregar' };
     }
