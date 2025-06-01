@@ -248,7 +248,7 @@ export const createEmptyTaskSubmission = async (
       student_id,
       started_at,
       submitted_at: null,
-      status: 'started',
+      status: SubmissionStatus.started,
     },
   });
 };

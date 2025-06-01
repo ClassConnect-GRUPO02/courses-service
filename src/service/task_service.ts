@@ -99,7 +99,7 @@ export const submitTask = async (courseId: string, taskId: string, studentId: st
 
   if (task.type === 'examen') {
     // Must exist a submission to submit answers
-    const submission = await databaseTask.getTaskSubmission(taskId, studentId);
+    const submission = await databaseTask.getTaskSubmissionStarted(taskId, studentId);
     if (!submission) {
       throw { status: 400, message: 'Debes iniciar el examen antes de entregar' };
     }
