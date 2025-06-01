@@ -6,13 +6,13 @@ services:
       - traefik.http.routers.courses_service.rule=Host(`${PRODUCT_CATALOG_TRAEFIK_HOST:-courses_service.localhost}`) || PathPrefix(`/courses-service`)
       - traefik.http.routers.courses_service.entrypoints=web
       - traefik.http.routers.courses_service.service=courses_service
-      - traefik.http.services.courses_service.loadbalancer.server.port=${COURSES_SERVICE_PORT:-8000}
+      - traefik.http.services.courses_service.loadbalancer.server.port=${COURSES_SERVICE_PORT:-3000}
       - traefik.http.middlewares.courses_service_strip.stripPrefix.prefixes=/courses-service
       - traefik.http.routers.courses_service.middlewares=courses_service_strip
     networks:
       - traefik-shared
     depends_on:
-      - db
+      - mysql
     environment:
       HOST: 0.0.0.0
       PORT: 3000
@@ -21,10 +21,10 @@ services:
       DB_HOST: mysql
       DB_PORT: 3306
       DB_NAME: mydb
-      DATABASE_URL: mysql://root:password@$mysql:3000/mydb
+      DATABASE_URL: mysql://root:password@mysql:3306/mydb
       ENVIRONMENT: production
-      SECRET_KEY: 
-      OPENAI_API_KEY: 
+      SECRET_KEY:
+      OPENAI_API_KEY:
       DD_AGENT_HOST: datadog
       DD_SERVICE: courses-service
       DD_ENV: prod
@@ -36,15 +36,14 @@ services:
       DD_IAST_ENABLED: true
       DD_APPSEC_SCA_ENABLED: true
 
-  db:
+  mysql:
     image: mysql:8.0
-    container_name: cursos-db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: mydb
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
