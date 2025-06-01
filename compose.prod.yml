@@ -25,6 +25,16 @@ services:
       ENVIRONMENT: production
       SECRET_KEY: 
       OPENAI_API_KEY: 
+      DD_AGENT_HOST: datadog
+      DD_SERVICE: courses-service
+      DD_ENV: prod
+      DD_LOGS_INJECTION: true
+      DD_GIT_REPOSITORY_URL: github.com/classconnect-grupo02/courses-service
+      DD_TRACE_SAMPLE_RATE: "1"
+      DD_PROFILING_ENABLED: true
+      DD_APPSEC_ENABLED: true
+      DD_IAST_ENABLED: true
+      DD_APPSEC_SCA_ENABLED: true
 
   db:
     image: mysql:8.0
