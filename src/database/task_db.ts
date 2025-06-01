@@ -409,6 +409,7 @@ export const getTaskSubmission = async (taskId: string, studentId: string): Prom
     where: {
       task_id: taskId,
       student_id: studentId,
+      status: SubmissionStatus.submitted || SubmissionStatus.late,
     },
     include: {
       answers: true,  // <- esto trae el array de respuestas
@@ -468,6 +469,7 @@ export const getTaskSubmissions = async (taskId: string): Promise<TaskSubmission
   return await prisma.taskSubmission.findMany({
     where: {
       task_id: taskId,
+      status: SubmissionStatus.submitted || SubmissionStatus.late,
     },
     include: {
       answers: true,  // <- esto trae el array de respuestas
