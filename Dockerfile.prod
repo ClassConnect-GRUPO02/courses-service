@@ -1,0 +1,31 @@
+FROM node:18-alpine
+
+# Instala netcat y dependencias necesarias
+RUN apk add --no-cache netcat-openbsd
+
+WORKDIR /app
+
+# Copia solo los archivos necesarios para instalar dependencias
+COPY package*.json ./
+RUN npm install dd-trace --save
+RUN npm install
+
+# Copia el resto del código fuente
+COPY . .
+
+RUN npx prisma generate
+
+# Compila TypeScript (ya puede usar los tipos generados por Prisma)
+RUN npm run build
+
+EXPOSE 3000
+
+# Comando para esperar DB, empujar esquema y correr la app
+CMD ["sh", "-c", "\
+  echo 'Esperando a que la base de datos esté disponible en $DB_HOST:$DB_PORT...' && \
+  until nc -z $DB_HOST $DB_PORT; do echo 'Esperando...'; sleep 1; done && \
+  echo 'Base de datos disponible 🎉' && \
+  npx prisma db push && \
+  echo 'Levantando la app 🚀' && \
+  node --loader dd-trace/loader-hook.mjs --require dd-trace/init dist/main.js"]
+
