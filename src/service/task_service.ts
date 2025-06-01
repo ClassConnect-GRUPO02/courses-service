@@ -236,7 +236,7 @@ export const getTaskTimer = async (taskId: string, studentId: string) => {
     throw new NotFoundError(taskId, "Task");
   }
 
-  const submission = await databaseTask.getTaskSubmission(taskId, studentId);
+  const submission = await databaseTask.getTaskSubmissionStarted(taskId, studentId);
   if (!submission) {
     throw new NotFoundError(taskId, "Task submission");
   }
