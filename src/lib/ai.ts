@@ -259,16 +259,17 @@ export const generateAIResume = async (text: string): Promise<string> => {
     messages: [
       {
         role: 'system',
-        content: `Eres un asistente virtual que ayuda a generar resúmenes de feedback de tareas.
-        Utiliza la información proporcionada a continuación para generar un resumen conciso y claro.`,
+        content: `Eres un asistente que ayuda a docentes a generar resúmenes breves de feedback académico.
+        Debes generar un resumen claro, profesional y conciso que destaque los puntos clave del texto.
+        El resumen debe tener entre 30 y 40 palabras. No repitas el texto original ni uses frases genéricas como “en resumen” o “el texto dice”.`,
       },
       {
         role: 'user',
-        content: `Genera un resumen del siguiente feedback:\n\n${text}`,
+        content: text,
       },
     ],
     temperature: 0.7,
-    max_tokens: 150,
+    max_tokens: 80,
   });
 
   return chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo generar el resumen.';
