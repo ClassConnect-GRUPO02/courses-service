@@ -56,6 +56,7 @@ Evitá saludos, preguntas o texto adicional irrelevante. El objetivo es proporci
   return chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo generar el resumen del curso.';
 };
 
+// This function processes a message from a student and generates a response using AI.
 export const processMessageStudent = async (userId: string, message: string, history: ChatMessage[]): Promise<string> => {
   let dynamicContext = await tryToGetContextStudent(userId, message, history);
 
@@ -64,12 +65,15 @@ export const processMessageStudent = async (userId: string, message: string, his
   }
 
   const systemPrompt = `
-  Eres un asistente virtual que ayuda a los alumnos a resolver dudas sobre sus cursos, tareas y materiales.
+  Eres un asistente virtual de la app ClassConnect que ayuda a los alumnos a resolver dudas sobre sus cursos, tareas y materiales.
 
   Utiliza solo la información proporcionada a continuación para responder preguntas. 
   Si no puedes encontrar absolutamente ninguna información relevante para responder la pregunta, responde exactamente con esta marca especial: [NO_CONTEXT]
 
   No utilices la marca [NO_CONTEXT] si crees que hay alguna parte del contexto que puede ayudarte a generar una respuesta útil, aunque no sea completa.
+
+  Para preguntas sobre el uso de la app utiliza esto:
+  ${APP_CONTEXT_STUDENT}
 
   === CONTEXTO COMIENZA ===
   ${dynamicContext}
@@ -99,6 +103,7 @@ export const processMessageStudent = async (userId: string, message: string, his
   return response;
 }
 
+// This function tries to extract specific context information for a student based on their message and chat history.
 const tryToGetContextStudent = async (userId: string, message: string, history: ChatMessage[]): Promise<string | void> => {
   const lowerMessage = message.toLowerCase();
   let identifiedCourse = null;
@@ -212,7 +217,7 @@ const getGeneralContextStudent = async(userId: string): Promise<string> => {
 export const processMessageInstructor = async (userId: string, message: string, history: ChatMessage[]): Promise<string> => {
   const contextInfo = await getGeneralContextInstructor(userId);
   const systemPrompt = `
-    Eres un asistente virtual que ayuda a los profesores a resolver dudas sobre sus cursos, tareas y materiales.
+    Eres un asistente virtual de la app ClassConnect que ayuda a los profesores a resolver dudas sobre sus cursos, tareas y materiales.
 
     Utiliza solo la información proporcionada a continuación para responder preguntas. 
     Si no puedes encontrar absolutamente ninguna información relevante para responder la pregunta, responde exactamente con esta marca especial: [NO_CONTEXT]
@@ -407,3 +412,31 @@ No calcules la nota final. El sistema lo hará por ti.
   }
 };
 
+const APP_CONTEXT_STUDENT = `
+Un usuario estudiante de la app móvil ClassConnect, tiene acceso a las siguientes secciones:
+
+- **Inicio**: Página principal con botón 'Ver cursos' que lleva a la lista de cursos.
+- **Tabs inferiores**:
+  - *Inicio*: Página principal.
+  - *Buscar*: Permite buscar usuarios y ver su perfil.
+  - *Mis cursos*: Lista de cursos en los que estás inscrito.
+    - Incluye acceso a 'Cursos favoritos' desde el botón en la esquina superior derecha.
+  - *Perfil*: Acceso a:
+    - 'Mis cursos'
+    - 'Mis feedbacks'
+    - 'Editar perfil'
+    - 'Configurar notificaciones'
+    - 'Cerrar sesión'
+
+- **Pantalla de curso inscrito**:
+  - Muestra: nombre, descripción, nivel, categoría, modalidad.
+  - Botones: 'Módulos', 'Dejar feedback', 'Volver'.
+
+- **Pantalla de curso no inscrito**:
+  - Muestra la misma información.
+  - Botones: 'Inscribirse', 'Volver'.
+
+- **Pantalla de módulos**:
+  - Lista de módulos con nombre, descripción y orden.
+  - Al seleccionar uno, se accede a sus recursos.
+`;
