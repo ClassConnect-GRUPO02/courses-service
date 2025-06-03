@@ -273,64 +273,100 @@ export const generateAIResume = async (text: string): Promise<string> => {
   return chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo generar el resumen.';
 }
 
-export const generateAIGrading = async (questions: any[], answers: any[]): Promise<{ grade: number, feedback: string }> => {
+function cleanJSONResponse(text: string): string {
+  // Quita las backticks y etiquetas ```json ... ```
+  return text
+    .replace(/^```json\s*/, '')   // Quita ```json al principio
+    .replace(/```$/, '')           // Quita ``` al final
+    .trim();
+}
+
+export const generateAIGrading = async (
+  questions: any[],
+  answers: any[]
+): Promise<{ grade: number; feedback: string }> => {
   const chatCompletion = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
       {
         role: 'system',
-        content: `Eres un asistente virtual encargado de calificar tareas de estudiantes a partir de preguntas y respuestas.
+        content: `
+Eres un asistente virtual encargado de calificar tareas de estudiantes.
 
-          Debes:
-          - Leer cuidadosamente cada pregunta y su respuesta correspondiente. Para asociar las respuestas con las preguntas, usa el campo 'id' de la pregunta con el 'question_id' de la respuesta.
-          - Evaluar cada respuesta individualmente y asignarle una puntuación parcial (entre 0 y el valor de 'points' de esa pregunta. Si la respuesta es correcta el puntaje será completo).
-          - Sumar todos los puntos obtenidos y convertir la nota final a una escala de 0 a 10 usando una regla de tres simple:
-            (puntos obtenidos / puntos máximos) * 10.
-          Antes de devolver el objeto JSON, realiza internamente el cálculo paso a paso de la nota total, sumando los puntos obtenidos y aplicando la regla de tres simple: (obtenido / total) * 10. Asegúrate de que el número sea correcto y consistente con el desglose del feedback.
-          - Generar un objeto JSON con el siguiente formato:
+Debes:
+- Evaluar cada respuesta individualmente y asignar una puntuación parcial (entre 0 y el valor de 'points' de la pregunta).
+- Asociar preguntas y respuestas usando 'id' y 'question_id'.
+- Para cada respuesta, devuelve un objeto con:
+  {
+    "question_id": string,
+    "awarded_points": número entre 0 y puntos de la pregunta,
+    "feedback": texto constructivo
+  }
 
-          {
-            "grade": número entre 0 y 10 con un decimal (ej: 7.5),
-            "feedback": "Texto constructivo y específico para el estudiante, indicando cuánto se asignó en cada respuesta y por qué."
-          }
+Devuelve un JSON **con un array** llamado "grading", por ejemplo:
 
-          Además:
-          - Si alguna respuesta no puede ser evaluada automáticamente (por ejemplo, es ambigua, está incompleta o es demasiado abierta), indica que requiere revisión manual por parte del docente.
-          - El feedback debe ser claro, detallado y útil para que el estudiante entienda qué hizo bien y qué debe mejorar.
-          - Devuelve **únicamente** el objeto JSON, sin ningún texto adicional ni formato markdown.
-          
-          "Ejemplo:
-            Pregunta: ¿Cuál es la capital de Francia? (points: 2)
-            Respuesta: París
+{
+  "grading": [
+    {
+      "question_id": "abc123",
+      "awarded_points": 2,
+      "feedback": "Respuesta correcta. Puntos: 2/2"
+    },
+    ...
+  ]
+}
 
-            Feedback: Correcto. París es la capital de Francia. Puntuación: 2/2"`,
+No calcules la nota final. El sistema lo hará por ti.
+        `,
       },
       {
         role: 'user',
-        content: `Aquí tienes las preguntas y respuestas para evaluar:\n\n${JSON.stringify({ questions, answers })}`
+        content: `Aquí tienes las preguntas y respuestas para evaluar:\n\n${JSON.stringify({ questions, answers })}`,
       },
     ],
     temperature: 0,
-    max_tokens: 500,
+    max_tokens: 1000,
   });
 
-  console.log("Preguntas y respuestas recibidas para calificación:", JSON.stringify({ questions, answers }, null, 2));
-  const responseContent = chatCompletion.choices[0]?.message?.content?.trim() ?? '';
-  console.log("AI grading response:", responseContent);
+  let responseContent = chatCompletion.choices[0]?.message?.content?.trim() ?? '';
+  responseContent = cleanJSONResponse(responseContent);
 
-  let grade = 0;
-  let feedback = 'No se pudo generar el feedback.';
+  console.log("AI raw grading response cleaned:", responseContent);
 
   try {
     const parsed = JSON.parse(responseContent);
-    grade = parseFloat(parsed.grade) || 0;
-    feedback = parsed.feedback || feedback;
-  } catch (e) {
-    console.error("Error parsing AI grading response as JSON:", e);
-  }
 
-  return {
-    grade,
-    feedback,
-  };
-}
+    if (!parsed.grading || !Array.isArray(parsed.grading)) {
+      throw new Error('Formato inválido');
+    }
+
+    const totalPoints = questions.reduce((acc, q) => acc + q.points, 0);
+    let obtainedPoints = 0;
+    let detailedFeedback = '';
+
+    for (const question of questions) {
+      const answerFeedback = parsed.grading.find(
+        (g: any) => g.question_id === question.id
+      );
+
+      const points = answerFeedback?.awarded_points ?? 0;
+      const feedback = answerFeedback?.feedback ?? 'Sin feedback.';
+      obtainedPoints += points;
+      detailedFeedback += `Pregunta: ${question.text}\nFeedback: ${feedback}\n\n`;
+    }
+
+    const grade = parseFloat(((obtainedPoints / totalPoints) * 10).toFixed(2));
+
+    return {
+      grade,
+      feedback: `${detailedFeedback}Nota final: ${grade}/10`,
+    };
+  } catch (e) {
+    console.error("Error parsing or calculating AI grading:", e);
+    return {
+      grade: 0,
+      feedback: 'Ocurrió un error al procesar la calificación.',
+    };
+  }
+};
+
