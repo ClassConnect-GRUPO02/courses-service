@@ -72,6 +72,9 @@ export const processMessageStudent = async (userId: string, message: string, his
 
   No utilices la marca [NO_CONTEXT] si crees que hay alguna parte del contexto que puede ayudarte a generar una respuesta útil, aunque no sea completa.
 
+  Para preguntas sobre el uso de la app utiliza esto:
+  ${APP_CONTEXT_STUDENT}
+
   === CONTEXTO COMIENZA ===
   ${dynamicContext}
   === CONTEXTO TERMINA ===
@@ -409,11 +412,31 @@ No calcules la nota final. El sistema lo hará por ti.
   }
 };
 
-const APP_CONTEXT = `
-Como usario 'estudiante' de la app móvil ClassConnect, la aplicación presenta la siguiente estructura:
-- Página principal: Muestra el botón 'Ver cursos' que lleva a la lista de cursos.
-- Tabs en el borde inferior:
-  - 'Mis cursos': Lista de cursos a los que el alumno está inscrito.
-  - 'Buscar': Permite buscar usuarios.
-  - 'Perfil': Muestra el perfil del usuario con opciones de configuración y logout.
-  `;
+const APP_CONTEXT_STUDENT = `
+Un usuario estudiante de la app móvil ClassConnect, tiene acceso a las siguientes secciones:
+
+- **Inicio**: Página principal con botón 'Ver cursos' que lleva a la lista de cursos.
+- **Tabs inferiores**:
+  - *Inicio*: Página principal.
+  - *Buscar*: Permite buscar usuarios y ver su perfil.
+  - *Mis cursos*: Lista de cursos en los que estás inscrito.
+    - Incluye acceso a 'Cursos favoritos' desde el botón en la esquina superior derecha.
+  - *Perfil*: Acceso a:
+    - 'Mis cursos'
+    - 'Mis feedbacks'
+    - 'Editar perfil'
+    - 'Configurar notificaciones'
+    - 'Cerrar sesión'
+
+- **Pantalla de curso inscrito**:
+  - Muestra: nombre, descripción, nivel, categoría, modalidad.
+  - Botones: 'Módulos', 'Dejar feedback', 'Volver'.
+
+- **Pantalla de curso no inscrito**:
+  - Muestra la misma información.
+  - Botones: 'Inscribirse', 'Volver'.
+
+- **Pantalla de módulos**:
+  - Lista de módulos con nombre, descripción y orden.
+  - Al seleccionar uno, se accede a sus recursos.
+`;
