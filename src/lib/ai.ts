@@ -4,6 +4,7 @@ import * as task_service from '../service/task_service';
 import * as module_service from '../service/module_service';
 import logger from '../logger/logger';
 import { ChatMessage } from '../models/chat_message';
+import { StudentAnswer, TaskQuestion } from '@prisma/client';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -282,8 +283,8 @@ function cleanJSONResponse(text: string): string {
 }
 
 export const generateAIGrading = async (
-  questions: any[],
-  answers: any[]
+  questions: TaskQuestion[],
+  answers: StudentAnswer[]
 ): Promise<{ grade: number; feedback: string }> => {
   const chatCompletion = await openai.chat.completions.create({
     model: 'gpt-4o',
@@ -340,13 +341,14 @@ No calcules la nota final. El sistema lo hará por ti.
       throw new Error('Formato inválido');
     }
 
-    const totalPoints = questions.reduce((acc, q) => acc + q.points, 0);
+    const totalPoints = questions.reduce((acc, q) => acc + (q.points ?? 0), 0);
     let obtainedPoints = 0;
     let detailedFeedback = '';
 
     for (const question of questions) {
-      const answerFeedback = parsed.grading.find(
-        (g: any) => g.question_id === question.id
+      type GradingFeedback = { question_id: string; awarded_points: number; feedback: string };
+      const answerFeedback = (parsed.grading as GradingFeedback[]).find(
+        (g) => g.question_id === question.id
       );
 
       const points = answerFeedback?.awarded_points ?? 0;

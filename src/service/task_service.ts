@@ -4,8 +4,7 @@ import * as database from '../database/course_db';
 import * as databaseTask from '../database/task_db';
 import * as databaseInstructor from '../database/instructor_db';
 import { generateAIGrading, generateAIResume } from '../lib/ai';
-import { isEnrolledInCourse } from '../database/enrollment_db';
-import { TaskSubmission } from '@prisma/client';
+import { StudentAnswer, TaskSubmission } from '@prisma/client';
 
 export const addTaskToCourse = async (courseId: string, task: Task, instructorId: string): Promise<Task> => {
   const course = await database.getCourseById(courseId);
@@ -134,7 +133,7 @@ export const addFeedbackToTask = async (taskId: string, studentId: string, grade
 }
 
 export const gradeTaskWithAI = async (taskId: string, studentId: string) => {
-  const submission = await databaseTask.getTaskSubmission(taskId, studentId) as (TaskSubmission & { answers: any[] }) | null;
+  const submission = await databaseTask.getTaskSubmission(taskId, studentId) as (TaskSubmission & { answers: StudentAnswer[] }) | null;
   if (!submission) {
     throw new NotFoundError(taskId, "Task submission");
   }
@@ -142,13 +141,16 @@ export const gradeTaskWithAI = async (taskId: string, studentId: string) => {
   if (!task || !task.questions) {
     throw new NotFoundError(taskId, "Task");
   }
-  const courseId = task.course_id;
   
   // Assuming generateAIResume is a function that generates feedback using AI
   // Fetch answers for the submission from the database
   console.log("task questions:", task.questions);
   console.log("submission answers:", submission.answers);
-  const aiFeedback = await generateAIGrading(task.questions, submission.answers);
+  const formattedQuestions = task.questions.map(q => ({
+    ...q,
+    points: q.points === undefined ? null : q.points,
+  }));
+  const aiFeedback = await generateAIGrading(formattedQuestions, submission.answers);
   console.log("AI Feedback:", aiFeedback);
   
   return await databaseTask.updateTaskSubmission(taskId, studentId, aiFeedback.grade, aiFeedback.feedback, "AI-GENERATED");
