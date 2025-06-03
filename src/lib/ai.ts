@@ -4,6 +4,7 @@ import * as task_service from '../service/task_service';
 import * as module_service from '../service/module_service';
 import logger from '../logger/logger';
 import { ChatMessage } from '../models/chat_message';
+import { StudentAnswer, TaskQuestion } from '@prisma/client';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -250,7 +251,6 @@ const getGeneralContextInstructor = async (userId: string): Promise<string> => {
   return contextInfo;
 };
 
-
 // This function generates a resume using AI based on the provided text.
 // It is used to generate a resume for a task submission feedback.
 export const generateAIResume = async (text: string): Promise<string> => {
@@ -274,3 +274,102 @@ export const generateAIResume = async (text: string): Promise<string> => {
 
   return chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo generar el resumen.';
 }
+
+function cleanJSONResponse(text: string): string {
+  // Quita las backticks y etiquetas ```json ... ```
+  return text
+    .replace(/^```json\s*/, '')   // Quita ```json al principio
+    .replace(/```$/, '')           // Quita ``` al final
+    .trim();
+}
+
+export const generateAIGrading = async (
+  questions: TaskQuestion[],
+  answers: StudentAnswer[]
+): Promise<{ grade: number; feedback: string }> => {
+  const chatCompletion = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      {
+        role: 'system',
+        content: `
+Eres un asistente virtual encargado de calificar tareas de estudiantes.
+
+Debes:
+- Evaluar cada respuesta individualmente y asignar una puntuación parcial (entre 0 y el valor de 'points' de la pregunta).
+- Asociar preguntas y respuestas usando 'id' y 'question_id'.
+- Para cada respuesta, devuelve un objeto con:
+  {
+    "question_id": string,
+    "awarded_points": número entre 0 y puntos de la pregunta,
+    "feedback": texto constructivo
+  }
+
+Devuelve un JSON **con un array** llamado "grading", por ejemplo:
+
+{
+  "grading": [
+    {
+      "question_id": "abc123",
+      "awarded_points": 2,
+      "feedback": "Respuesta correcta. Puntos: 2/2"
+    },
+    ...
+  ]
+}
+
+No calcules la nota final. El sistema lo hará por ti.
+        `,
+      },
+      {
+        role: 'user',
+        content: `Aquí tienes las preguntas y respuestas para evaluar:\n\n${JSON.stringify({ questions, answers })}`,
+      },
+    ],
+    temperature: 0,
+    max_tokens: 1000,
+  });
+
+  let responseContent = chatCompletion.choices[0]?.message?.content?.trim() ?? '';
+  responseContent = cleanJSONResponse(responseContent);
+
+  console.log("AI raw grading response cleaned:", responseContent);
+
+  try {
+    const parsed = JSON.parse(responseContent);
+
+    if (!parsed.grading || !Array.isArray(parsed.grading)) {
+      throw new Error('Formato inválido');
+    }
+
+    const totalPoints = questions.reduce((acc, q) => acc + (q.points ?? 0), 0);
+    let obtainedPoints = 0;
+    let detailedFeedback = '';
+
+    for (const question of questions) {
+      type GradingFeedback = { question_id: string; awarded_points: number; feedback: string };
+      const answerFeedback = (parsed.grading as GradingFeedback[]).find(
+        (g) => g.question_id === question.id
+      );
+
+      const points = answerFeedback?.awarded_points ?? 0;
+      const feedback = answerFeedback?.feedback ?? 'Sin feedback.';
+      obtainedPoints += points;
+      detailedFeedback += `Pregunta: ${question.text}\nFeedback: ${feedback}\n\n`;
+    }
+
+    const grade = parseFloat(((obtainedPoints / totalPoints) * 10).toFixed(2));
+
+    return {
+      grade,
+      feedback: `${detailedFeedback}Nota final: ${grade}/10`,
+    };
+  } catch (e) {
+    console.error("Error parsing or calculating AI grading:", e);
+    return {
+      grade: 0,
+      feedback: 'Ocurrió un error al procesar la calificación.',
+    };
+  }
+};
+

@@ -19,6 +19,7 @@ export const addTaskToCourse = async (req: AuthenticatedRequest, res: Response, 
       res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing instructor ID" });
       return;
     }
+    taskData.created_by = instructorId; // Asignar el instructor como creador de la tarea
     const task = new Task(taskData);
     const createdTask = await taskService.addTaskToCourse(id, task, instructorId);
     res.status(StatusCodes.CREATED).json({ data: createdTask });
@@ -178,6 +179,24 @@ export const addFeedbackToTask = async (req: AuthenticatedRequest, res: Response
   }
 };
 
+export const gradeTaskWithAI = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { taskId, studentId } = req.params;
+    const userId = req.user?.Id; // extraído del JWT
+
+    if (!userId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Missing user ID" });
+      return;
+    }
+
+    const updatedSubmission = await taskService.gradeTaskWithAI(taskId, studentId);
+    res.status(StatusCodes.OK).json({ data: updatedSubmission });
+    logger.info(`Task with ID ${taskId} graded with AI for student with ID ${studentId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}
+
 // Retrieves a specific task submission for a student
 // This endpoint is used to get the submission details for a specific task
 // router.get('/tasks/:taskId/submissions/:studentId', taskController.getTaskSubmission)
@@ -212,7 +231,6 @@ export const getTaskSubmissions = async (req: AuthenticatedRequest, res: Respons
     next(error);
   }
 }
-
 
 // Generates a resume of the feedback provided (Only used by instructors)
 export const getFeedbackWithAI = async (req: AuthenticatedRequest, res: Response): Promise<void> => {

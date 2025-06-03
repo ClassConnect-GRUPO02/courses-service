@@ -127,6 +127,7 @@ model TaskQuestion {
   id        String     @id @default(uuid())
   task_id   String
   text      String     @db.Text
+  points    Float?
   task      Task       @relation(fields: [task_id], references: [id], onDelete: Cascade)
   answers   StudentAnswer[]
 
