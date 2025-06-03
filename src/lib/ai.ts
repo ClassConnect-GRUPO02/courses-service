@@ -64,14 +64,22 @@ export const processMessageStudent = async (userId: string, message: string, his
   }
 
   const systemPrompt = `
-    Eres un asistente virtual que ayuda a los alumnos a resolver dudas sobre sus cursos, tareas y materiales.
-    Utiliza la información proporcionada a continuación para responder las preguntas del usuario.
-    Si la información no es suficiente para responder la pregunta, informa al usuario que no dispones de esa información en tu contexto.
+  Eres un asistente virtual que ayuda a los alumnos a resolver dudas sobre sus cursos, tareas y materiales.
 
-    ${dynamicContext}
+  Utiliza solo la información proporcionada a continuación para responder preguntas. 
+  Si no puedes encontrar absolutamente ninguna información relevante para responder la pregunta, responde exactamente con esta marca especial: [NO_CONTEXT]
 
-    Responde de forma clara, concisa y útil, priorizando la información más relevante para la pregunta del usuario.
-    `.trim();
+  No utilices la marca [NO_CONTEXT] si crees que hay alguna parte del contexto que puede ayudarte a generar una respuesta útil, aunque no sea completa.
+
+  === CONTEXTO COMIENZA ===
+  ${dynamicContext}
+  === CONTEXTO TERMINA ===
+
+  Responde de forma clara, concisa y útil, priorizando la información más relevante.
+  No inventes datos si no están en el contexto.
+  `;
+
+  logger.debug(`systemPrompt: ${systemPrompt}`);
 
   const chatCompletion = await openai.chat.completions.create({
     model: 'gpt-3.5-turbo',
@@ -81,10 +89,14 @@ export const processMessageStudent = async (userId: string, message: string, his
       { role: 'user', content: message },
     ],
     temperature: 0.7,
-    max_tokens: 500,
+    max_completion_tokens: 250,
   });
 
-  return chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo procesar el mensaje.';
+  const response = chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo procesar el mensaje.';
+  if (response?.includes('[NO_CONTEXT]')) {
+    return 'Lo siento, no tengo suficiente información para responder a tu pregunta.';
+  }
+  return response;
 }
 
 const tryToGetContextStudent = async (userId: string, message: string, history: ChatMessage[]): Promise<string | void> => {
@@ -115,11 +127,11 @@ const tryToGetContextStudent = async (userId: string, message: string, history: 
   
   if (identifiedCourse) {
     contextInfo += `
-    ### Información detallada del curso: ${identifiedCourse.name}
+    Nombre del curso: ${identifiedCourse.name}
     Descripción: ${identifiedCourse.description}
     Nivel: ${identifiedCourse.level}, Categoría: ${identifiedCourse.category}, Modalidad: ${identifiedCourse.modality}
-    Fecha inicio: ${new Date(identifiedCourse.startDate).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-    Fecha finalización: ${new Date(identifiedCourse.endDate).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+    Fecha de inicio: ${new Date(identifiedCourse.startDate).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+    Fecha de finalización: ${new Date(identifiedCourse.endDate).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
     Capacidad: ${identifiedCourse.capacity}, Inscritos: ${identifiedCourse.enrolled}
     Prerrequisitos: ${identifiedCourse.prerequisites.join(', ')}
     `;
@@ -128,7 +140,7 @@ const tryToGetContextStudent = async (userId: string, message: string, history: 
     for (const module of modules) {
       if (lowerMessage.includes(module.name.toLowerCase())) {
         contextInfo += `
-        ### Información del módulo: ${module.name}
+        Nombre del módulo: ${module.name}
         Descripción: ${module.description}
         Orden: ${module.order}
       `;
@@ -139,18 +151,18 @@ const tryToGetContextStudent = async (userId: string, message: string, history: 
 
   if (identifiedTask) {
     contextInfo += `
-    ### Información de la tarea: ${identifiedTask.title}
+    Nombre de la tarea: ${identifiedTask.title}
     Descripción: ${identifiedTask.description}
     Tipo: ${identifiedTask.type}, Fecha de entrega: ${new Date(identifiedTask.due_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
     Permitir entregas tardías: ${identifiedTask.allow_late ? 'Sí' : 'No'}
   `;
   }
 
-  logger.debug(`specific contextInfo: ${contextInfo}`);
+  //logger.debug(`specific contextInfo: ${contextInfo}`);
 
 
   if (contextInfo) {
-    return contextInfo.trim();
+    return contextInfo;
   } else { 
     return 
   }
@@ -163,7 +175,7 @@ const getGeneralContextStudent = async(userId: string): Promise<string> => {
 
   for (const course of allCourses) {
     contextInfo += `
-    ### Información del curso: ${course.name}
+    Nombre del curso: ${course.name}
     Descripción: ${course.description}
     Nivel: ${course.level}, Categoría: ${course.category}, Modalidad: ${course.modality}
     Fecha de inicio: ${new Date(course.startDate).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
@@ -175,7 +187,7 @@ const getGeneralContextStudent = async(userId: string): Promise<string> => {
     const modules = await module_service.getModules(course.id);
     for (const module of modules) {
       contextInfo += `
-      ### Información del módulo: ${module.name}
+      Nombre del módulo: ${module.name}
       Descripción: ${module.description}
       Orden: ${module.order}
       `;
@@ -184,13 +196,13 @@ const getGeneralContextStudent = async(userId: string): Promise<string> => {
 
   for (const task of allTasks) {
     contextInfo += `
-    ### Información de la tarea: ${task.title}
+    Información de la tarea: ${task.title}
     Descripción: ${task.description}
     Tipo: ${task.type}, Fecha de entrega: ${new Date(task.due_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
     Permitir entregas tardías: ${task.allow_late ? 'Sí' : 'No'}
     `;
   }
-  logger.debug(`general contextInfo student: ${contextInfo}`);
+  //logger.debug(`general contextInfo student: ${contextInfo}`);
 
   
   return contextInfo
@@ -198,15 +210,22 @@ const getGeneralContextStudent = async(userId: string): Promise<string> => {
 };
 
 export const processMessageInstructor = async (userId: string, message: string, history: ChatMessage[]): Promise<string> => {
+  const contextInfo = await getGeneralContextInstructor(userId);
   const systemPrompt = `
-    Eres un asistente virtual que ayuda a los docentes a resolver dudas sobre sus cursos, tareas y módulos.
-    Utiliza la información proporcionada a continuación para responder las preguntas del usuario.
-    Si la información no es suficiente para responder la pregunta, informa al usuario que no dispones de esa información en tu contexto.
+    Eres un asistente virtual que ayuda a los profesores a resolver dudas sobre sus cursos, tareas y materiales.
 
-    ${await getGeneralContextInstructor(userId)}
+    Utiliza solo la información proporcionada a continuación para responder preguntas. 
+    Si no puedes encontrar absolutamente ninguna información relevante para responder la pregunta, responde exactamente con esta marca especial: [NO_CONTEXT]
 
-    Responde de forma clara, concisa y útil, priorizando la información más relevante para la pregunta del usuario.
-  `.trim();
+    No utilices la marca [NO_CONTEXT] si crees que hay alguna parte del contexto que puede ayudarte a generar una respuesta útil, aunque no sea completa.
+
+    === CONTEXTO COMIENZA ===
+    ${contextInfo}
+    === CONTEXTO TERMINA ===
+
+    Responde de forma clara, concisa y útil, priorizando la información más relevante.
+    No inventes datos si no están en el contexto.
+    `;
 
   const chatCompletion = await openai.chat.completions.create({
     model: 'gpt-3.5-turbo',
@@ -219,16 +238,23 @@ export const processMessageInstructor = async (userId: string, message: string, 
     max_tokens: 500,
   });
 
-  return chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo procesar el mensaje.';
+  logger.debug(`systemPrompt: ${systemPrompt}`);
+
+  const response = chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo procesar el mensaje.';
+  if (response?.includes('[NO_CONTEXT]')) {
+    return 'Lo siento, no tengo suficiente información para responder a tu pregunta.';
+  }
+  return response;
 }
 
 const getGeneralContextInstructor = async (userId: string): Promise<string> => {
   let contextInfo = '';
   const allCourses = await course_service.getCoursesByInstructorId(userId);
+  const allTasks = (await task_service.getTasksByInstructor(userId,1,100)).data;
 
   for (const course of allCourses) {
     contextInfo += `
-    ### Información del curso: ${course.name}
+    Información del curso: ${course.name}
     Descripción: ${course.description}
     Nivel: ${course.level}, Categoría: ${course.category}, Modalidad: ${course.modality}
     Fecha de inicio: ${new Date(course.startDate).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
@@ -240,14 +266,22 @@ const getGeneralContextInstructor = async (userId: string): Promise<string> => {
     const modules = await module_service.getModules(course.id);
     for (const module of modules) {
       contextInfo += `
-      ### Información del módulo: ${module.name}
+      Nombre del módulo: ${module.name}
       Descripción: ${module.description}
       Orden: ${module.order}
       `;
     }
-    logger.debug(`general contextInfo instructor: ${contextInfo}`);
+    //logger.debug(`general contextInfo instructor: ${contextInfo}`);
   }
 
+  for (const task of allTasks) {
+    contextInfo += `
+    Información de la tarea: ${task.title}
+    Tipo: ${task.type}, Fecha de entrega: ${new Date(task.due_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+    Curso al que pertenece: ${task.course.name}
+    Entregas: ${task._count.submissions}
+    `;
+  }
   return contextInfo;
 };
 

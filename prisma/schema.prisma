@@ -11,7 +11,7 @@ datasource db {
 model Course {
   id                String       @id
   name              String
-  description       String
+  description       String  @db.Text
   shortDescription  String
   startDate         DateTime
   endDate           DateTime
