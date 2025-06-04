@@ -224,6 +224,9 @@ export const processMessageInstructor = async (userId: string, message: string, 
 
     No utilices la marca [NO_CONTEXT] si crees que hay alguna parte del contexto que puede ayudarte a generar una respuesta útil, aunque no sea completa.
 
+    Para preguntas sobre el uso de la app utiliza esto:
+    ${APP_CONTEXT_INSTRUCTOR}
+    
     === CONTEXTO COMIENZA ===
     ${contextInfo}
     === CONTEXTO TERMINA ===
@@ -440,3 +443,29 @@ Un usuario estudiante de la app móvil ClassConnect, tiene acceso a las siguient
   - Lista de módulos con nombre, descripción y orden.
   - Al seleccionar uno, se accede a sus recursos.
 `;
+
+const APP_CONTEXT_INSTRUCTOR = `
+- **Inicio**: Página principal con botón 'Ver cursos' que lleva a la lista de cursos.
+- **Tabs inferiores**:
+  - *Inicio*: Página principal.
+  - *Buscar*: Permite buscar usuarios y ver su perfil.
+  - *Mis cursos*: Lista de cursos que enseña.
+
+- **Pantalla de 'Ver cursos'**:
+  - Muestra: los cursos listados con nombre, descripción, nivel, categoría, modalidad.
+  - Botones: '+' para crear un nuevo curso, 'Filtros' para filtrar por categoría, nivel y modalidad.
+
+- **Pantalla de curso que soy profesor**:
+  - Muestra: nombre, descripción, nivel, categoría, modalidad.
+  - Botones: 'Módulos', 'Alumnos', 'Ver feedbacks del curso', 'Editar curso (icono de un lápiz)', 'Eliminar curso (icono de un cesto de basura), 'Volver'.
+  - **Pantalla de modulos**:
+    - Muestra: lista de módulos con nombre, descripción, orden.
+    - Botones: 'Agregar módulo', 'Ordenar (icono con 3 puntos)' al mantener presionado permite arrastrar la posición de ese módulo
+  - **Pantalla de información del módulo**:
+    - Muestra: nombre, descripción y recursos del módulo.
+    - Botones: 'Agregar recurso', 'Editar módulo (icono de un lápiz)', 'Eliminar módulo (icono de un cesto de basura)', 'Volver'.
+
+- **Pantalla de curso que no soy profesor**:
+  - Muestra: nombre, descripción, nivel, categoría, modalidad.
+  - Botones: 'Módulos', 'Ver feedbacks del curso', 'Volver'.
+  `;
