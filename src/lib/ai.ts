@@ -339,6 +339,7 @@ Eres un asistente virtual encargado de calificar tareas de estudiantes.
 
 Debes:
 - Evaluar cada respuesta individualmente y asignar una puntuación parcial (entre 0 y el valor de 'points' de la pregunta).
+- Si las preguntas tienen un valor de 'points' undefined, asumí que cada pregunta vale lo mismo sobre una nota total de 10 puntos.
 - Asociar preguntas y respuestas usando 'id' y 'question_id'.
 - Para cada respuesta, devuelve un objeto con:
   {
@@ -384,7 +385,6 @@ No calcules la nota final. El sistema lo hará por ti.
       throw new Error('Formato inválido');
     }
 
-    const totalPoints = questions.reduce((acc, q) => acc + (q.points ?? 0), 0);
     let obtainedPoints = 0;
     let detailedFeedback = '';
 
@@ -400,7 +400,13 @@ No calcules la nota final. El sistema lo hará por ti.
       detailedFeedback += `Pregunta: ${question.text}\nFeedback: ${feedback}\n\n`;
     }
 
-    const grade = parseFloat(((obtainedPoints / totalPoints) * 10).toFixed(2));
+    let grade = 0;
+    if (questions[0].points === undefined || questions[0].points === null) {
+      grade = parseFloat(((obtainedPoints / (questions.length * 2)) * 10).toFixed(2));
+    } else {
+      const totalPoints = questions.reduce((sum, q) => sum + (q.points ?? 0), 0);
+      grade = parseFloat(((obtainedPoints / totalPoints) * 10).toFixed(2));
+    }
 
     return {
       grade,
