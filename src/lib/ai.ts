@@ -338,13 +338,13 @@ export const generateAIGrading = async (
 Eres un asistente virtual encargado de calificar tareas de estudiantes.
 
 Debes:
-- Evaluar cada respuesta individualmente y asignar una puntuación parcial (entre 0 y el valor de 'points' de la pregunta).
-- Si las preguntas tienen un valor de 'points' undefined, asumí que cada pregunta vale lo mismo sobre una nota total de 10 puntos.
+- Evaluar cada respuesta individualmente y asignar una puntuación parcial asumiendo que cada pregunta vale lo mismo sobre una nota total de 10 puntos.
 - Asociar preguntas y respuestas usando 'id' y 'question_id'.
 - Para cada respuesta, devuelve un objeto con:
   {
     "question_id": string,
     "awarded_points": número entre 0 y puntos de la pregunta,
+    "max_points": puntos parciales asignados a la pregunta,
     "feedback": texto constructivo
   }
 
@@ -355,6 +355,7 @@ Devuelve un JSON **con un array** llamado "grading", por ejemplo:
     {
       "question_id": "abc123",
       "awarded_points": 2,
+      "max_points": 2,
       "feedback": "Respuesta correcta. Puntos: 2/2"
     },
     ...
@@ -379,6 +380,7 @@ No calcules la nota final. El sistema lo hará por ti.
   console.log("AI raw grading response cleaned:", responseContent);
 
   try {
+    type GradingFeedback = { question_id: string; awarded_points: number; max_points: number; feedback: string };
     const parsed = JSON.parse(responseContent);
 
     if (!parsed.grading || !Array.isArray(parsed.grading)) {
@@ -389,7 +391,6 @@ No calcules la nota final. El sistema lo hará por ti.
     let detailedFeedback = '';
 
     for (const question of questions) {
-      type GradingFeedback = { question_id: string; awarded_points: number; feedback: string };
       const answerFeedback = (parsed.grading as GradingFeedback[]).find(
         (g) => g.question_id === question.id
       );
@@ -402,7 +403,10 @@ No calcules la nota final. El sistema lo hará por ti.
 
     let grade = 0;
     if (questions[0].points === undefined || questions[0].points === null) {
-      grade = parseFloat(((obtainedPoints / (questions.length * 2)) * 10).toFixed(2));
+      const grading = parsed.grading as GradingFeedback[];
+      const totalAwardedPoints = grading.reduce((sum: number, g: GradingFeedback) => sum + g.awarded_points, 0);
+      const totalMaxPoints = grading.reduce((sum: number, g: GradingFeedback) => sum + g.max_points, 0);
+      grade = parseFloat(((totalAwardedPoints / totalMaxPoints) * 10).toFixed(2));
     } else {
       const totalPoints = questions.reduce((sum, q) => sum + (q.points ?? 0), 0);
       grade = parseFloat(((obtainedPoints / totalPoints) * 10).toFixed(2));
