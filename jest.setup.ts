@@ -2,9 +2,10 @@ import { Server } from 'http';
 import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDB } from './src/tests/mocks/mock.db';
-import { AnswerInput } from './src/database/task_db';
+import { AnswerInput, createTaskSubmission } from './src/database/task_db';
 import { remove } from 'winston';
 import { getCoursesIdsByInstructorId, getInstructorPermissions, isTitularInCourse, updateInstructorPermissions } from './src/database/instructor_db';
+import { SubmissionStatus } from '@prisma/client';
 
 let server: Server;
 
@@ -421,12 +422,38 @@ jest.mock('./src/database/task_db', () => ({
   }),
 
   getTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string) => {
-    const submission = mockDB.taskSubmission.find(sub => sub.task_id === taskId && sub.student_id === studentId);
+    const submission = mockDB.taskSubmission.find(sub => sub.task_id === taskId && sub.student_id === studentId && (sub.status === 'submitted' || sub.status === 'late'));
     if (!submission) return Promise.resolve(null);
     return Promise.resolve({
       ...submission,
       submitted_at: new Date(submission.submitted_at).toISOString(),
     });
+  }),
+
+  createTaskSubmission: jest.fn().mockImplementation((task_id: string, student_id: string, answers: AnswerInput[], file_url: string, submitted_at: Date, status: string) => {
+    const submissionId = uuidv4();
+    const newSubmission = {
+      id: submissionId,
+      task_id,
+      student_id,
+      started_at: submitted_at.toISOString(),
+      submitted_at: submitted_at.toISOString(),
+      status,
+      grade: 0,
+      feedback: '',
+      time_spent: 0,
+      file_url,
+    }
+    mockDB.taskSubmission.push(newSubmission);
+    answers.forEach(a => {
+    mockDB.studentAnswer.push({
+      id: uuidv4(),
+      submission_id: submissionId,
+      question_id: a.question_id,
+      answer_text: a.answer_text,
+    });
+  });
+    return Promise.resolve(newSubmission);
   }),
 
   findTasksByInstructor: jest.fn().mockImplementation((instructorId: string, skip: number, pageSize: number) => {
@@ -435,11 +462,13 @@ jest.mock('./src/database/task_db', () => ({
     const paginatedTasks = tasks.slice(skip, skip + pageSize);
     return Promise.resolve([paginatedTasks, total]);
   }),
+
   countTasksByInstructor: jest.fn().mockImplementation((instructorId: string) => {
     const tasks = mockDB.tasks.filter(task => task.created_by === instructorId);
     return Promise.resolve(tasks.length);
   }),
-  updateTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string, grade: number, feedback: string) => {
+
+  updateTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string, grade: number, feedback: string, instructorId: string) => {
     const submissionIndex = mockDB.taskSubmission.findIndex(
       sub => sub.task_id === taskId && sub.student_id === studentId
     );
@@ -481,6 +510,7 @@ jest.mock('./src/database/favorites_db', () => ({
     const found = mockDB.favorites.find(fav => fav.course_id === courseId && fav.student_id === studentId);
     return Promise.resolve(!!found);
   }),
+  
   getFavoriteCourses: jest.fn().mockImplementation((studentId: string) => {
     const favorites = mockDB.favorites.filter(fav => fav.student_id === studentId);
     return Promise.resolve(favorites.map(fav => ({
@@ -535,6 +565,21 @@ jest.mock('./src/database/feedback_db', () => ({
   getFeedbacksByCourseId: jest.fn().mockImplementation((course_id: string) => {
     const feedbacks = mockDB.courseFeedback.filter(feedback => feedback.course_id === course_id);
     return Promise.resolve(feedbacks);
+  }),
+}));
+
+jest.mock('./src/lib/ai', () => ({
+  getFeedbackWithAI: jest.fn().mockImplementation((taskSubmissionId: string) => {
+    const submission = mockDB.taskSubmission.find(sub => sub.id === taskSubmissionId);
+    if (!submission) return Promise.resolve(null);
+    const aiFeedback = `AI feedback for submission ${taskSubmissionId}`;
+    return Promise.resolve({
+      taskSubmissionId,
+      feedback: aiFeedback,
+      grade: submission.grade,
+      timeSpent: submission.time_spent,
+      fileUrl: submission.file_url,
+    });
   }),
 }));
 
