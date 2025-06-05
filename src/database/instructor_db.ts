@@ -135,3 +135,16 @@ export const getInstructorsByCourseId = async (courseId: string): Promise<Instru
   logger.debug(`Instructors for course: ${courseId}`, instructors);
   return instructors;
 }
+
+export const getCoursesByInstructorId = async (instructorId: string): Promise<string[]> => {
+  const instructors = await prisma.courseInstructor.findMany({
+    where: {
+      userId: instructorId,
+    },
+    select: {
+      courseId: true,
+    },
+  });
+
+  return instructors.map(instructor => instructor.courseId);
+}

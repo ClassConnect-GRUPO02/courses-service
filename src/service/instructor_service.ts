@@ -115,3 +115,8 @@ export const getInstructorsByCourseId = async (courseId: string): Promise<Instru
   }
   return await databaseInstructor.getInstructorsByCourseId(courseId);
 }
+
+export const getCoursesByInstructorId = async (instructorId: string): Promise<string[]> => {
+  const courses = await databaseInstructor.getCoursesByInstructorId(instructorId);
+  return courses;
+}

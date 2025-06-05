@@ -73,3 +73,14 @@ export const getInstructorsByCourseId = async (req: Request, res: Response, next
     next(error);
   }
 }
+
+export const getCoursesByInstructorId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { instructorId } = req.params;
+    const courses = await instructorService.getCoursesByInstructorId(instructorId);
+    res.status(StatusCodes.OK).json(courses);
+    logger.info(`Courses retrieved for instructor with ID ${instructorId}`);
+  } catch (error) {
+    next(error);
+  }
+}
