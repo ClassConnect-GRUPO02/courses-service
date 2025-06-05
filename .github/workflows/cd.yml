@@ -98,4 +98,4 @@ jobs:
             docker image prune -f
 
             # Expose prisma studio
-            docker exec courses-service-api-1 sh -c "npx prisma studio &"
+            docker exec -d courses-service-api-1 npx prisma studio
