@@ -3,6 +3,8 @@ import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDB } from './src/tests/mocks/mock.db';
 import { AnswerInput } from './src/database/task_db';
+import { remove } from 'winston';
+import { getCoursesIdsByInstructorId, getInstructorPermissions, isTitularInCourse, updateInstructorPermissions } from './src/database/instructor_db';
 
 let server: Server;
 
@@ -161,6 +163,9 @@ jest.mock('./src/database/instructor_db', () => ({
       courseId,
       userId: instructorId,
       type,
+      can_create_content: true,
+      can_grade: true,
+      can_update_course: true,
     };
     mockDB.instructors.push(newInstructor); 
     return Promise.resolve(true);
@@ -171,6 +176,59 @@ jest.mock('./src/database/instructor_db', () => ({
       (inst) => inst.courseId === courseId && inst.userId === instructorId
     );
     return Promise.resolve(!!found);
+  }),
+
+  removeInstructorFromCourse: jest.fn().mockImplementation((courseId, instructorId) => {
+    const index = mockDB.instructors.findIndex(
+      (inst) => inst.courseId === courseId && inst.userId === instructorId
+    );
+
+    if (index === -1) return Promise.resolve(false);
+
+    mockDB.instructors.splice(index, 1); // elimina uno
+    return Promise.resolve(true); // retorna `true` porque se eliminó
+  }),
+
+  isTitularInCourse: jest.fn().mockImplementation((courseId: string, instructorId: string) => {
+    if (!instructorId) {
+      return Promise.resolve(false);
+    }
+    const found = mockDB.instructors.find(
+      (inst) => inst.courseId === courseId && inst.userId === instructorId && inst.type === 'TITULAR'
+    );
+    return Promise.resolve(!!found);
+  }),
+
+  updateInstructorPermissions: jest.fn().mockImplementation((courseId: string, instructorId: string, can_create_content: boolean, can_grade: boolean, can_update_course: boolean) => {
+    const instructorIndex = mockDB.instructors.findIndex(
+      (inst) => inst.courseId === courseId && inst.userId === instructorId
+    );
+    if (instructorIndex === -1) return Promise.resolve(false);
+    
+    const updatedInstructor = {
+      ...mockDB.instructors[instructorIndex],
+      can_create_content,
+      can_grade,
+      can_update_course,
+    };
+    
+    mockDB.instructors[instructorIndex] = updatedInstructor; 
+    return Promise.resolve(true);
+  }),
+
+  getInstructorPermissions: jest.fn().mockImplementation((courseId: string, instructorId: string) => {
+    const instructor = mockDB.instructors.find(
+      (inst) => inst.courseId === courseId && inst.userId === instructorId
+    );
+    if (!instructor) return Promise.resolve(null);
+    return Promise.resolve(instructor);
+  }),
+
+  getCoursesIdsByInstructorId: jest.fn().mockImplementation((instructorId: string) => {
+    const coursesIds = mockDB.instructors
+      .filter(inst => inst.userId === instructorId)
+      .map(inst => inst.courseId);
+    return Promise.resolve(coursesIds);
   }),
 }));
 

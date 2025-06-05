@@ -57,10 +57,10 @@ export const mockDB = {
   ],
 
   instructors: [
-    { id: 'i1', courseId: 'c1', userId: 'u1', type: 'TITULAR' },
-    { id: 'i2', courseId: 'c1', userId: 'u4', type: 'AUXILIAR'},
-    { id: 'i4', courseId: 'c2', userId: 'u2', type: 'TITULAR' },
-    { id: 'i3', courseId: 'c1', userId: 'u5', type: 'AUXILIAR'},
+    { id: 'i1', courseId: 'c1', userId: 'u1', type: 'TITULAR', can_create_content: true, can_grade: true, can_update_course: true },
+    { id: 'i2', courseId: 'c1', userId: 'u4', type: 'AUXILIAR', can_create_content: true, can_grade: true, can_update_course: false },
+    { id: 'i4', courseId: 'c2', userId: 'u2', type: 'TITULAR', can_create_content: true, can_grade: true, can_update_course: true },
+    { id: 'i3', courseId: 'c1', userId: 'u5', type: 'AUXILIAR', can_create_content: false, can_grade: true, can_update_course: true },
   ],
 
   tasks: [
