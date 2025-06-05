@@ -76,6 +76,6 @@ export class TaskQuestion {
         this.id = data.id || '';
         this.task_id = data.task_id || '';
         this.text = data.text;
-        this.points = data.points !== undefined ? data.points : 0;
+        this.points = data.points !== undefined ? data.points : undefined;
     }
 }
