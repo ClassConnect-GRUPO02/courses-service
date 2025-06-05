@@ -1,7 +1,7 @@
 import { AlreadyInstructorError, CourseNotFoundError, NotInstructorError, NotTitularError } from '../models/errors';
 import * as database from '../database/course_db';
 import * as databaseInstructor from '../database/instructor_db';
-import { InstructorPermissions } from '../database/instructor_db';
+import { Instructor, InstructorPermissions } from '../database/instructor_db';
 
 export const addInstructorToCourse = async (courseId: string, instructorId: string, type: string, can_create_content: boolean, can_grade: boolean, can_update_course: boolean): Promise<boolean> => {
   const course = await database.getCourseById(courseId);
@@ -106,4 +106,12 @@ export const getInstructorPermissions = async (
 export const getCoursesIdsByInstructorId = async (instructorId: string): Promise<string[]> => {
   const coursesIds = await databaseInstructor.getCoursesIdsByInstructorId(instructorId);
   return coursesIds
+}
+
+export const getInstructorsByCourseId = async (courseId: string): Promise<Instructor[]> => {
+  const course = await database.getCourseById(courseId);
+  if (!course) {
+    throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
+  }
+  return await databaseInstructor.getInstructorsByCourseId(courseId);
 }
