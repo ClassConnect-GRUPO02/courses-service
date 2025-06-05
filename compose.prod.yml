@@ -13,6 +13,8 @@ services:
       - traefik-shared
     depends_on:
       - mysql
+    ports:
+      - "5555:5555"
     environment:
       HOST: 0.0.0.0
       PORT: 3000
