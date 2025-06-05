@@ -359,7 +359,7 @@ No calcules la nota final. El sistema lo hará por ti.
     }
 
     let grade = 0;
-    if (questions[0].points === undefined || questions[0].points === null) {
+    if (questions[0].points === undefined || questions[0].points === null || questions[0].points === 0) {
       const grading = parsed.grading as GradingFeedback[];
       const totalAwardedPoints = grading.reduce((sum: number, g: GradingFeedback) => sum + g.awarded_points, 0);
       const totalMaxPoints = grading.reduce((sum: number, g: GradingFeedback) => sum + g.max_points, 0);
