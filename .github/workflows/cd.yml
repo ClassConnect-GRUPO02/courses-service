@@ -96,3 +96,6 @@ jobs:
             
             # Remove unused images
             docker image prune -f
+
+            # Expose prisma studio
+            docker exec courses-service-api-1 sh -c "npx prisma studio &"
