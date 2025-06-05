@@ -161,6 +161,9 @@ jest.mock('./src/database/instructor_db', () => ({
       courseId,
       userId: instructorId,
       type,
+      can_create_content: true,
+      can_grade: true,
+      can_update_course: true,
     };
     mockDB.instructors.push(newInstructor); 
     return Promise.resolve(true);
@@ -171,6 +174,59 @@ jest.mock('./src/database/instructor_db', () => ({
       (inst) => inst.courseId === courseId && inst.userId === instructorId
     );
     return Promise.resolve(!!found);
+  }),
+
+  removeInstructorFromCourse: jest.fn().mockImplementation((courseId, instructorId) => {
+    const index = mockDB.instructors.findIndex(
+      (inst) => inst.courseId === courseId && inst.userId === instructorId
+    );
+
+    if (index === -1) return Promise.resolve(false);
+
+    mockDB.instructors.splice(index, 1); // elimina uno
+    return Promise.resolve(true); // retorna `true` porque se eliminó
+  }),
+
+  isTitularInCourse: jest.fn().mockImplementation((courseId: string, instructorId: string) => {
+    if (!instructorId) {
+      return Promise.resolve(false);
+    }
+    const found = mockDB.instructors.find(
+      (inst) => inst.courseId === courseId && inst.userId === instructorId && inst.type === 'TITULAR'
+    );
+    return Promise.resolve(!!found);
+  }),
+
+  updateInstructorPermissions: jest.fn().mockImplementation((courseId: string, instructorId: string, can_create_content: boolean, can_grade: boolean, can_update_course: boolean) => {
+    const instructorIndex = mockDB.instructors.findIndex(
+      (inst) => inst.courseId === courseId && inst.userId === instructorId
+    );
+    if (instructorIndex === -1) return Promise.resolve(false);
+    
+    const updatedInstructor = {
+      ...mockDB.instructors[instructorIndex],
+      can_create_content,
+      can_grade,
+      can_update_course,
+    };
+    
+    mockDB.instructors[instructorIndex] = updatedInstructor; 
+    return Promise.resolve(true);
+  }),
+
+  getInstructorPermissions: jest.fn().mockImplementation((courseId: string, instructorId: string) => {
+    const instructor = mockDB.instructors.find(
+      (inst) => inst.courseId === courseId && inst.userId === instructorId
+    );
+    if (!instructor) return Promise.resolve(null);
+    return Promise.resolve(instructor);
+  }),
+
+  getCoursesIdsByInstructorId: jest.fn().mockImplementation((instructorId: string) => {
+    const coursesIds = mockDB.instructors
+      .filter(inst => inst.userId === instructorId)
+      .map(inst => inst.courseId);
+    return Promise.resolve(coursesIds);
   }),
 }));
 
@@ -363,12 +419,38 @@ jest.mock('./src/database/task_db', () => ({
   }),
 
   getTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string) => {
-    const submission = mockDB.taskSubmission.find(sub => sub.task_id === taskId && sub.student_id === studentId);
+    const submission = mockDB.taskSubmission.find(sub => sub.task_id === taskId && sub.student_id === studentId && (sub.status === 'submitted' || sub.status === 'late'));
     if (!submission) return Promise.resolve(null);
     return Promise.resolve({
       ...submission,
       submitted_at: new Date(submission.submitted_at).toISOString(),
     });
+  }),
+
+  createTaskSubmission: jest.fn().mockImplementation((task_id: string, student_id: string, answers: AnswerInput[], file_url: string, submitted_at: Date, status: string) => {
+    const submissionId = uuidv4();
+    const newSubmission = {
+      id: submissionId,
+      task_id,
+      student_id,
+      started_at: submitted_at.toISOString(),
+      submitted_at: submitted_at.toISOString(),
+      status,
+      grade: 0,
+      feedback: '',
+      time_spent: 0,
+      file_url,
+    }
+    mockDB.taskSubmission.push(newSubmission);
+    answers.forEach(a => {
+    mockDB.studentAnswer.push({
+      id: uuidv4(),
+      submission_id: submissionId,
+      question_id: a.question_id,
+      answer_text: a.answer_text,
+    });
+  });
+    return Promise.resolve(newSubmission);
   }),
 
   findTasksByInstructor: jest.fn().mockImplementation((instructorId: string, skip: number, pageSize: number) => {
@@ -377,10 +459,12 @@ jest.mock('./src/database/task_db', () => ({
     const paginatedTasks = tasks.slice(skip, skip + pageSize);
     return Promise.resolve([paginatedTasks, total]);
   }),
+
   countTasksByInstructor: jest.fn().mockImplementation((instructorId: string) => {
     const tasks = mockDB.tasks.filter(task => task.created_by === instructorId);
     return Promise.resolve(tasks.length);
   }),
+
   updateTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string, grade: number, feedback: string) => {
     const submissionIndex = mockDB.taskSubmission.findIndex(
       sub => sub.task_id === taskId && sub.student_id === studentId
@@ -423,6 +507,7 @@ jest.mock('./src/database/favorites_db', () => ({
     const found = mockDB.favorites.find(fav => fav.course_id === courseId && fav.student_id === studentId);
     return Promise.resolve(!!found);
   }),
+  
   getFavoriteCourses: jest.fn().mockImplementation((studentId: string) => {
     const favorites = mockDB.favorites.filter(fav => fav.student_id === studentId);
     return Promise.resolve(favorites.map(fav => ({
@@ -477,6 +562,21 @@ jest.mock('./src/database/feedback_db', () => ({
   getFeedbacksByCourseId: jest.fn().mockImplementation((course_id: string) => {
     const feedbacks = mockDB.courseFeedback.filter(feedback => feedback.course_id === course_id);
     return Promise.resolve(feedbacks);
+  }),
+}));
+
+jest.mock('./src/lib/ai', () => ({
+  getFeedbackWithAI: jest.fn().mockImplementation((taskSubmissionId: string) => {
+    const submission = mockDB.taskSubmission.find(sub => sub.id === taskSubmissionId);
+    if (!submission) return Promise.resolve(null);
+    const aiFeedback = `AI feedback for submission ${taskSubmissionId}`;
+    return Promise.resolve({
+      taskSubmissionId,
+      feedback: aiFeedback,
+      grade: submission.grade,
+      timeSpent: submission.time_spent,
+      fileUrl: submission.file_url,
+    });
   }),
 }));
 
