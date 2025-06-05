@@ -178,11 +178,11 @@ export const getTasksByStudentId = async (studentId: string): Promise<Task[]> =>
 export const addFeedbackToTask = async (taskId: string, studentId: string, grade: number, feedback: string, instructorId: string) => {
   const submission = await databaseTask.getTaskSubmission(taskId, studentId);
   if (!submission) {
-    throw new Error(`No submission found for task ID ${taskId}`);
+    throw new NotFoundError(taskId, "Task submission");
   }
   const task = await databaseTask.getTaskById(taskId);
   if (!task) {
-    throw new Error(`Task with ID ${taskId} not found`);
+    throw new NotFoundError(taskId, "Task");
   }
   const courseId = task.course_id;
   const isInstructor = await databaseInstructor.isInstructorInCourse(courseId, instructorId);

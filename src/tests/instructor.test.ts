@@ -51,14 +51,11 @@ describe('Integration Tests for instructor of Courses API', () => {
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toBe(true);
-      console.log('Before update:', JSON.stringify(mockDB.instructors, null, 2));
-
     });
   });
 
   describe('GET courses/:id/instructors/:instructorId/permissions', () => {
     it('should get instructor permissions', async () => {
-      console.log('Get permissions:', JSON.stringify(mockDB.instructors, null, 2));
       const response = await request(app)
         .get('/courses/c1/instructors/u99/permissions');
 

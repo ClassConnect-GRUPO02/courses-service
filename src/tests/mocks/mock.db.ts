@@ -1,3 +1,16 @@
+// Fechas dinamicas utiles
+const now = new Date();
+const dueDate = new Date(now);
+dueDate.setDate(now.getDate() + 7); // 7 días en el futuro
+
+const visibleFrom = new Date(now);
+visibleFrom.setDate(now.getDate() - 2); // 2 días atrás
+
+const visibleUntil = new Date(now);
+visibleUntil.setDate(now.getDate() + 8); // después del due date
+
+
+
 // Simula una base de datos en memoria
 export const mockDB = {
   courses: [
@@ -71,14 +84,14 @@ export const mockDB = {
       type: 'tarea',
       title: 'Primer tarea',
       description: 'Ejercicio de variables',
-      due_date: new Date('2024-05-10').toISOString(),
+      due_date: dueDate.toISOString(),
       allow_late: true,
       late_policy: 'aceptar_con_descuento',
       has_timer: false,
       time_limit_minutes: null,
       published: true,
-      visible_from: new Date('2024-05-01').toISOString(),
-      visible_until: new Date('2024-05-11').toISOString(),
+      visible_from: visibleFrom.toISOString(),
+      visible_until: visibleUntil.toISOString(),
       allow_file_upload: true,
       answer_format: 'archivo',
       created_at: new Date().toISOString(),
@@ -190,7 +203,6 @@ export const mockDB = {
       student_id: 'u2',
       started_at: new Date('2024-05-01').toISOString(),
       status: 'submitted',
-      answers: ['Respuesta 1', 'Respuesta 2'],
       grade: 0,
       feedback: "",
       time_spent: 45,
@@ -250,6 +262,5 @@ export const mockDB = {
       answer_text: '`let` permite reasignación, `const` no.'
     },
   ],
-
 
 };
