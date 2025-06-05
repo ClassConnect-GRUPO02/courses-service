@@ -1,7 +1,6 @@
 import request from 'supertest';
 import app from '../app';
 import { StatusCodes } from 'http-status-codes';
-import { mockDB } from './mocks/mock.db';
 
 describe('Integration Tests for instructor of Courses API', () => {
   describe('GET courses/:id/instructors/:instructorId', () => {

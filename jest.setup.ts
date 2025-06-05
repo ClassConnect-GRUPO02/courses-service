@@ -2,10 +2,7 @@ import { Server } from 'http';
 import app from './src/app';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDB } from './src/tests/mocks/mock.db';
-import { AnswerInput, createTaskSubmission } from './src/database/task_db';
-import { remove } from 'winston';
-import { getCoursesIdsByInstructorId, getInstructorPermissions, isTitularInCourse, updateInstructorPermissions } from './src/database/instructor_db';
-import { SubmissionStatus } from '@prisma/client';
+import { AnswerInput } from './src/database/task_db';
 
 let server: Server;
 
@@ -468,7 +465,7 @@ jest.mock('./src/database/task_db', () => ({
     return Promise.resolve(tasks.length);
   }),
 
-  updateTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string, grade: number, feedback: string, instructorId: string) => {
+  updateTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string, grade: number, feedback: string) => {
     const submissionIndex = mockDB.taskSubmission.findIndex(
       sub => sub.task_id === taskId && sub.student_id === studentId
     );
