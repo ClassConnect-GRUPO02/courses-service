@@ -39,7 +39,7 @@ export const addTaskToCourse = async (courseId: string, task: Task, instructorId
         id: uuidv4(),
         task_id: taskId,
         text: question.text,
-        points: question.points !== undefined ? question.points : 0, // Aseguramos que points tenga un valor por defecto
+        points: question.points !== undefined ? question.points : null, // Aseguramos que points tenga un valor por defecto
       })),
     });
   }
