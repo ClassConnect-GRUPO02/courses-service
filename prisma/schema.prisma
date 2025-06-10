@@ -238,3 +238,12 @@ model CourseActivityLog {
 
   @@map("course_activity_log")
 }
+
+model QuestionNotSolved {
+  id          String   @id @default(uuid())
+  question    String   @db.Text
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("question_not_solved")
+}

@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import * as course_service from '../service/course_service';
 import * as task_service from '../service/task_service';
 import * as module_service from '../service/module_service';
+import * as chat_db from '../database/chat_db';
 import logger from '../logger/logger';
 import { ChatMessage } from '../models/chat_message';
 import { StudentAnswer, TaskQuestion } from '@prisma/client';
@@ -98,6 +99,7 @@ export const processMessageStudent = async (userId: string, message: string, his
 
   const response = chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo procesar el mensaje.';
   if (response?.includes('[NO_CONTEXT]')) {
+    await chat_db.saveNotSolvedQuestion(message);
     return 'Lo siento, no tengo suficiente información para responder a tu pregunta.';
   }
   return response;
@@ -250,6 +252,7 @@ export const processMessageInstructor = async (userId: string, message: string, 
 
   const response = chatCompletion.choices[0]?.message?.content?.trim() ?? 'No se pudo procesar el mensaje.';
   if (response?.includes('[NO_CONTEXT]')) {
+    await chat_db.saveNotSolvedQuestion(message);
     return 'Lo siento, no tengo suficiente información para responder a tu pregunta.';
   }
   return response;
