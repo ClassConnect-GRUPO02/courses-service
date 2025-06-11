@@ -108,10 +108,14 @@ export const startExam = async (req: AuthenticatedRequest, res: Response, next: 
 }
 
 
-export const submitTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const submitTask = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id, taskId } = req.params;
     const { student_id , answers, fileUrl } = req.body;
+    if (req.user?.Id !== student_id) {
+      res.status(StatusCodes.FORBIDDEN).json({ message: "You are not authorized to submit this task" });
+      return;
+    }
     const submission = await taskService.submitTask(id, taskId, student_id, answers, fileUrl);
     res.status(StatusCodes.CREATED).json({ data: submission });
     logger.info(`Task with ID ${taskId} submitted for course with ID ${id} successfully`);
@@ -200,9 +204,13 @@ export const gradeTaskWithAI = async (req: AuthenticatedRequest, res: Response, 
 // Retrieves a specific task submission for a student
 // This endpoint is used to get the submission details for a specific task
 // router.get('/tasks/:taskId/submissions/:studentId', taskController.getTaskSubmission)
-export const getTaskSubmission = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getTaskSubmission = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { taskId, studentId } = req.params;
+    if (req.user?.Id !== studentId) {
+      res.status(StatusCodes.FORBIDDEN).json({ message: "You are not authorized to access this resource" });
+      return;
+    }
     const submission = await taskService.getTaskSubmission(taskId, studentId);
     res.status(StatusCodes.OK).json({ data: submission });
     logger.info(`Task submission retrieved for task with ID ${taskId} and student with ID ${studentId} successfully`);

@@ -54,7 +54,7 @@ router.get('/tasks/students/:studentId', taskController.getTasksByStudentId); //
 
 // ----------------------------- COMPLETE TASKS (STUDENTS) -----------------------------
 router.post('/courses/:id/tasks/:taskId/start-exam', authenticateJWT, taskController.startExam); // Start exam by student
-router.post('/courses/:id/tasks/:taskId/submissions', taskController.submitTask); // Submit task/exam by student
+router.post('/courses/:id/tasks/:taskId/submissions', authenticateJWT, taskController.submitTask); // Submit task/exam by student
 router.get('/tasks/:taskId/submissions/:studentId', authenticateJWT, taskController.getTaskSubmission); // Used by student to get their own task submission
 router.get('/tasks/:taskId/timer', authenticateJWT, taskController.getTaskTimer); // Get task timer by ID inside course
 

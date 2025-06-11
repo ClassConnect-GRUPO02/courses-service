@@ -3,6 +3,7 @@ import app from '../app';
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import { userTypes } from '../lib/user_types';
+import { mockTaskSubmissionData } from './mocks/mock.task_sub';
 
 describe('Integration Tests for resources of Courses API', () => {
 
@@ -63,10 +64,7 @@ describe('Integration Tests for resources of Courses API', () => {
       const response = await request(app)
         .post(`/courses/${courseId}/tasks/${taskId}/submissions`)
         .set('Authorization', `Bearer ${studentToken}`)
-        .send({
-          answers: ['Respuesta 1', 'Respuesta 2'],
-          file_url: 'https://example.com/solution.pdf',
-        });
+        .send(mockTaskSubmissionData);
       expect(response.status).toBe(StatusCodes.CREATED);
       expect(response.body).toHaveProperty('data');
     });
@@ -89,10 +87,7 @@ describe('Integration Tests for resources of Courses API', () => {
       const response = await request(app)
         .post(`/courses/${courseId}/tasks/${taskId}/submissions`)
         .set('Authorization', `Bearer ${invalidToken}`)
-        .send({
-          answers: ['Respuesta 1', 'Respuesta 2'],
-          file_url: 'https://example.com/solution.pdf',
-        });
+        .send(mockTaskSubmissionData);
       expect(response.status).toBe(StatusCodes.UNAUTHORIZED);
     });
   });
@@ -137,29 +132,36 @@ describe('Integration Tests for resources of Courses API', () => {
     });
   });
 
-
-
-
-
-
-  xdescribe('GET /tasks/:taskId/submissions/:studentId', () => {
+  describe('GET /tasks/:taskId/submissions/:studentId', () => {
     it('should return 200 and the task submission for a valid taskId and studentId', async () => {
       const taskId = 't1';
       const studentId = 'u2';
 
       const response = await request(app)
         .get(`/tasks/${taskId}/submissions/${studentId}`)
+        .set('Authorization', `Bearer ${studentToken}`);
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toHaveProperty('data');
     });
 
     it('should return 404 if the task submission is not found', async () => {
       const taskId = 'invalidTaskId';
-      const studentId = 'invalidStudentId';
+      const studentId = 'u2';
 
       const response = await request(app)
         .get(`/tasks/${taskId}/submissions/${studentId}`)
+        .set('Authorization', `Bearer ${studentToken}`);
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
+    });
+
+    it('should return 403 if the user is not authorized', async () => {
+      const taskId = 't1';
+      const studentId = 'u2';
+
+      const response = await request(app)
+        .get(`/tasks/${taskId}/submissions/${studentId}`)
+        .set('Authorization', `Bearer ${invalidToken}`);
+      expect(response.status).toBe(StatusCodes.FORBIDDEN);
     });
   });
 
