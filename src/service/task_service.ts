@@ -1,5 +1,5 @@
 import { Task } from '../models/task';
-import { AuthorizationError, CourseNotFoundError, NotFoundError } from '../models/errors';
+import { AuthorizationError, BadRequestError, CourseNotFoundError, InternalServerError, NotFoundError } from '../models/errors';
 import * as database from '../database/course_db';
 import * as databaseTask from '../database/task_db';
 import * as databaseInstructor from '../database/instructor_db';
@@ -69,20 +69,19 @@ type AnswerInput = {
 export const startExam = async (courseId: string, taskId: string, studentId: string) => {
   const task = await databaseTask.getTaskById(taskId);
   if (!task || task.course_id !== courseId) {
-    throw { status: 404, message: 'Tarea no encontrada en este curso' };
+    throw new NotFoundError(taskId, "Task");
   }
   if (task.type !== 'examen') {
-    throw { status: 400, message: 'La tarea no es un examen' };
+    throw new InternalServerError(`Task with ID ${taskId} is not an exam`);
   }
-
   const now = new Date();
   if (now > new Date(task.due_date)) {
-    throw { status: 400, message: 'No puedes iniciar el examen después de la fecha de entrega' };
+    throw new BadRequestError(`No puedes iniciar el examen después de la fecha de entrega: ${task.due_date}`);
   }
   // Verifies if the student has already started this exam
   const existing = await databaseTask.getTaskSubmission(taskId, studentId);
   if (existing) {
-    throw { status: 400, message: 'Ya has iniciado este examen' };
+    throw new BadRequestError('Ya has iniciado este examen');
   }
   // Creates empty submission
   const submission = await databaseTask.createEmptyTaskSubmission(taskId, studentId, now);
@@ -93,7 +92,7 @@ export const startExam = async (courseId: string, taskId: string, studentId: str
 export const submitTask = async (courseId: string, taskId: string, studentId: string, answers: AnswerInput[], fileUrl: string) => {
   const task = await databaseTask.getTaskById(taskId);
   if (!task || task.course_id !== courseId) {
-    throw { status: 404, message: 'Tarea no encontrada en este curso' };
+    throw new BadRequestError(`Tarea con ID ${taskId} no encontrada en el curso ${courseId}`);
   }
 
   const now = new Date();
@@ -102,21 +101,21 @@ export const submitTask = async (courseId: string, taskId: string, studentId: st
     // Must exist a submission to submit answers
     const submission = await databaseTask.getTaskSubmissionStarted(taskId, studentId);
     if (!submission) {
-      throw { status: 400, message: 'Debes iniciar el examen antes de entregar' };
+      throw new BadRequestError(`No has iniciado el examen para la tarea con ID ${taskId}`);
     }
     // If the exam has a timer, check if the time limit is exceeded
     if (task.has_timer && task.time_limit_minutes && submission.started_at) {
       const elapsed = (now.getTime() - new Date(submission.started_at).getTime()) / 60000; // Time consumed
       if (elapsed > task.time_limit_minutes) { // Time consumed exceeds time limit
         if (!task.allow_late) {
-          throw { status: 400, message: 'Tiempo límite excedido para este examen' };
+          throw new BadRequestError('Tiempo límite excedido para este examen');
         }
       }
     }
     // Verifies if it is late compared to the due date
     const isLate = task.due_date && now > new Date(task.due_date) ? 'late' : 'submitted';
     if (task.allow_late === false && isLate === 'late') {
-      throw { status: 400, message: 'La entrega tardía no está permitida para este examen' };
+      throw new BadRequestError('La entrega tardía no está permitida para este examen');
     }
     // Updates submission with answers and updates status
     const updated = await databaseTask.updateTaskSubmissionWithAnswers(
@@ -135,7 +134,7 @@ export const submitTask = async (courseId: string, taskId: string, studentId: st
     // Common task submission (not an exam). Creates a new submission directly
     const isLate = task.due_date && now > new Date(task.due_date) ? 'late' : 'submitted';
     if (task.allow_late === false && isLate === 'late') {
-      throw { status: 400, message: 'La entrega tardía no está permitida para esta tarea' };
+      throw new BadRequestError('La entrega tardía no está permitida para esta tarea');
     }
     const submission = await databaseTask.createTaskSubmission(taskId, studentId, answers, fileUrl, now, isLate);
     return {
@@ -255,6 +254,15 @@ export const getFeedbackWithAI = async (taskSubmissionId: string, userId: string
   return generateAIResume(feedback);
 }
 
+/**
+ * Returns the remaining time for an exam timer in HH:MM:SS format.
+ *
+ * @param taskId - The ID of the task (exam).
+ * @param studentId - The ID of the student who started the task.
+ * @returns A string in HH:MM:SS format representing the remaining time.
+ * @throws NotFoundError if the task or submission is not found.
+ * @throws Error if the task has no timer configured.
+ */
 export const getTaskTimer = async (taskId: string, studentId: string) => {
   const task = await databaseTask.getTaskById(taskId);
   if (!task) {

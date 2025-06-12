@@ -1,4 +1,3 @@
-import { Prisma, PrismaClient } from '@prisma/client';
 import { prisma } from './course_db';
 
 export const checkNotSolvedQuestions = async (message: string): Promise<boolean> => {

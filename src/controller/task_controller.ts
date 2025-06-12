@@ -265,6 +265,21 @@ export const getFeedbackWithAI = async (req: AuthenticatedRequest, res: Response
   }
 }
 
+/**
+ * Controller that retrieves the remaining time for a task timer in HH:MM:SS format.
+ *
+ * Extracts the `taskId` from the route parameters and the `studentId` from the authenticated user (JWT).
+ * Calls the service layer to compute the remaining time and returns it as JSON.
+ *
+ * @param req - Express request object, expected to have `taskId` in `params` and `user.Id` from JWT.
+ * @param res - Express response object used to send the timer data or error message.
+ * @param next - Express next function to pass errors to the error-handling middleware.
+ *
+ * @returns A JSON response with the remaining time in the format: `{ data: "HH:MM:SS" }`.
+ * 
+ * @throws 401 Unauthorized if `studentId` is missing.
+ * @throws Error forwarded to the next middleware if the task or submission is not found, or if there's a service error.
+ */
 export const getTaskTimer = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { taskId } = req.params;
