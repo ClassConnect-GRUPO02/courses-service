@@ -439,7 +439,8 @@ export const updateTaskSubmission = async (
   studentId: string,
   grade: number,
   feedback: string,
-  instructorId: string
+  instructorId: string,
+  revision: boolean = false
 ): Promise<TaskSubmission> => {
   const updated_task_submission = await prisma.taskSubmission.update({
     where: {
@@ -452,6 +453,7 @@ export const updateTaskSubmission = async (
       grade,
       feedback,
       updated_at: new Date(),
+      revision,
     },
   });
   const task = await prisma.task.findUnique({
@@ -473,6 +475,7 @@ export const updateTaskSubmission = async (
           student_id: studentId,
           grade,
           feedback,
+          revision,
         }
       }
     });

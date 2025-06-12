@@ -213,7 +213,7 @@ export const gradeTaskWithAI = async (taskId: string, studentId: string) => {
   const aiFeedback = await generateAIGrading(formattedQuestions, submission.answers);
   console.log("AI Feedback:", aiFeedback);
   
-  return await databaseTask.updateTaskSubmission(taskId, studentId, aiFeedback.grade, aiFeedback.feedback, "AI-GENERATED");
+  return await databaseTask.updateTaskSubmission(taskId, studentId, aiFeedback.grade, aiFeedback.feedback, "AI-GENERATED", aiFeedback.revision);
 }
 
 export const getTaskSubmission = async (taskId: string, studentId: string) => {

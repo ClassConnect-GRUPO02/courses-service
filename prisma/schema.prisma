@@ -161,6 +161,7 @@ model TaskSubmission {
   time_spent    Int?
   created_at    DateTime         @default(now())
   updated_at    DateTime         @updatedAt
+  revision      Boolean?
 
   task          Task             @relation(fields: [task_id], references: [id], onDelete: Cascade)
   answers       StudentAnswer[]
@@ -179,7 +180,7 @@ model StudentAnswer {
   id              String     @id @default(uuid())
   submission_id   String
   question_id     String
-  answer_text     String?    // Para respuestas tipo texto
+  answer_text     String?    @db.Text // Para respuestas tipo texto
   selected_option_id String? // Para opción múltiple
 
   submission      TaskSubmission @relation(fields: [submission_id], references: [id], onDelete: Cascade)
