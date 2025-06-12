@@ -328,7 +328,7 @@ function cleanJSONResponse(text: string): string {
 export const generateAIGrading = async (
   questions: TaskQuestion[],
   answers: StudentAnswer[]
-): Promise<{ grade: number; feedback: string }> => {
+): Promise<{ grade: number; feedback: string; revision: boolean }> => {
   const chatCompletion = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
@@ -345,7 +345,8 @@ Debes:
     "question_id": string,
     "awarded_points": número entre 0 y puntos de la pregunta,
     "max_points": puntos parciales asignados a la pregunta,
-    "feedback": texto constructivo
+    "feedback": texto constructivo,
+    "ambiguity": número entre 0 y 5 (5 si la respuesta es muy ambigua o no está clara, 0 si es muy clara)    
   }
 
 Devuelve un JSON **con un array** llamado "grading", por ejemplo:
@@ -356,7 +357,8 @@ Devuelve un JSON **con un array** llamado "grading", por ejemplo:
       "question_id": "abc123",
       "awarded_points": 2,
       "max_points": 2,
-      "feedback": "Respuesta correcta. Puntos: 2/2"
+      "feedback": "Respuesta correcta. Puntos: 2/2",
+      "ambiguity": 0
     },
     ...
   ]
@@ -380,7 +382,7 @@ No calcules la nota final. El sistema lo hará por ti.
   console.log("AI raw grading response cleaned:", responseContent);
 
   try {
-    type GradingFeedback = { question_id: string; awarded_points: number; max_points: number; feedback: string };
+    type GradingFeedback = { question_id: string; awarded_points: number; max_points: number; feedback: string, ambiguity: number };
     const parsed = JSON.parse(responseContent);
 
     if (!parsed.grading || !Array.isArray(parsed.grading)) {
@@ -389,6 +391,7 @@ No calcules la nota final. El sistema lo hará por ti.
 
     let obtainedPoints = 0;
     let detailedFeedback = '';
+    let revision = false;
 
     for (const question of questions) {
       const answerFeedback = (parsed.grading as GradingFeedback[]).find(
@@ -399,7 +402,12 @@ No calcules la nota final. El sistema lo hará por ti.
       const feedback = answerFeedback?.feedback ?? 'Sin feedback.';
       obtainedPoints += points;
       detailedFeedback += `Pregunta: ${question.text}\nFeedback: ${feedback}\n\n`;
+
+      if (answerFeedback && typeof answerFeedback.ambiguity === 'number' && answerFeedback.ambiguity >= 3) {
+        revision = true;
+      }
     }
+
 
     let grade = 0;
     if (questions[0].points === undefined || questions[0].points === null || questions[0].points === 0) {
@@ -412,15 +420,25 @@ No calcules la nota final. El sistema lo hará por ti.
       grade = parseFloat(((obtainedPoints / totalPoints) * 10).toFixed(2));
     }
 
+    if (revision) {
+      return {
+        grade: 0,
+        feedback: `La calificación no se puede determinar automáticamente debido a respuestas ambiguas. Por favor, revisa las respuestas del alumno. \n${detailedFeedback}`,
+        revision: true,
+      }
+    } 
+
     return {
       grade,
       feedback: `${detailedFeedback}Nota final: ${grade}/10`,
+      revision,
     };
   } catch (e) {
     console.error("Error parsing or calculating AI grading:", e);
     return {
       grade: 0,
       feedback: 'Ocurrió un error al procesar la calificación.',
+      revision: false,
     };
   }
 };
