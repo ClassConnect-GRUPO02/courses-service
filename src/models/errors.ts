@@ -208,3 +208,23 @@ export class NotFoundError extends AppError {
     );
   }
 }
+
+export class InternalServerError extends AppError {
+  constructor(message: string) {
+    super(
+      'InternalServerError',
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      message
+    );
+  }
+}
+
+export class BadRequestError extends AppError {
+  constructor(message: string) {
+    super(
+      'BadRequestError',
+      StatusCodes.BAD_REQUEST,
+      message
+    );
+  }
+}

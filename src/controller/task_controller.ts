@@ -108,10 +108,14 @@ export const startExam = async (req: AuthenticatedRequest, res: Response, next: 
 }
 
 
-export const submitTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const submitTask = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id, taskId } = req.params;
     const { student_id , answers, fileUrl } = req.body;
+    if (req.user?.Id !== student_id) {
+      res.status(StatusCodes.FORBIDDEN).json({ message: "You are not authorized to submit this task" });
+      return;
+    }
     const submission = await taskService.submitTask(id, taskId, student_id, answers, fileUrl);
     res.status(StatusCodes.CREATED).json({ data: submission });
     logger.info(`Task with ID ${taskId} submitted for course with ID ${id} successfully`);
@@ -200,9 +204,13 @@ export const gradeTaskWithAI = async (req: AuthenticatedRequest, res: Response, 
 // Retrieves a specific task submission for a student
 // This endpoint is used to get the submission details for a specific task
 // router.get('/tasks/:taskId/submissions/:studentId', taskController.getTaskSubmission)
-export const getTaskSubmission = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getTaskSubmission = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { taskId, studentId } = req.params;
+    if (req.user?.Id !== studentId) {
+      res.status(StatusCodes.FORBIDDEN).json({ message: "You are not authorized to access this resource" });
+      return;
+    }
     const submission = await taskService.getTaskSubmission(taskId, studentId);
     res.status(StatusCodes.OK).json({ data: submission });
     logger.info(`Task submission retrieved for task with ID ${taskId} and student with ID ${studentId} successfully`);
@@ -257,6 +265,21 @@ export const getFeedbackWithAI = async (req: AuthenticatedRequest, res: Response
   }
 }
 
+/**
+ * Controller that retrieves the remaining time for a task timer in HH:MM:SS format.
+ *
+ * Extracts the `taskId` from the route parameters and the `studentId` from the authenticated user (JWT).
+ * Calls the service layer to compute the remaining time and returns it as JSON.
+ *
+ * @param req - Express request object, expected to have `taskId` in `params` and `user.Id` from JWT.
+ * @param res - Express response object used to send the timer data or error message.
+ * @param next - Express next function to pass errors to the error-handling middleware.
+ *
+ * @returns A JSON response with the remaining time in the format: `{ data: "HH:MM:SS" }`.
+ * 
+ * @throws 401 Unauthorized if `studentId` is missing.
+ * @throws Error forwarded to the next middleware if the task or submission is not found, or if there's a service error.
+ */
 export const getTaskTimer = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { taskId } = req.params;

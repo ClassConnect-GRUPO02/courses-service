@@ -2,6 +2,33 @@ import { PrismaClient, InstructorType, TaskType, LatePolicy, AnswerFormat, Submi
 const prisma = new PrismaClient();
 
 async function main() {
+  
+  // Fechas dinámicas útiles
+  const now = new Date();
+  const dueDateTask = new Date(now);
+  dueDateTask.setDate(now.getDate() + 7); // 7 días en el futuro
+
+  const visibleFromTask = new Date(now);
+  visibleFromTask.setDate(now.getDate() - 2); // 2 días atrás
+
+  const visibleUntilTask = new Date(now);
+  visibleUntilTask.setDate(now.getDate() + 8); // después del due date
+
+  const dueDateExam = new Date(now);
+  dueDateExam.setHours(now.getHours() + 3); // 3 horas en el futuro
+  const visibleFromExam = new Date(now);
+  const visibleUntilExam = new Date(now);
+  visibleUntilExam.setHours(now.getHours() + 4); // 1 hora después del due date
+
+  const startDateCourse = new Date(now);
+  startDateCourse.setMonth(now.getMonth() - 1); // Un mes atrás
+
+  const endDateCourse = new Date(now);
+  endDateCourse.setMonth(now.getMonth() + 6); // 6 meses en el futuro
+
+  const submissionDateExam = new Date(now);
+  submissionDateExam.setHours(now.getHours() + 2); // 2 horas en el futuro
+
   await prisma.$connect(); // Asegura que la conexión esté establecida
 
   await prisma.studentAnswer.deleteMany();
@@ -30,8 +57,8 @@ async function main() {
         name: 'Curso de JavaScript',
         description: 'Aprendé JS desde cero',
         shortDescription: 'JS básico',
-        startDate: new Date('2024-05-01'),
-        endDate: new Date('2024-06-01'),
+        startDate: startDateCourse,
+        endDate: endDateCourse,
         capacity: 30,
         enrolled: 5,
         category: 'Programación',
@@ -46,8 +73,8 @@ async function main() {
         name: 'Curso de Python',
         description: 'Aprendé Python desde cero',
         shortDescription: 'Python básico',
-        startDate: new Date('2024-05-01'),
-        endDate: new Date('2025-06-01'),
+        startDate: startDateCourse,
+        endDate: endDateCourse,
         capacity: 30,
         enrolled: 0,
         category: 'Programación',
@@ -106,14 +133,14 @@ async function main() {
         type: TaskType.tarea,
         title: 'Primer tarea',
         description: 'Ejercicio de variables',
-        due_date: new Date('2025-05-30T19:59:00'),
+        due_date: dueDateTask,
         allow_late: true,
         late_policy: LatePolicy.aceptar_con_descuento,
         has_timer: false,
         time_limit_minutes: null,
         published: true,
-        visible_from: new Date('2025-05-30'),
-        visible_until: new Date('2025-05-31'),
+        visible_from: visibleFromTask,
+        visible_until: visibleUntilTask,
         allow_file_upload: true,
         answer_format: 'archivo',
         created_at: new Date(),
@@ -127,14 +154,14 @@ async function main() {
         type: TaskType.examen,
         title: 'Examen parcial',
         description: 'Examen de mitad de curso',
-        due_date: new Date('2025-06-05'), // futuro realista
+        due_date: dueDateExam, // futuro realista
         allow_late: false,
         late_policy: LatePolicy.ninguna,
         has_timer: true,
         time_limit_minutes: 60,
         published: true,
-        visible_from: new Date('2025-05-25'),
-        visible_until: new Date('2025-06-05'),
+        visible_from: visibleFromExam,
+        visible_until: visibleUntilExam,
         allow_file_upload: false,
         answer_format: AnswerFormat.preguntas_respuestas,
         created_at: new Date(),
@@ -148,14 +175,14 @@ async function main() {
         type: TaskType.tarea,
         title: 'Tarea de Python',
         description: 'Ejercicio de funciones',
-        due_date: new Date('2025-06-10'),
+        due_date: dueDateTask,
         allow_late: true,
         late_policy: LatePolicy.aceptar_con_penalizacion,
         has_timer: false,
         time_limit_minutes: null,
         published: true,
-        visible_from: new Date('2025-06-01'),
-        visible_until: new Date('2025-06-10'),
+        visible_from: visibleFromTask,
+        visible_until: visibleUntilTask,
         allow_file_upload: true,
         answer_format: AnswerFormat.archivo,
         created_at: new Date(),
@@ -169,14 +196,14 @@ async function main() {
         type: TaskType.examen,
         title: 'Examen de Python',
         description: 'Examen de mitad de curso de Python',
-        due_date: new Date('2025-06-20'),
+        due_date: dueDateExam,
         allow_late: false,
         late_policy: LatePolicy.ninguna,
         has_timer: true,
-        time_limit_minutes: 90,
+        time_limit_minutes: 180,
         published: false,
-        visible_from: new Date('2025-06-10'),
-        visible_until: new Date('2025-06-20'),
+        visible_from: visibleFromExam,
+        visible_until: visibleUntilExam,
         allow_file_upload: false,
         answer_format: AnswerFormat.archivo,
         created_at: new Date(),
@@ -245,8 +272,8 @@ async function main() {
         id: 's1',
         task_id: 't1',
         student_id: '7',
-        started_at: new Date('2024-05-01'),
-        submitted_at: new Date('2024-05-09'),
+        started_at: new Date(now),
+        submitted_at: submissionDateExam,
         status: SubmissionStatus.submitted,
         grade: 3,
         feedback: "Mas o menos",
@@ -259,8 +286,8 @@ async function main() {
         id: 's2',
         task_id: 't2',
         student_id: 'u3',
-        started_at: new Date('2024-05-10'),
-        submitted_at: new Date('2024-05-15'),
+        started_at: new Date(now),
+        submitted_at: submissionDateExam,
         status: SubmissionStatus.submitted,
         grade: 85,
         feedback: "Buen trabajo.",
