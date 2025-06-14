@@ -11,7 +11,7 @@ export const addTaskToCourse = async (courseId: string, task: Task, instructorId
   if (!course) {
     throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
   }
-  
+
   return await databaseTask.addTaskToCourse(courseId, task, instructorId);
 }
 
@@ -200,7 +200,7 @@ export const gradeTaskWithAI = async (taskId: string, studentId: string) => {
   if (!task || !task.questions) {
     throw new NotFoundError(taskId, "Task");
   }
-  
+
   // Assuming generateAIResume is a function that generates feedback using AI
   // Fetch answers for the submission from the database
   console.log("task questions:", task.questions);
@@ -211,7 +211,7 @@ export const gradeTaskWithAI = async (taskId: string, studentId: string) => {
   }));
   const aiFeedback = await generateAIGrading(formattedQuestions, submission.answers);
   console.log("AI Feedback:", aiFeedback);
-  
+
   return await databaseTask.updateTaskSubmission(taskId, studentId, aiFeedback.grade, aiFeedback.feedback, "AI-GENERATED", aiFeedback.revision);
 }
 
@@ -228,6 +228,11 @@ export const getTaskSubmissions = async (courseId: string, instructorId: string,
   if (!isInstructor) {
     throw new Error(`Instructor with ID ${instructorId} is not authorized to view submissions for course ID ${courseId}`);
   }
+  const submissions = await databaseTask.getTaskSubmissions(taskId);
+  return submissions;
+}
+
+export const getTaskSubmissionsFromTaskId = async (taskId: string) => {
   const submissions = await databaseTask.getTaskSubmissions(taskId);
   return submissions;
 }
