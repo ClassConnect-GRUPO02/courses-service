@@ -99,4 +99,7 @@ router.get('/ia-feedback/:taskSubmissionId', authenticateJWT, taskController.get
 // ------------------------------ AI GRADING -----------------------------}
 router.patch('/tasks/:taskId/submissions/:studentId/grade', authenticateJWT, taskController.gradeTaskWithAI); // Grade task with AI
 
+// ------------------------------ PERFORMANCE STATS -----------------------------
+router.get('/stats/:instructorId', authenticateJWT, )
+
 export default router;
