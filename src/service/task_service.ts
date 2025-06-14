@@ -232,8 +232,8 @@ export const getTaskSubmissions = async (courseId: string, instructorId: string,
   return submissions;
 }
 
-export const getTaskSubmissionsFromTaskId = async (taskId: string) => {
-  const submissions = await databaseTask.getTaskSubmissions(taskId);
+export const getGradedTaskSubmissions = async (taskId: string) => {
+  const submissions = await databaseTask.getGradedTaskSubmissions(taskId);
   return submissions;
 }
 
@@ -295,3 +295,8 @@ export const getTaskTimer = async (taskId: string, studentId: string) => {
 
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
+
+export const getTaskSubmissionsCount = async (taskId: string) => {
+  const taskSubmissionsCount = await databaseTask.getTaskSubmissionsCount(taskId);
+  return taskSubmissionsCount;
+}
