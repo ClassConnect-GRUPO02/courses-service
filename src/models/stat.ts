@@ -24,6 +24,31 @@ export class InstructorCoursesGlobalStats {
     }
 }
 
+export class CourseStats {
+    courseId: string;
+    averageTaskGrade: number;
+    averageExamGrade: number;
+    taskSubmissionsRate: number;
+    examSubmissionsRate: number;
+    trends: TaskStats[];
+
+    constructor(
+        courseId: string,
+        averageTaskGrade: number,
+        averageExamGrade: number,
+        taskSubmissionsRate: number,
+        examSubmissionsRate: number,
+        trends: TaskStats[],
+    ) {
+        this.courseId = courseId;
+        this.averageTaskGrade = averageTaskGrade;
+        this.averageExamGrade = averageExamGrade;
+        this.taskSubmissionsRate = taskSubmissionsRate;
+        this.examSubmissionsRate = examSubmissionsRate;
+        this.trends = trends;
+    }
+}
+
 export class TaskStats {
     date: string;
     averageTaskGrade: number;

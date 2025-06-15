@@ -102,5 +102,6 @@ router.patch('/tasks/:taskId/submissions/:studentId/grade', authenticateJWT, tas
 
 // ------------------------------ PERFORMANCE STATS -----------------------------
 router.get('/stats/:instructorId', statController.getStatsForInstructorCourses)
+router.get('/courses/:courseId/stats', statController.getCourseStats)
 
 export default router;

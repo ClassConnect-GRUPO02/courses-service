@@ -14,3 +14,19 @@ export const getStatsForInstructorCourses = async (req: Request, res: Response, 
     next(error);
   }
 }
+
+export const getCourseStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { courseId } = req.params;
+    const from: string = req.query.from as string;
+    const to: string = req.query.to as string;
+    console.log("from = ", from);
+    console.log("to = ", to);
+    const stats = await statService.getCourseStats(courseId, from, to);
+
+    res.status(StatusCodes.OK).json({ data: stats });
+    logger.info(`Stats retrieved for course with ID ${courseId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}
