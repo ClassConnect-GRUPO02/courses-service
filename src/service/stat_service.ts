@@ -5,8 +5,9 @@ import * as enrollmentService from '../service/enrollment_service';
 import { TaskSubmission, TaskType } from '@prisma/client';
 import { InstructorCoursesGlobalStats } from '../models/stat';
 
+
 export const getStatsForInstructorCourses = async (instructorId: string): Promise<InstructorCoursesGlobalStats> => {
-    const coursesIds = await instructorService.getCoursesByInstructorId(instructorId);
+    const coursesIds = await instructorService.getCoursesIdsByInstructorId(instructorId);
     const courseTasks: Task[] = []
     // Collect tasks from all the courses
     for (const courseId of coursesIds) {
