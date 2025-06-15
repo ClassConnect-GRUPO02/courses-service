@@ -3,7 +3,7 @@ import * as taskService from '../service/task_service';
 import * as instructorService from '../service/instructor_service';
 import * as enrollmentService from '../service/enrollment_service';
 import { TaskSubmission, TaskType } from '@prisma/client';
-import { CourseStats, InstructorCoursesGlobalStats, TaskStats } from '../models/stat';
+import { CourseStats, InstructorCoursesGlobalStats, StudentCourseStats, TaskStats } from '../models/stat';
 
 export const getStatsForInstructorCourses = async (instructorId: string): Promise<InstructorCoursesGlobalStats> => {
     const coursesIds = await instructorService.getCoursesIdsByInstructorId(instructorId);
@@ -102,6 +102,47 @@ export const getCourseStats = async (courseId: string, from: string, to: string)
     );
 
     return courseStats;
+}
+
+export const getCourseStudentsStats = async (courseId: string, from: string, to: string): Promise<StudentCourseStats[]> => {
+    let courseTasks: Task[] = await taskService.getTasks(courseId);
+    let tasks = courseTasks.filter(courseTask => courseTask.type === TaskType.tarea);
+    let exams = courseTasks.filter(courseTask => courseTask.type === TaskType.examen);
+    let studentIds: string[] = (await enrollmentService.getEnrollmentsByCourseId(courseId)).map(enrollment => enrollment.userId);
+    let studentsStats: StudentCourseStats[] = [];
+    for (const studentId of studentIds) {
+        const [averageTaskGrade, taskSubmissionRate] = await getAverageGradeAndSubmissionRate(tasks, studentId);
+        const [averageExamGrade, examSubmissionRate] = await getAverageGradeAndSubmissionRate(exams, studentId);
+        const studentStats = new StudentCourseStats(studentId, averageTaskGrade, averageExamGrade, taskSubmissionRate, examSubmissionRate);
+        studentsStats.push(studentStats);
+
+    }
+    return studentsStats;
+}
+
+const getAverageGradeAndSubmissionRate = async (tasks: Task[], studentId: string): Promise<[number, number]> => {
+    if (tasks.length === 0) {
+        return [0, 0];
+    }
+    const taskGrades: number[] = [];
+    let taskSubmissionsCount = 0;
+    for (const task of tasks) {
+        try {
+            const taskSubmission = await taskService.getTaskSubmission(task.id, studentId);
+            taskSubmissionsCount += 1;
+            if (!taskSubmission.grade) continue;
+            taskGrades.push(taskSubmission.grade);
+        } catch (err) {
+            // Task submission may not exist
+            continue;
+        }
+    }
+    const taskSubmissionsRate = (taskSubmissionsCount / tasks.length) * 100;
+    if (taskGrades.length === 0) {
+        return [0, taskSubmissionsRate];
+    }
+    const averageTaskGrade = taskGrades.reduce((a, b) => a + b) / taskGrades.length;
+    return [averageTaskGrade, taskSubmissionsRate];
 }
 
 const getAverageTasksSubmissionRate = async (tasks: Task[]): Promise<number> => {

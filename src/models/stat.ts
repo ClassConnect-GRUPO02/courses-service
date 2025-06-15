@@ -64,3 +64,19 @@ export class TaskStats {
         this.examSubmissionRate = examSubmissionRate;
     }
 }
+
+export class StudentCourseStats {
+    studentId: string;
+    averageTaskGrade: number;
+    averageExamGrade: number;
+    taskSubmissionRate: number;
+    examSubmissionRate: number;
+
+    constructor(studentId: string, averageTaskGrade: number, averageExamGrade: number, taskSubmissionRate: number, examSubmissionRate: number) {
+        this.studentId = studentId;
+        this.averageTaskGrade = averageTaskGrade;
+        this.averageExamGrade = averageExamGrade;
+        this.taskSubmissionRate = taskSubmissionRate;
+        this.examSubmissionRate = examSubmissionRate;
+    }
+}
