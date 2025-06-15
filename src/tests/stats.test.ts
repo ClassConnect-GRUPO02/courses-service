@@ -1,8 +1,6 @@
 import request from 'supertest';
 import app from '../app';
 import { StatusCodes } from 'http-status-codes';
-import { mockTaskRequestData } from './mocks/mock.task';
-import { mockTaskSubmissionData } from './mocks/mock.task_sub';
 import jwt from 'jsonwebtoken';
 import { userTypes } from '../lib/user_types';
 

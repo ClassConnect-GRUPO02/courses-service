@@ -61,7 +61,7 @@ const getAverageTasksSubmissionRate = async (tasks: Task[]): Promise<number> => 
 }
 
 const getTasksAverageGrading = async (tasks: Task[]): Promise<number> => {
-    let gradedSubmissions: TaskSubmission[] = [];
+    const gradedSubmissions: TaskSubmission[] = [];
     for (const task of tasks) {
         const submissions: TaskSubmission[] = await taskService.getGradedTaskSubmissions(task.id);
         gradedSubmissions.push(...submissions);
