@@ -29,7 +29,7 @@ export const getStatsForInstructorCourses = async (instructorId: string): Promis
         tasksByMonth.get(taskMonth)!.push(task);
     }
     const statsByMonth = new Map<string, TaskStats>();
-    for (let [month, taskList] of tasksByMonth) {
+    for (const [month, taskList] of tasksByMonth) {
         const tasks = taskList.filter(task => task.type === TaskType.tarea);
         const exams = taskList.filter(task => task.type === TaskType.examen);
         const averageTaskGrade = await getTasksAverageGrade(tasks);
@@ -76,7 +76,7 @@ export const getCourseStats = async (courseId: string, from: string, to: string)
         tasksByMonth.get(taskMonth)!.push(task);
     }
     const statsByMonth = new Map<string, TaskStats>();
-    for (let [month, taskList] of tasksByMonth) {
+    for (const [month, taskList] of tasksByMonth) {
         const tasks = taskList.filter(task => task.type === TaskType.tarea);
         const exams = taskList.filter(task => task.type === TaskType.examen);
         const averageTaskGrade = await getTasksAverageGrade(tasks);
