@@ -12,8 +12,8 @@ describe('Integration Tests for Stats API', () => {
         {
             id: 'u1',
             userType: userTypes.INSTRUCTOR,
-        }, // payload
-        SECRET_KEY!, // clave secreta
+        },
+        SECRET_KEY!,
         { algorithm: 'HS256' }
     );
 
@@ -26,7 +26,18 @@ describe('Integration Tests for Stats API', () => {
                 .send();
             expect(response.status).toBe(StatusCodes.OK);
             expect(response.body.data).toBeDefined();
-            // expect(Array.isArray(response.body.data)).toBe(true);
+        });
+    });
+
+    describe('GET /courses/:courseId/stats', () => {
+        it('should retrieve historical course stats', async () => {
+            const courseId = 'c1';
+            const response = await request(app)
+                .get(`/courses/${courseId}/stats`)
+                .set('Authorization', `Bearer ${tokenProfessor}`)
+                .send();
+            expect(response.status).toBe(StatusCodes.OK);
+            expect(response.body.data).toBeDefined();
         });
     });
 })
