@@ -3,8 +3,7 @@ import * as taskService from '../service/task_service';
 import * as instructorService from '../service/instructor_service';
 import * as enrollmentService from '../service/enrollment_service';
 import { TaskSubmission, TaskType } from '@prisma/client';
-import { InstructorCoursesGlobalStats } from '../models/stat';
-
+import { InstructorCoursesGlobalStats, TaskStats } from '../models/stat';
 
 export const getStatsForInstructorCourses = async (instructorId: string): Promise<InstructorCoursesGlobalStats> => {
     const coursesIds = await instructorService.getCoursesIdsByInstructorId(instructorId);
@@ -16,30 +15,45 @@ export const getStatsForInstructorCourses = async (instructorId: string): Promis
         courseTasks.push(...tasks);
     }
 
-    const tasks: Task[] = []
-    const exams: Task[] = []
-    // Split the course tasks in 'tasks' and 'exams'
-    for (const task of courseTasks) {
-        if (task.type == TaskType.examen) {
-            exams.push(task);
-        } else {
-            tasks.push(task);
-        }
+    // If there are no tasks, then there will be no stats
+    if (courseTasks.length === 0) {
+        return new InstructorCoursesGlobalStats(instructorId, 0, 0, 0, 0, []);
     }
 
-    // Get the stats
-    const averageTaskGrade = await getTasksAverageGrade(tasks);
-    const tasksSubmissionRate = await getAverageTasksSubmissionRate(tasks);
-    const averageExamGrade = await getTasksAverageGrade(exams);
-    const examsSubmissionRate = await getAverageTasksSubmissionRate(exams);
+    const tasksByMonth = new Map<string, Task[]>();
+    for (const task of courseTasks) {
+        const taskMonth = getStartOfMonth(task.due_date);
+        if (!tasksByMonth.get(taskMonth)) {
+            tasksByMonth.set(taskMonth, []);
+        }
+        tasksByMonth.get(taskMonth)!.push(task);
+    }
+    const statsByMonth = new Map<string, TaskStats>();
+    for (let [month, taskList] of tasksByMonth) {
+        const tasks = taskList.filter(task => task.type === TaskType.tarea);
+        const exams = taskList.filter(task => task.type === TaskType.examen);
+        const averageTaskGrade = await getTasksAverageGrade(tasks);
+        const taskSubmissionRate = await getAverageTasksSubmissionRate(tasks);
+        const averageExamGrade = await getTasksAverageGrade(exams);
+        const examSubmissionRate = await getAverageTasksSubmissionRate(exams);
+        const taskStats = new TaskStats(month, averageTaskGrade, averageExamGrade, taskSubmissionRate, examSubmissionRate);
+        statsByMonth.set(month, taskStats);
+    }
+    const trends = Array.from(statsByMonth.values()).sort((a, b) => { return +new Date(a.date) - +new Date(b.date) });
 
+    const historicalAverageTaskGrade = trends.map(task => task.averageTaskGrade).reduce((a, b) => a + b) / trends.length | 0;
+    const historicalAverageExamGrade = trends.map(task => task.averageExamGrade).reduce((a, b) => a + b) / trends.length | 0;
+    const historicalTaskSubmissionRate = trends.map(task => task.taskSubmissionRate).reduce((a, b) => a + b) / trends.length | 0;
+    const historicalExamSubmissionRate = trends.map(task => task.examSubmissionRate).reduce((a, b) => a + b) / trends.length | 0;
     const instructorCoursesGlobalStats = new InstructorCoursesGlobalStats(
         instructorId,
-        averageTaskGrade,
-        averageExamGrade,
-        tasksSubmissionRate,
-        examsSubmissionRate
+        historicalAverageTaskGrade,
+        historicalAverageExamGrade,
+        historicalTaskSubmissionRate,
+        historicalExamSubmissionRate,
+        trends,
     );
+
     return instructorCoursesGlobalStats;
 }
 
@@ -78,4 +92,10 @@ const getTasksAverageGrade = async (tasks: Task[]): Promise<number> => {
     }
     const averageGrade = cumulativeGrade / totalSubmissions;
     return averageGrade;
+}
+
+function getStartOfMonth(dateString: string): string {
+    const date = new Date(dateString);
+    const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().slice(0, 10);
+    return startOfMonth;
 }
