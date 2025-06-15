@@ -28,15 +28,15 @@ export const getStatsForInstructorCourses = async (instructorId: string): Promis
     }
 
     // Get the stats
-    const averageTaskGrading = await getTasksAverageGrading(tasks);
+    const averageTaskGrade = await getTasksAverageGrade(tasks);
     const tasksSubmissionRate = await getAverageTasksSubmissionRate(tasks);
-    const averageExamGrading = await getTasksAverageGrading(exams);
+    const averageExamGrade = await getTasksAverageGrade(exams);
     const examsSubmissionRate = await getAverageTasksSubmissionRate(exams);
 
     const instructorCoursesGlobalStats = new InstructorCoursesGlobalStats(
         instructorId,
-        averageTaskGrading,
-        averageExamGrading,
+        averageTaskGrade,
+        averageExamGrade,
         tasksSubmissionRate,
         examsSubmissionRate
     );
@@ -60,22 +60,22 @@ const getAverageTasksSubmissionRate = async (tasks: Task[]): Promise<number> => 
     return averageSubmissionsRate;
 }
 
-const getTasksAverageGrading = async (tasks: Task[]): Promise<number> => {
+const getTasksAverageGrade = async (tasks: Task[]): Promise<number> => {
     const gradedSubmissions: TaskSubmission[] = [];
     for (const task of tasks) {
         const submissions: TaskSubmission[] = await taskService.getGradedTaskSubmissions(task.id);
         gradedSubmissions.push(...submissions);
     }
-    let cumulativeGrading = 0;
+    let cumulativeGrade = 0;
     let totalSubmissions = 0;
     for (const submission of gradedSubmissions) {
         // Skip the tasks that are not graded
         if (!submission.grade) {
             continue;
         }
-        cumulativeGrading += submission.grade;
+        cumulativeGrade += submission.grade;
         totalSubmissions += 1;
     }
-    const averageGrading = cumulativeGrading / totalSubmissions;
-    return averageGrading;
+    const averageGrade = cumulativeGrade / totalSubmissions;
+    return averageGrade;
 }
