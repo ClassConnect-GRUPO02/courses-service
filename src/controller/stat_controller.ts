@@ -18,8 +18,8 @@ export const getStatsForInstructorCourses = async (req: Request, res: Response, 
 export const getCourseStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { courseId } = req.params;
-    const from: string = req.query.from as string;
-    const to: string = req.query.to as string;
+    const from: string = req.query.from as string || new Date(0).toISOString();
+    const to: string = req.query.to as string || new Date().toISOString();
     console.log("from = ", from);
     console.log("to = ", to);
     const stats = await statService.getCourseStats(courseId, from, to);
