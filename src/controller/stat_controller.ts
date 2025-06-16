@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import logger from '../logger/logger';
 import { StatusCodes } from 'http-status-codes';
 import * as statService from '../service/stat_service';
+import * as enrollmentService from '../service/enrollment_service';
 
 export const getStatsForInstructorCourses = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -20,10 +21,7 @@ export const getCourseStats = async (req: Request, res: Response, next: NextFunc
     const { courseId } = req.params;
     const from: string = req.query.from as string || new Date(0).toISOString();
     const to: string = req.query.to as string || new Date().toISOString();
-    console.log("from = ", from);
-    console.log("to = ", to);
     const stats = await statService.getCourseStats(courseId, from, to);
-
     res.status(StatusCodes.OK).json({ data: stats });
     logger.info(`Stats retrieved for course with ID ${courseId} successfully`);
   } catch (error) {
@@ -51,8 +49,10 @@ export const getCourseStudentStats = async (req: Request, res: Response, next: N
     const { studentId } = req.params;
     const from: string = req.query.from as string || new Date(0).toISOString();
     const to: string = req.query.to as string || new Date().toISOString();
-    console.log("from = ", from);
-    console.log("to = ", to);
+    const studentIsEnrolled = await enrollmentService.isEnrolledInCourse(courseId, studentId);
+    if (!studentIsEnrolled) {
+      res.status(StatusCodes.NOT_FOUND).json({ error: `The student ${studentId} is not enrolled in the course ${courseId}` });
+    }
     const stats = await statService.getCourseStudentStats(courseId, studentId, from, to);
 
     res.status(StatusCodes.OK).json({ data: stats });
