@@ -56,7 +56,7 @@ describe('Integration Tests for Stats API', () => {
     describe('GET /courses/:courseId/stats/students/:studentId', () => {
         it('should retrieve the stats of the given student in the given course', async () => {
             const courseId = 'c1';
-            const studentId = '7';
+            const studentId = 'u3';
             const response = await request(app)
                 .get(`/courses/${courseId}/stats/students/${studentId}`)
                 .set('Authorization', `Bearer ${tokenProfessor}`)
