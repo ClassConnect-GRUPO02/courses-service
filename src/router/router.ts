@@ -104,4 +104,6 @@ router.patch('/tasks/:taskId/submissions/:studentId/grade', authenticateJWT, tas
 router.get('/stats/:instructorId', statController.getStatsForInstructorCourses)
 router.get('/courses/:courseId/stats', statController.getCourseStats)
 router.get('/courses/:courseId/stats/students', statController.getCourseStudentsStats)
+router.get('/courses/:courseId/stats/students/:studentId', statController.getCourseStudentStats)
+
 export default router;

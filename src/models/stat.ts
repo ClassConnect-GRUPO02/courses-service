@@ -1,3 +1,4 @@
+import { TaskSubmission } from '@prisma/client';
 
 export class InstructorCoursesGlobalStats {
     instructorId: string;
@@ -78,5 +79,25 @@ export class StudentCourseStats {
         this.averageExamGrade = averageExamGrade;
         this.taskSubmissionRate = taskSubmissionRate;
         this.examSubmissionRate = examSubmissionRate;
+    }
+}
+
+export class StudentCourseActivity {
+    studentId: string;
+    courseId: string;
+    averageTaskGrade: number;
+    averageExamGrade: number;
+    taskSubmissionRate: number;
+    examSubmissionRate: number;
+    submissions: TaskSubmission[];
+
+    constructor(studentId: string, courseId: string, averageTaskGrade: number, averageExamGrade: number, taskSubmissionRate: number, examSubmissionRate: number, submissions: TaskSubmission[]) {
+        this.studentId = studentId;
+        this.courseId = courseId;
+        this.averageTaskGrade = averageTaskGrade;
+        this.averageExamGrade = averageExamGrade;
+        this.taskSubmissionRate = taskSubmissionRate;
+        this.examSubmissionRate = examSubmissionRate;
+        this.submissions = submissions;
     }
 }

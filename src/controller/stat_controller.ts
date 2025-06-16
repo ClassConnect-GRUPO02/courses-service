@@ -36,9 +36,24 @@ export const getCourseStudentsStats = async (req: Request, res: Response, next: 
     const { courseId } = req.params;
     const from: string = req.query.from as string || new Date(0).toISOString();
     const to: string = req.query.to as string || new Date().toISOString();
+    const stats = await statService.getCourseStudentsStats(courseId, from, to);
+
+    res.status(StatusCodes.OK).json({ data: stats });
+    logger.info(`Stats retrieved for course with ID ${courseId} successfully`);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const getCourseStudentStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { courseId } = req.params;
+    const { studentId } = req.params;
+    const from: string = req.query.from as string || new Date(0).toISOString();
+    const to: string = req.query.to as string || new Date().toISOString();
     console.log("from = ", from);
     console.log("to = ", to);
-    const stats = await statService.getCourseStudentsStats(courseId, from, to);
+    const stats = await statService.getCourseStudentStats(courseId, studentId, from, to);
 
     res.status(StatusCodes.OK).json({ data: stats });
     logger.info(`Stats retrieved for course with ID ${courseId} successfully`);
