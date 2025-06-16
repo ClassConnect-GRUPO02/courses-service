@@ -52,6 +52,7 @@ export const getCourseStudentStats = async (req: Request, res: Response, next: N
     const studentIsEnrolled = await enrollmentService.isEnrolledInCourse(courseId, studentId);
     if (!studentIsEnrolled) {
       res.status(StatusCodes.NOT_FOUND).json({ error: `The student ${studentId} is not enrolled in the course ${courseId}` });
+      return;
     }
     const stats = await statService.getCourseStudentStats(courseId, studentId, from, to);
 
