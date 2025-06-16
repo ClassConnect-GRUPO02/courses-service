@@ -20,31 +20,14 @@ export const getStatsForInstructorCourses = async (instructorId: string): Promis
         return new InstructorCoursesGlobalStats(instructorId, 0, 0, 0, 0, []);
     }
 
-    const tasksByMonth = new Map<string, Task[]>();
-    for (const task of courseTasks) {
-        const taskMonth = getStartOfMonth(task.due_date);
-        if (!tasksByMonth.get(taskMonth)) {
-            tasksByMonth.set(taskMonth, []);
-        }
-        tasksByMonth.get(taskMonth)!.push(task);
-    }
-    const statsByMonth = new Map<string, TaskStats>();
-    for (const [month, taskList] of tasksByMonth) {
-        const tasks = taskList.filter(task => task.type === TaskType.tarea);
-        const exams = taskList.filter(task => task.type === TaskType.examen);
-        const averageTaskGrade = await getTasksAverageGrade(tasks);
-        const taskSubmissionRate = await getAverageTasksSubmissionRate(tasks);
-        const averageExamGrade = await getTasksAverageGrade(exams);
-        const examSubmissionRate = await getAverageTasksSubmissionRate(exams);
-        const taskStats = new TaskStats(month, averageTaskGrade, averageExamGrade, taskSubmissionRate, examSubmissionRate);
-        statsByMonth.set(month, taskStats);
-    }
-    const trends = Array.from(statsByMonth.values()).sort((a, b) => { return +new Date(a.date) - +new Date(b.date) });
+    const [
+        historicalAverageTaskGrade,
+        historicalAverageExamGrade,
+        historicalTaskSubmissionRate,
+        historicalExamSubmissionRate,
+        trends
+    ] = await getCourseHistoricalStatsFromTasks(courseTasks);
 
-    const historicalAverageTaskGrade = trends.map(task => task.averageTaskGrade).reduce((a, b) => a + b) / trends.length || 0;
-    const historicalAverageExamGrade = trends.map(task => task.averageExamGrade).reduce((a, b) => a + b) / trends.length || 0;
-    const historicalTaskSubmissionRate = trends.map(task => task.taskSubmissionRate).reduce((a, b) => a + b) / trends.length || 0;
-    const historicalExamSubmissionRate = trends.map(task => task.examSubmissionRate).reduce((a, b) => a + b) / trends.length || 0;
     const instructorCoursesGlobalStats = new InstructorCoursesGlobalStats(
         instructorId,
         historicalAverageTaskGrade,
@@ -67,31 +50,14 @@ export const getCourseStats = async (courseId: string, from: string, to: string)
     // filter tasks within the given time range
     courseTasks = courseTasks.filter(task => from < task.due_date && task.due_date < to);
 
-    const tasksByMonth = new Map<string, Task[]>();
-    for (const task of courseTasks) {
-        const taskMonth = getStartOfMonth(task.due_date);
-        if (!tasksByMonth.get(taskMonth)) {
-            tasksByMonth.set(taskMonth, []);
-        }
-        tasksByMonth.get(taskMonth)!.push(task);
-    }
-    const statsByMonth = new Map<string, TaskStats>();
-    for (const [month, taskList] of tasksByMonth) {
-        const tasks = taskList.filter(task => task.type === TaskType.tarea);
-        const exams = taskList.filter(task => task.type === TaskType.examen);
-        const averageTaskGrade = await getTasksAverageGrade(tasks);
-        const taskSubmissionRate = await getAverageTasksSubmissionRate(tasks);
-        const averageExamGrade = await getTasksAverageGrade(exams);
-        const examSubmissionRate = await getAverageTasksSubmissionRate(exams);
-        const taskStats = new TaskStats(month, averageTaskGrade, averageExamGrade, taskSubmissionRate, examSubmissionRate);
-        statsByMonth.set(month, taskStats);
-    }
-    const trends = Array.from(statsByMonth.values()).sort((a, b) => { return +new Date(a.date) - +new Date(b.date) });
+    const [
+        historicalAverageTaskGrade,
+        historicalAverageExamGrade,
+        historicalTaskSubmissionRate,
+        historicalExamSubmissionRate,
+        trends
+    ] = await getCourseHistoricalStatsFromTasks(courseTasks);
 
-    const historicalAverageTaskGrade = trends.map(task => task.averageTaskGrade).reduce((a, b) => a + b) / trends.length || 0;
-    const historicalAverageExamGrade = trends.map(task => task.averageExamGrade).reduce((a, b) => a + b) / trends.length || 0;
-    const historicalTaskSubmissionRate = trends.map(task => task.taskSubmissionRate).reduce((a, b) => a + b) / trends.length || 0;
-    const historicalExamSubmissionRate = trends.map(task => task.examSubmissionRate).reduce((a, b) => a + b) / trends.length || 0;
     const courseStats = new CourseStats(
         courseId,
         historicalAverageTaskGrade,
@@ -144,6 +110,41 @@ export const getCourseStudentStats = async (courseId: string, studentId: string,
     return studentActivity;
 }
 
+const getCourseHistoricalStatsFromTasks = async (courseTasks: Task[]): Promise<[number, number, number, number, TaskStats[]]> => {
+    const tasksByMonth = new Map<string, Task[]>();
+    for (const task of courseTasks) {
+        const taskMonth = getStartOfMonth(task.due_date);
+        if (!tasksByMonth.get(taskMonth)) {
+            tasksByMonth.set(taskMonth, []);
+        }
+        tasksByMonth.get(taskMonth)!.push(task);
+    }
+    const statsByMonth = new Map<string, TaskStats>();
+    for (const [month, taskList] of tasksByMonth) {
+        const tasks = taskList.filter(task => task.type === TaskType.tarea);
+        const exams = taskList.filter(task => task.type === TaskType.examen);
+        const averageTaskGrade = await getTasksAverageGrade(tasks);
+        const taskSubmissionRate = await getAverageTasksSubmissionRate(tasks);
+        const averageExamGrade = await getTasksAverageGrade(exams);
+        const examSubmissionRate = await getAverageTasksSubmissionRate(exams);
+        const taskStats = new TaskStats(month, averageTaskGrade, averageExamGrade, taskSubmissionRate, examSubmissionRate);
+        statsByMonth.set(month, taskStats);
+    }
+    const trends = Array.from(statsByMonth.values()).sort((a, b) => { return +new Date(a.date) - +new Date(b.date) });
+
+    const historicalAverageTaskGrade = trends.map(task => task.averageTaskGrade).reduce((a, b) => a + b) / trends.length || 0;
+    const historicalAverageExamGrade = trends.map(task => task.averageExamGrade).reduce((a, b) => a + b) / trends.length || 0;
+    const historicalTaskSubmissionRate = trends.map(task => task.taskSubmissionRate).reduce((a, b) => a + b) / trends.length || 0;
+    const historicalExamSubmissionRate = trends.map(task => task.examSubmissionRate).reduce((a, b) => a + b) / trends.length || 0;
+
+    return [
+        historicalAverageTaskGrade,
+        historicalAverageExamGrade,
+        historicalTaskSubmissionRate,
+        historicalExamSubmissionRate,
+        trends
+    ]
+}
 
 const getAverageGradeAndSubmissionRate = async (tasks: Task[], studentId: string): Promise<[number, number]> => {
     if (tasks.length === 0) {
