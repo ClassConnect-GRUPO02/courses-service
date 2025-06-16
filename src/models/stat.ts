@@ -89,9 +89,9 @@ export class StudentCourseActivity {
     averageExamGrade: number;
     taskSubmissionRate: number;
     examSubmissionRate: number;
-    submissions: TaskSubmission[];
+    submissions: StudentSubmission[];
 
-    constructor(studentId: string, courseId: string, averageTaskGrade: number, averageExamGrade: number, taskSubmissionRate: number, examSubmissionRate: number, submissions: TaskSubmission[]) {
+    constructor(studentId: string, courseId: string, averageTaskGrade: number, averageExamGrade: number, taskSubmissionRate: number, examSubmissionRate: number, submissions: StudentSubmission[]) {
         this.studentId = studentId;
         this.courseId = courseId;
         this.averageTaskGrade = averageTaskGrade;
@@ -101,3 +101,23 @@ export class StudentCourseActivity {
         this.submissions = submissions;
     }
 }
+
+export class StudentSubmission {
+    taskId: string;
+    taskTitle: string;
+    type: string;
+    grade: number | null;
+    submitted_at: Date | null;
+    status: string;
+
+    constructor(taskId: string, taskTitle: string, type: string, grade: number | null, submitted_at: Date | null, status: string) {
+        this.taskId = taskId;
+        this.taskTitle = taskTitle;
+        this.type = type;
+        this.grade = grade;
+        this.submitted_at = submitted_at;
+        this.status = status;
+    }
+
+}
+

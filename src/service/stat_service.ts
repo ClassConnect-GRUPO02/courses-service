@@ -3,7 +3,7 @@ import * as taskService from '../service/task_service';
 import * as instructorService from '../service/instructor_service';
 import * as enrollmentService from '../service/enrollment_service';
 import { TaskSubmission, TaskType } from '@prisma/client';
-import { CourseStats, InstructorCoursesGlobalStats, StudentCourseActivity, StudentCourseStats, TaskStats } from '../models/stat';
+import { CourseStats, InstructorCoursesGlobalStats, StudentCourseActivity, StudentCourseStats, StudentSubmission, TaskStats } from '../models/stat';
 
 export const getStatsForInstructorCourses = async (instructorId: string): Promise<InstructorCoursesGlobalStats> => {
     const coursesIds = await instructorService.getCoursesIdsByInstructorId(instructorId);
@@ -122,13 +122,18 @@ export const getCourseStudentsStats = async (courseId: string, from: string, to:
 
 export const getCourseStudentStats = async (courseId: string, studentId: string, from: string, to: string): Promise<StudentCourseActivity> => {
     let courseTasks: Task[] = (await taskService.getTasks(courseId)).filter(task => from < task.due_date && task.due_date < to);
+
     let tasks = courseTasks.filter(courseTask => courseTask.type === TaskType.tarea);
     let exams = courseTasks.filter(courseTask => courseTask.type === TaskType.examen);
 
-    let submissions: TaskSubmission[] = [];
+    let submissions: StudentSubmission[] = [];
     for (const task of courseTasks) {
         try {
-            submissions.push(await taskService.getTaskSubmission(task.id, studentId));
+            const taskSubmission = await taskService.getTaskSubmission(task.id, studentId);
+            const studentSubmission = new StudentSubmission(
+                task.id, task.title, task.type, taskSubmission.grade, taskSubmission.submitted_at, taskSubmission.status
+            );
+            submissions.push(studentSubmission);
         } catch (err) {
             continue;
         }
