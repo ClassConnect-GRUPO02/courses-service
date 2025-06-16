@@ -105,7 +105,7 @@ export const getCourseStats = async (courseId: string, from: string, to: string)
 }
 
 export const getCourseStudentsStats = async (courseId: string, from: string, to: string): Promise<StudentCourseStats[]> => {
-    let courseTasks: Task[] = await taskService.getTasks(courseId);
+    let courseTasks: Task[] = (await taskService.getTasks(courseId)).filter(task => from < task.due_date && task.due_date < to);
     let tasks = courseTasks.filter(courseTask => courseTask.type === TaskType.tarea);
     let exams = courseTasks.filter(courseTask => courseTask.type === TaskType.examen);
     let studentIds: string[] = (await enrollmentService.getEnrollmentsByCourseId(courseId)).map(enrollment => enrollment.userId);
@@ -121,7 +121,7 @@ export const getCourseStudentsStats = async (courseId: string, from: string, to:
 }
 
 export const getCourseStudentStats = async (courseId: string, studentId: string, from: string, to: string): Promise<StudentCourseActivity> => {
-    let courseTasks: Task[] = await taskService.getTasks(courseId);
+    let courseTasks: Task[] = (await taskService.getTasks(courseId)).filter(task => from < task.due_date && task.due_date < to);
     let tasks = courseTasks.filter(courseTask => courseTask.type === TaskType.tarea);
     let exams = courseTasks.filter(courseTask => courseTask.type === TaskType.examen);
 
