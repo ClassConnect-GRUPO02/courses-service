@@ -8,6 +8,7 @@ import * as resourceController from '../controller/resource_controller';
 import * as feedbackController from '../controller/feedback_controller';
 import * as favoritesController from '../controller/favorites_controller';
 import * as chatController from '../controller/chat_controller';
+import * as statController from '../controller/stat_controller';
 import { authenticateJWT } from "../lib/auth"
 
 const router = express.Router();
@@ -98,5 +99,11 @@ router.get('/ia-feedback/:taskSubmissionId', authenticateJWT, taskController.get
 
 // ------------------------------ AI GRADING -----------------------------}
 router.patch('/tasks/:taskId/submissions/:studentId/grade', authenticateJWT, taskController.gradeTaskWithAI); // Grade task with AI
+
+// ------------------------------ PERFORMANCE STATS -----------------------------
+router.get('/stats/:instructorId', statController.getStatsForInstructorCourses)
+router.get('/courses/:courseId/stats', statController.getCourseStats)
+router.get('/courses/:courseId/stats/students', statController.getCourseStudentsStats)
+router.get('/courses/:courseId/stats/students/:studentId', statController.getCourseStudentStats)
 
 export default router;

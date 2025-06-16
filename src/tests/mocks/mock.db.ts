@@ -52,7 +52,7 @@ export const mockDB = {
     { id: 'm1', name: 'Módulo 1', description: 'Intro a JS', url: '', order: 0, courseId: 'c1' },
     { id: 'm2', name: 'Módulo 2', description: 'Funciones', url: '', order: 1, courseId: 'c1' },
     { id: 'm3', name: 'Módulo 3', description: 'Objetos', url: '', order: 2, courseId: 'c1' },
-    
+
     { id: 'm4', name: 'Módulo 1', description: 'Intro a Python', url: '', order: 0, courseId: 'c2' },
     { id: 'm5', name: 'Módulo 2', description: 'Funciones', url: '', order: 1, courseId: 'c2' },
     { id: 'm6', name: 'Módulo 3', description: 'Objetos', url: '', order: 2, courseId: 'c2' },
@@ -203,7 +203,19 @@ export const mockDB = {
       student_id: 'u2',
       started_at: new Date('2024-05-01').toISOString(),
       status: 'submitted',
-      grade: 0,
+      grade: 5,
+      feedback: "",
+      time_spent: 45,
+      file_url: 'https://example.com/solution1.pdf',
+      submitted_at: new Date('2024-05-09').toISOString(),
+    },
+    {
+      id: 's2',
+      task_id: 't1',
+      student_id: 'u2',
+      started_at: new Date('2024-05-01').toISOString(),
+      status: 'submitted',
+      grade: 10,
       feedback: "",
       time_spent: 45,
       file_url: 'https://example.com/solution1.pdf',
@@ -217,7 +229,8 @@ export const mockDB = {
   ],
 
   studentFeedback: [
-    { id: 'feedback1', 
+    {
+      id: 'feedback1',
       course_id: 'c1',
       student_id: 'u2',
       instructor_id: 'u1',
@@ -227,7 +240,8 @@ export const mockDB = {
   ],
 
   courseFeedback: [
-    { id: 'courseFeedback1',
+    {
+      id: 'courseFeedback1',
       course_id: 'c1',
       student_id: 'u2',
       comment: 'El curso es muy interesante y el instructor explica muy bien.',
@@ -248,7 +262,7 @@ export const mockDB = {
     },
   ],
 
-  studentAnswer:[
+  studentAnswer: [
     {
       id: 'ans1',
       submission_id: 's2', // Asumiendo que 's2' es una entrega de 't2' (examen)

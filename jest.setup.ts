@@ -15,7 +15,7 @@ export interface Instructor {
 
 jest.mock('./src/database/course_db', () => ({
   getCourses: jest.fn().mockImplementation(() => {
-    return Promise.resolve(mockDB.courses); 
+    return Promise.resolve(mockDB.courses);
   }),
 
   getCourseById: jest.fn().mockImplementation((id: string) => {
@@ -25,7 +25,7 @@ jest.mock('./src/database/course_db', () => ({
   addCourse: jest.fn().mockImplementation((courseData) => {
     const id = uuidv4().toString();
     const newCourse = { ...courseData, id, modules: [] };
-    mockDB.courses.push(newCourse); 
+    mockDB.courses.push(newCourse);
     return Promise.resolve(newCourse);
   }),
 
@@ -34,7 +34,7 @@ jest.mock('./src/database/course_db', () => ({
     if (!course) return Promise.resolve(null);
     const updatedCourse = { ...course, ...updatedData };
     const index = mockDB.courses.findIndex(course => course.id === id);
-    mockDB.courses[index] = updatedCourse; 
+    mockDB.courses[index] = updatedCourse;
     return Promise.resolve(updatedCourse);
   }),
 
@@ -61,20 +61,20 @@ jest.mock('./src/database/module_db', () => ({
     if (!course) return Promise.resolve(null);
     const id = uuidv4().toString();
     const newModule = { ...moduleData, id };
-    mockDB.modules.push(newModule); 
+    mockDB.modules.push(newModule);
     return Promise.resolve(newModule);
   }),
 
   getModulesByCourseId: jest.fn().mockImplementation((courseId: string) => {
     const courseModules = mockDB.modules.filter(module => module.courseId === courseId);
-    const orderedModules = courseModules.sort((a, b) => a.order - b.order); 
+    const orderedModules = courseModules.sort((a, b) => a.order - b.order);
     return Promise.resolve(orderedModules);
   }),
 
   getModuleById: jest.fn().mockImplementation((courseId: string, moduleId: string) => {
     const course = mockDB.courses.find(course => course.id === courseId);
     if (!course) return Promise.resolve(null);
-    const module = mockDB.modules.find(mod => mod.id === moduleId); 
+    const module = mockDB.modules.find(mod => mod.id === moduleId);
     return Promise.resolve(module || null);
   }),
 
@@ -83,7 +83,7 @@ jest.mock('./src/database/module_db', () => ({
     if (!course) return Promise.resolve(false);
     const moduleIndex = mockDB.modules.findIndex(mod => mod.id === moduleId);
     if (moduleIndex === -1) return Promise.resolve(false);
-    mockDB.modules.splice(moduleIndex, 1); 
+    mockDB.modules.splice(moduleIndex, 1);
     return Promise.resolve(true);
   }),
 
@@ -93,19 +93,19 @@ jest.mock('./src/database/module_db', () => ({
     newOrder.forEach((moduleId, index) => {
       const module = mockDB.modules.find(m => m.id === moduleId);
       if (module) {
-        module.order = index; 
+        module.order = index;
       }
     });
     return Promise.resolve();
   }),
-  
+
   updateModule: jest.fn().mockImplementation((courseId: string, moduleId: string, updatedData) => {
     const course = mockDB.courses.find(course => course.id === courseId);
     if (!course) return Promise.resolve(null);
     const moduleIndex = mockDB.modules.findIndex(mod => mod.id === moduleId);
     if (moduleIndex === -1) return Promise.resolve(null);
     const updatedModule = { ...mockDB.modules[moduleIndex], ...updatedData };
-    mockDB.modules[moduleIndex] = updatedModule; 
+    mockDB.modules[moduleIndex] = updatedModule;
     return Promise.resolve(updatedModule);
   }),
 }));
@@ -125,7 +125,7 @@ jest.mock('./src/database/enrollment_db', () => ({
       enrollmentDate: new Date().toISOString(),
     };
 
-    mockDB.enrollments.push(newEnrollment); 
+    mockDB.enrollments.push(newEnrollment);
     return Promise.resolve(newEnrollment);
   }),
 
@@ -165,7 +165,7 @@ jest.mock('./src/database/instructor_db', () => ({
       can_grade: true,
       can_update_course: true,
     };
-    mockDB.instructors.push(newInstructor); 
+    mockDB.instructors.push(newInstructor);
     return Promise.resolve(true);
   }),
 
@@ -202,15 +202,15 @@ jest.mock('./src/database/instructor_db', () => ({
       (inst) => inst.courseId === courseId && inst.userId === instructorId
     );
     if (instructorIndex === -1) return Promise.resolve(false);
-    
+
     const updatedInstructor = {
       ...mockDB.instructors[instructorIndex],
       can_create_content,
       can_grade,
       can_update_course,
     };
-    
-    mockDB.instructors[instructorIndex] = updatedInstructor; 
+
+    mockDB.instructors[instructorIndex] = updatedInstructor;
     return Promise.resolve(true);
   }),
 
@@ -238,7 +238,7 @@ jest.mock('./src/database/resource_db', () => ({
     if (!module) return Promise.resolve(null);
     const id = uuidv4().toString();
     const newResource = { ...resourceData, id };
-    mockDB.resources.push(newResource); 
+    mockDB.resources.push(newResource);
     return Promise.resolve(newResource);
   }),
 
@@ -248,7 +248,7 @@ jest.mock('./src/database/resource_db', () => ({
     if (!module) return Promise.resolve(false);
     const resourceIndex = mockDB.resources.findIndex(res => res.id === resourceId);
     if (resourceIndex === -1) return Promise.resolve(false);
-    mockDB.resources.splice(resourceIndex, 1); 
+    mockDB.resources.splice(resourceIndex, 1);
     return Promise.resolve(true);
   }),
 
@@ -269,7 +269,7 @@ jest.mock('./src/database/resource_db', () => ({
     const resourceIndex = mockDB.resources.findIndex(res => res.id === resourceId);
     if (resourceIndex === -1) return Promise.resolve(null);
     const updatedResource = { ...mockDB.resources[resourceIndex], ...resourceData };
-    mockDB.resources[resourceIndex] = updatedResource; 
+    mockDB.resources[resourceIndex] = updatedResource;
     return Promise.resolve(updatedResource);
   }),
 
@@ -280,7 +280,7 @@ jest.mock('./src/database/resource_db', () => ({
     orderedResourceIds.forEach((resourceId, index) => {
       const resource = mockDB.resources.find(res => res.id === resourceId);
       if (resource) {
-        resource.order = index; 
+        resource.order = index;
       }
     });
     return Promise.resolve();
@@ -299,8 +299,8 @@ jest.mock('./src/database/task_db', () => ({
 
   getTasksByStudentId: jest.fn().mockImplementation((studentId: string) => {
     const enrolledCoursesIds = mockDB.enrollments
-    .filter((enrollment) => enrollment.userId === studentId)
-    .map((enrollment) => enrollment.courseId);
+      .filter((enrollment) => enrollment.userId === studentId)
+      .map((enrollment) => enrollment.courseId);
 
     const tasks = mockDB.tasks.filter(
       (task) => enrolledCoursesIds.includes(task.course_id) && task.published
@@ -323,10 +323,10 @@ jest.mock('./src/database/task_db', () => ({
     const taskIndex = mockDB.tasks.findIndex(task => task.id === taskId);
     if (taskIndex === -1) return Promise.resolve(null);
     const updatedTask = { ...mockDB.tasks[taskIndex], ...taskData };
-    mockDB.tasks[taskIndex] = updatedTask; 
+    mockDB.tasks[taskIndex] = updatedTask;
     return Promise.resolve(updatedTask);
   }),
-  
+
   getTasksByCourseId: jest.fn().mockImplementation((courseId: string) => {
     const course = mockDB.courses.find(course => course.id === courseId);
     if (!course) return Promise.resolve([]);
@@ -346,7 +346,7 @@ jest.mock('./src/database/task_db', () => ({
     const taskIndex = mockDB.tasks.findIndex(task => task.id === taskId);
     if (taskIndex === -1) return Promise.resolve(null);
     const deletedTask = mockDB.tasks[taskIndex];
-    mockDB.tasks.splice(taskIndex, 1); 
+    mockDB.tasks.splice(taskIndex, 1);
     return Promise.resolve(deletedTask);
   }),
 
@@ -384,39 +384,39 @@ jest.mock('./src/database/task_db', () => ({
     }),
 
   updateTaskSubmissionWithAnswers: jest.fn().mockImplementation(
-  async (
-    submissionId: string,
-    answers: AnswerInput[],
-    file_url: string | null,
-    submitted_at: Date,
-    status: 'submitted' | 'late'
-  ) => {
-    // Elimina respuestas anteriores
-    mockDB.studentAnswer = mockDB.studentAnswer.filter(
-      (a) => a.submission_id !== submissionId
-    );
+    async (
+      submissionId: string,
+      answers: AnswerInput[],
+      file_url: string | null,
+      submitted_at: Date,
+      status: 'submitted' | 'late'
+    ) => {
+      // Elimina respuestas anteriores
+      mockDB.studentAnswer = mockDB.studentAnswer.filter(
+        (a) => a.submission_id !== submissionId
+      );
 
-    // Agrega nuevas respuestas
-    const newAnswers = answers.map((a) => ({
-      id: uuidv4(),
-      submission_id: submissionId,
-      question_id: a.question_id,
-      answer_text: a.answer_text,
-      selected_option_id: null,
-    }));
+      // Agrega nuevas respuestas
+      const newAnswers = answers.map((a) => ({
+        id: uuidv4(),
+        submission_id: submissionId,
+        question_id: a.question_id,
+        answer_text: a.answer_text,
+        selected_option_id: null,
+      }));
 
-    mockDB.studentAnswer.push(...newAnswers);
+      mockDB.studentAnswer.push(...newAnswers);
 
-    // Actualiza la submission
-    const submission = mockDB.taskSubmission.find((s) => s.id === submissionId);
-    if (!submission) throw new Error('Submission not found');
+      // Actualiza la submission
+      const submission = mockDB.taskSubmission.find((s) => s.id === submissionId);
+      if (!submission) throw new Error('Submission not found');
 
-    submission.submitted_at = submitted_at.toISOString();
-    submission.status = status;
-    submission.file_url = file_url? file_url : '';
+      submission.submitted_at = submitted_at.toISOString();
+      submission.status = status;
+      submission.file_url = file_url ? file_url : '';
 
-    return Promise.resolve({ ...submission });
-  }),
+      return Promise.resolve({ ...submission });
+    }),
 
   getTaskSubmission: jest.fn().mockImplementation((taskId: string, studentId: string) => {
     const submission = mockDB.taskSubmission.find(sub => sub.task_id === taskId && sub.student_id === studentId && (sub.status === 'submitted' || sub.status === 'late'));
@@ -443,13 +443,13 @@ jest.mock('./src/database/task_db', () => ({
     }
     mockDB.taskSubmission.push(newSubmission);
     answers.forEach(a => {
-    mockDB.studentAnswer.push({
-      id: uuidv4(),
-      submission_id: submissionId,
-      question_id: a.question_id,
-      answer_text: a.answer_text,
+      mockDB.studentAnswer.push({
+        id: uuidv4(),
+        submission_id: submissionId,
+        question_id: a.question_id,
+        answer_text: a.answer_text,
+      });
     });
-  });
     return Promise.resolve(newSubmission);
   }),
 
@@ -474,13 +474,23 @@ jest.mock('./src/database/task_db', () => ({
 
     const updatedSubmission = {
       ...mockDB.taskSubmission[submissionIndex],
-      grade,      
-      feedback     
+      grade,
+      feedback
     };
 
     mockDB.taskSubmission[submissionIndex] = updatedSubmission;
 
     return Promise.resolve(updatedSubmission);
+  }),
+
+  getTaskSubmissionsCount: jest.fn().mockImplementation((taskId: string) => {
+    const tasksSubmissions = mockDB.taskSubmission.filter(taskSubmission => taskSubmission.task_id === taskId);
+    return Promise.resolve(tasksSubmissions.length);
+  }),
+
+  getGradedTaskSubmissions: jest.fn().mockImplementation((taskId: string) => {
+    const gradedSubmissions = mockDB.taskSubmission.filter(taskSubmission => taskSubmission.task_id === taskId && taskSubmission.grade != null);
+    return Promise.resolve(gradedSubmissions);
   }),
 
 }));
@@ -507,7 +517,7 @@ jest.mock('./src/database/favorites_db', () => ({
     const found = mockDB.favorites.find(fav => fav.course_id === courseId && fav.student_id === studentId);
     return Promise.resolve(!!found);
   }),
-  
+
   getFavoriteCourses: jest.fn().mockImplementation((studentId: string) => {
     const favorites = mockDB.favorites.filter(fav => fav.student_id === studentId);
     return Promise.resolve(favorites.map(fav => ({

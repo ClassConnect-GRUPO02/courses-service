@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from './course_db';
-import { Task  } from '../models/task';
+import { Task } from '../models/task';
 import { SubmissionStatus, TaskSubmission } from '@prisma/client';
 import { isTitularInCourse } from './instructor_db';
 
@@ -68,7 +68,7 @@ export const addTaskToCourse = async (courseId: string, task: Task, instructorId
     created_at: newTask.created_at.toISOString(),
     updated_at: newTask.updated_at.toISOString(),
     deleted_at: newTask.deleted_at ? newTask.deleted_at.toISOString() : null,
-    
+
   };
 };
 
@@ -196,9 +196,9 @@ export const getTasksByCourseId = async (courseId: string): Promise<Task[]> => {
     deleted_at: task.deleted_at ? task.deleted_at.toISOString() : null,
     questions: task.questions
       ? task.questions.map((question) => ({
-          ...question,
-          points: question.points === null ? undefined : question.points, // <-- aquí
-        }))
+        ...question,
+        points: question.points === null ? undefined : question.points, // <-- aquí
+      }))
       : [],
   }));
 }
@@ -227,9 +227,9 @@ export const getTaskById = async (taskId: string): Promise<Task | null> => {
     deleted_at: task.deleted_at ? task.deleted_at.toISOString() : null,
     questions: task.questions
       ? task.questions.map((question) => ({
-          ...question,
-          points: question.points === null ? undefined : question.points, // <-- aquí
-        }))
+        ...question,
+        points: question.points === null ? undefined : question.points, // <-- aquí
+      }))
       : [],
   };
 }
@@ -502,5 +502,26 @@ export const getTaskSubmissionById = async (submissionId: string): Promise<TaskS
     where: {
       id: submissionId,
     },
+  });
+}
+
+export const getGradedTaskSubmissions = async (taskId: string): Promise<TaskSubmission[]> => {
+  return await prisma.taskSubmission.findMany({
+    where: {
+      task_id: taskId,
+      status: SubmissionStatus.submitted || SubmissionStatus.late,
+      grade: {
+        not: null
+      }
+    }
+  });
+}
+
+export const getTaskSubmissionsCount = async (taskId: string): Promise<number> => {
+  return await prisma.taskSubmission.count({
+    where: {
+      task_id: taskId,
+      status: SubmissionStatus.submitted || SubmissionStatus.late,
+    }
   });
 }

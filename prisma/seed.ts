@@ -2,11 +2,17 @@ import { PrismaClient, InstructorType, TaskType, LatePolicy, AnswerFormat, Submi
 const prisma = new PrismaClient();
 
 async function main() {
-  
+
   // Fechas dinámicas útiles
   const now = new Date();
   const dueDateTask = new Date(now);
   dueDateTask.setDate(now.getDate() + 7); // 7 días en el futuro
+
+  const dueDateTask2 = new Date(now);
+  dueDateTask2.setDate(now.getDate() + 30); // 30 días en el futuro
+
+  const dueDateTask3 = new Date(now);
+  dueDateTask3.setDate(now.getDate() + 60); // 60 días en el futuro
 
   const visibleFromTask = new Date(now);
   visibleFromTask.setDate(now.getDate() - 2); // 2 días atrás
@@ -210,8 +216,50 @@ async function main() {
         updated_at: new Date(),
         deleted_at: null,
       },
+      {
+        id: 't5',
+        course_id: 'c1',
+        created_by: '5',
+        type: TaskType.tarea,
+        title: 'Tarea de Python',
+        description: 'Ejercicio de funciones 2',
+        due_date: dueDateTask2,
+        allow_late: true,
+        late_policy: LatePolicy.aceptar_con_penalizacion,
+        has_timer: false,
+        time_limit_minutes: null,
+        published: true,
+        visible_from: visibleFromTask,
+        visible_until: visibleUntilTask,
+        allow_file_upload: true,
+        answer_format: AnswerFormat.archivo,
+        created_at: new Date(),
+        updated_at: new Date(),
+        deleted_at: null,
+      },
+      {
+        id: 't6',
+        course_id: 'c1',
+        created_by: '5',
+        type: TaskType.tarea,
+        title: 'Tarea de Python',
+        description: 'Ejercicio de funciones 3',
+        due_date: dueDateTask3,
+        allow_late: true,
+        late_policy: LatePolicy.aceptar_con_penalizacion,
+        has_timer: false,
+        time_limit_minutes: null,
+        published: true,
+        visible_from: visibleFromTask,
+        visible_until: visibleUntilTask,
+        allow_file_upload: true,
+        answer_format: AnswerFormat.archivo,
+        created_at: new Date(),
+        updated_at: new Date(),
+        deleted_at: null,
+      },
     ],
-});
+  });
 
   // Crear recursos (depende de Module)
   await prisma.resource.createMany({
