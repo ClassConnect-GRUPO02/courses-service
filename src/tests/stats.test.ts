@@ -40,4 +40,29 @@ describe('Integration Tests for Stats API', () => {
             expect(response.body.data).toBeDefined();
         });
     });
+
+    describe('GET /courses/:courseId/stats/students', () => {
+        it('should retrieve the stats of all students in the given course', async () => {
+            const courseId = 'c1';
+            const response = await request(app)
+                .get(`/courses/${courseId}/stats/students`)
+                .set('Authorization', `Bearer ${tokenProfessor}`)
+                .send();
+            expect(response.status).toBe(StatusCodes.OK);
+            expect(response.body.data).toBeDefined();
+        });
+    });
+
+    describe('GET /courses/:courseId/stats/students/:studentId', () => {
+        it('should retrieve the stats of the given student in the given course', async () => {
+            const courseId = 'c1';
+            const studentId = '7';
+            const response = await request(app)
+                .get(`/courses/${courseId}/stats/students/${studentId}`)
+                .set('Authorization', `Bearer ${tokenProfessor}`)
+                .send();
+            expect(response.status).toBe(StatusCodes.OK);
+            expect(response.body.data).toBeDefined();
+        });
+    });
 })
