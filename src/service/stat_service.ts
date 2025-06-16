@@ -105,11 +105,11 @@ export const getCourseStats = async (courseId: string, from: string, to: string)
 }
 
 export const getCourseStudentsStats = async (courseId: string, from: string, to: string): Promise<StudentCourseStats[]> => {
-    let courseTasks: Task[] = (await taskService.getTasks(courseId)).filter(task => from < task.due_date && task.due_date < to);
-    let tasks = courseTasks.filter(courseTask => courseTask.type === TaskType.tarea);
-    let exams = courseTasks.filter(courseTask => courseTask.type === TaskType.examen);
-    let studentIds: string[] = (await enrollmentService.getEnrollmentsByCourseId(courseId)).map(enrollment => enrollment.userId);
-    let studentsStats: StudentCourseStats[] = [];
+    const courseTasks: Task[] = (await taskService.getTasks(courseId)).filter(task => from < task.due_date && task.due_date < to);
+    const tasks = courseTasks.filter(courseTask => courseTask.type === TaskType.tarea);
+    const exams = courseTasks.filter(courseTask => courseTask.type === TaskType.examen);
+    const studentIds: string[] = (await enrollmentService.getEnrollmentsByCourseId(courseId)).map(enrollment => enrollment.userId);
+    const studentsStats: StudentCourseStats[] = [];
     for (const studentId of studentIds) {
         const [averageTaskGrade, taskSubmissionRate] = await getAverageGradeAndSubmissionRate(tasks, studentId);
         const [averageExamGrade, examSubmissionRate] = await getAverageGradeAndSubmissionRate(exams, studentId);
@@ -121,10 +121,9 @@ export const getCourseStudentsStats = async (courseId: string, from: string, to:
 }
 
 export const getCourseStudentStats = async (courseId: string, studentId: string, from: string, to: string): Promise<StudentCourseActivity> => {
-    let courseTasks: Task[] = (await taskService.getTasks(courseId)).filter(task => from < task.due_date && task.due_date < to);
-
-    let tasks = courseTasks.filter(courseTask => courseTask.type === TaskType.tarea);
-    let exams = courseTasks.filter(courseTask => courseTask.type === TaskType.examen);
+    const courseTasks: Task[] = (await taskService.getTasks(courseId)).filter(task => from < task.due_date && task.due_date < to);
+    const tasks = courseTasks.filter(courseTask => courseTask.type === TaskType.tarea);
+    const exams = courseTasks.filter(courseTask => courseTask.type === TaskType.examen);
 
     let submissions: StudentSubmission[] = [];
     for (const task of courseTasks) {
@@ -134,7 +133,7 @@ export const getCourseStudentStats = async (courseId: string, studentId: string,
                 task.id, task.title, task.type, taskSubmission.grade, taskSubmission.submitted_at, taskSubmission.status
             );
             submissions.push(studentSubmission);
-        } catch (err) {
+        } catch (_) {
             continue;
         }
     }
@@ -158,7 +157,7 @@ const getAverageGradeAndSubmissionRate = async (tasks: Task[], studentId: string
             taskSubmissionsCount += 1;
             if (!taskSubmission.grade) continue;
             taskGrades.push(taskSubmission.grade);
-        } catch (err) {
+        } catch (_) {
             // Task submission may not exist
             continue;
         }
