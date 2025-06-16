@@ -1,5 +1,3 @@
-import { TaskSubmission } from '@prisma/client';
-
 export class InstructorCoursesGlobalStats {
     instructorId: string;
     averageTaskGrade: number;

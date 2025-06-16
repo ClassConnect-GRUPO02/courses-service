@@ -125,7 +125,7 @@ export const getCourseStudentStats = async (courseId: string, studentId: string,
     const tasks = courseTasks.filter(courseTask => courseTask.type === TaskType.tarea);
     const exams = courseTasks.filter(courseTask => courseTask.type === TaskType.examen);
 
-    let submissions: StudentSubmission[] = [];
+    const submissions: StudentSubmission[] = [];
     for (const task of courseTasks) {
         try {
             const taskSubmission = await taskService.getTaskSubmission(task.id, studentId);
@@ -133,7 +133,7 @@ export const getCourseStudentStats = async (courseId: string, studentId: string,
                 task.id, task.title, task.type, taskSubmission.grade, taskSubmission.submitted_at, taskSubmission.status
             );
             submissions.push(studentSubmission);
-        } catch (_) {
+        } catch {
             continue;
         }
     }
@@ -157,7 +157,7 @@ const getAverageGradeAndSubmissionRate = async (tasks: Task[], studentId: string
             taskSubmissionsCount += 1;
             if (!taskSubmission.grade) continue;
             taskGrades.push(taskSubmission.grade);
-        } catch (_) {
+        } catch {
             // Task submission may not exist
             continue;
         }
