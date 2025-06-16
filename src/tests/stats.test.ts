@@ -65,4 +65,17 @@ describe('Integration Tests for Stats API', () => {
             expect(response.body.data).toBeDefined();
         });
     });
+
+    describe('GET /courses/:courseId/stats/students/:studentId', () => {
+        it('should return status code 404 when the student is not enrolled in the course', async () => {
+            const courseId = 'c1';
+            const studentId = 'abc';
+            const response = await request(app)
+                .get(`/courses/${courseId}/stats/students/${studentId}`)
+                .set('Authorization', `Bearer ${tokenProfessor}`)
+                .send();
+            expect(response.status).toBe(StatusCodes.NOT_FOUND);
+            expect(response.body.error).toBeDefined();
+        });
+    });
 })
