@@ -131,7 +131,9 @@ const getCourseHistoricalStatsFromTasks = async (courseTasks: Task[]): Promise<[
         statsByMonth.set(month, taskStats);
     }
     const trends = Array.from(statsByMonth.values()).sort((a, b) => { return +new Date(a.date) - +new Date(b.date) });
-
+    if (trends.length == 0) {
+        return [0, 0, 0, 0, trends]
+    }
     const historicalAverageTaskGrade = trends.map(task => task.averageTaskGrade).reduce((a, b) => a + b) / trends.length || 0;
     const historicalAverageExamGrade = trends.map(task => task.averageExamGrade).reduce((a, b) => a + b) / trends.length || 0;
     const historicalTaskSubmissionRate = trends.map(task => task.taskSubmissionRate).reduce((a, b) => a + b) / trends.length || 0;
