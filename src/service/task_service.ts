@@ -34,6 +34,11 @@ export const removeTask = async (courseId: string, taskId: string, instructorId:
   if (!course) {
     throw new CourseNotFoundError(`Course with ID ${courseId} not found`);
   }
+  
+  const instructorInCourse = await databaseInstructor.isInstructorInCourse(courseId, instructorId);
+  if (!instructorInCourse) {
+    throw new AuthorizationError(`Instructor with ID ${instructorId} is not authorized to delete tasks in course ${courseId}`);
+  }
 
   const isDeleted = await databaseTask.deleteTask(taskId, instructorId);
   if (!isDeleted) {
@@ -226,7 +231,7 @@ export const getTaskSubmission = async (taskId: string, studentId: string) => {
 export const getTaskSubmissions = async (courseId: string, instructorId: string, taskId: string) => {
   const isInstructor = await databaseInstructor.isInstructorInCourse(courseId, instructorId);
   if (!isInstructor) {
-    throw new Error(`Instructor with ID ${instructorId} is not authorized to view submissions for course ID ${courseId}`);
+    throw new AuthorizationError(instructorId);
   }
   const submissions = await databaseTask.getTaskSubmissions(taskId);
   return submissions;
