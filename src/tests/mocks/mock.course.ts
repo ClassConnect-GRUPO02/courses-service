@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 export const mockCourseRequestData = {
   name: 'Math',
   description: 'Basic Math Course',

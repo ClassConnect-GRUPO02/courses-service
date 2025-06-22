@@ -59,7 +59,7 @@ describe('Integration Tests for resources of Courses API', () => {
   describe('POST /courses/:id/tasks/:taskId/submissions', () => {
     it('should return 201 and the task submission for valid data', async () => {
       const courseId = 'c1';
-      const taskId = 't1';
+      const taskId = 't2';
       
       const response = await request(app)
         .post(`/courses/${courseId}/tasks/${taskId}/submissions`)
@@ -212,4 +212,18 @@ describe('Integration Tests for resources of Courses API', () => {
       expect(response.status).toBe(StatusCodes.UNAUTHORIZED);
     });
   });
+
+  describe('GET /courses/:id/instructors/:instructorId/tasks/:taskId/submissions', () => {
+    it('should return 200 if an instructor is asking for tasks of his course', async() => {
+      const id = "c1";
+      const instructorId = "u1";
+      const taskId = "t1"
+
+      const response = await request(app)
+        .get( `/courses/${id}/instructors/${instructorId}/tasks/${taskId}/submissions`)
+        .set('Authorization', `Bearer ${instructorToken}`)
+
+      expect(response.status).toBe(StatusCodes.OK)
+    })
+  })
 });

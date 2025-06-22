@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 export const mockModuleRequestData = {
   name: "Introducción a TypeScript",
   description: "Aprendé los conceptos básicos de TypeScript",

@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 export const mockTaskSubmissionData = {
   student_id: "u2",
   answers: [

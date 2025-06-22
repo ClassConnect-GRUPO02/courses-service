@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 export const MockCourseFeedbackRequest = {
   student_id: 'u5',
   comment: 'Great course!',

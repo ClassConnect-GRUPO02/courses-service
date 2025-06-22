@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 // Fechas dinamicas utiles
 const now = new Date();
 const dueDate = new Date(now);
@@ -209,18 +211,6 @@ export const mockDB = {
       file_url: 'https://example.com/solution1.pdf',
       submitted_at: new Date('2024-05-09').toISOString(),
     },
-    {
-      id: 's2',
-      task_id: 't1',
-      student_id: 'u2',
-      started_at: new Date('2024-05-01').toISOString(),
-      status: 'submitted',
-      grade: 10,
-      feedback: "",
-      time_spent: 45,
-      file_url: 'https://example.com/solution1.pdf',
-      submitted_at: new Date('2024-05-09').toISOString(),
-    }
   ],
 
   favorites: [
@@ -265,16 +255,35 @@ export const mockDB = {
   studentAnswer: [
     {
       id: 'ans1',
-      submission_id: 's2', // Asumiendo que 's2' es una entrega de 't2' (examen)
+      submission_id: 's5', // Asumiendo que 's2' es una entrega de 't2' (examen)
       question_id: 'q1',
-      answer_text: 'Una variable es un contenedor para almacenar datos.'
+      answer_text: 'Una variable es un contenedor para almacenar datos.',
     },
     {
       id: 'ans2',
-      submission_id: 's2',
+      submission_id: 's5',
       question_id: 'q2',
-      answer_text: '`let` permite reasignación, `const` no.'
+      answer_text: '`let` permite reasignación, `const` no.',
     },
   ],
+
+  courseActivityLogs: [
+    {
+      id: 'log1',
+      course_id: 'c1',
+      user_id: 'u1',
+      action: 'created',
+      metadata: { foo: 'bar' },
+      created_at: new Date('2025-06-01T10:00:00Z')
+    },
+    {
+      id: 'log2',
+      course_id: 'c2',
+      user_id: 'u2',
+      action: 'updated',
+      metadata: null,
+      created_at: new Date('2025-06-02T15:00:00Z')
+    }
+  ]
 
 };

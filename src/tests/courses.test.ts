@@ -97,4 +97,12 @@ describe('Integration Tests for Courses API', () => {
     });
   });
 
+  describe('GET /courses/:id/activity-log', () => {
+    it('should get the activity log from a course', async () => {
+      const response = await request(app).get(`/courses/c1/activity-log`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).toBe(StatusCodes.OK)
+    });
+  });
+
 });

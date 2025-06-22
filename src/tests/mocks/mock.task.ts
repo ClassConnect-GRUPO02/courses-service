@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 export const mockTaskRequestData = {
   course_id: 'c1',
   created_by: 'u1',
