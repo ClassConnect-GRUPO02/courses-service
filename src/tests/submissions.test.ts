@@ -69,18 +69,7 @@ describe('Integration Tests for resources of Courses API', () => {
       expect(response.body).toHaveProperty('data');
     });
 
-    xit('should return 400 if the submission data is invalid', async () => {
-      const courseId = 'c1';
-      const taskId = 't1';
-
-      const response = await request(app)
-        .post(`/courses/${courseId}/tasks/${taskId}/submissions`)
-        .set('Authorization', `Bearer ${studentToken}`)
-        .send({}); // Invalid submission data
-      expect(response.status).toBe(StatusCodes.BAD_REQUEST);
-    });
-
-    xit('should return 403 if the user is not authorized', async () => {
+    it('should return 403 if the user is not authorized', async () => {
       const courseId = 'c1';
       const taskId = 't1';
 
@@ -88,7 +77,7 @@ describe('Integration Tests for resources of Courses API', () => {
         .post(`/courses/${courseId}/tasks/${taskId}/submissions`)
         .set('Authorization', `Bearer ${invalidToken}`)
         .send(mockTaskSubmissionData);
-      expect(response.status).toBe(StatusCodes.UNAUTHORIZED);
+      expect(response.status).toBe(StatusCodes.FORBIDDEN);
     });
   });
 
@@ -165,7 +154,7 @@ describe('Integration Tests for resources of Courses API', () => {
     });
   });
 
-  xdescribe('PATCH /tasks/:taskId/submissions/:studentId/feedback', () => {
+  describe('PATCH /tasks/:taskId/submissions/:studentId/feedback', () => {
     it('should return 200 and the updated task submission for valid data', async () => {
       const taskId = 't1';
       const studentId = 'u2';
@@ -173,20 +162,14 @@ describe('Integration Tests for resources of Courses API', () => {
 
       const SECRET_KEY = Buffer.from(process.env.SECRET_KEY as string, "hex");
 
-      const token = jwt.sign(
-        { id: 'u1',
-          userType: userTypes.INSTRUCTOR,
-         }, // payload
-        SECRET_KEY!, // clave secreta
-        { algorithm: 'HS256' }
-      );
-
       const response = await request(app)
         .patch(`/tasks/${taskId}/submissions/${studentId}/feedback`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${instructorToken}`)
         .send({...feedback});
+      
       expect(response.status).toBe(StatusCodes.OK);
-      expect(response.body).toHaveProperty('data');
+      expect(response.body.data.grade).toBe(85)
+      expect(response.body.data.feedback).toBe('Good job!');
     });
 
     it('should return 404 if the task submission is not found', async () => {
@@ -226,4 +209,36 @@ describe('Integration Tests for resources of Courses API', () => {
       expect(response.status).toBe(StatusCodes.OK)
     })
   })
+
+  describe('POST /courses/:id/tasks/:taskId/submit', () => {
+    it('should submit a task for a student', async () => {
+      const taskSubmission = mockTaskSubmissionData;
+      const courseId = 'c1';
+      const taskId = 't3';
+
+      const response = await request(app)
+        .post(`/courses/${courseId}/tasks/${taskId}/submissions`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .send(taskSubmission);
+
+      expect(response.status).toBe(StatusCodes.CREATED);
+      expect(response.body.data).toBeDefined();
+      expect(response.body.data.message).toBe('Tarea entregada exitosamente');
+    });
+
+    it('should raise an error because of late submission', async () => {
+      // Simulate a late submission (The task 't4' policy does not allow late submissions)
+      const taskSubmission = mockTaskSubmissionData;
+      const courseId = 'c1';
+      const taskId = 't4';
+      
+      const response = await request(app)
+      .post(`/courses/${courseId}/tasks/${taskId}/submissions`)
+      .set('Authorization', `Bearer ${studentToken}`)
+      .send(taskSubmission);
+      
+      expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+      expect(response.body.detail).toBe('La entrega tardía no está permitida para esta tarea')
+    });
+  });
 });

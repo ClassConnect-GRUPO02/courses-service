@@ -99,6 +99,7 @@ describe('Integration Tests for tasks of Courses API', () => {
       expect(response.body.data.title).toBe(taskTitle);
     });
   });
+  
   describe('GET /courses/:id/tasks', () => {
     it('should retrieve all tasks from a course', async () => {
       const courseId = 'c1';
@@ -113,35 +114,7 @@ describe('Integration Tests for tasks of Courses API', () => {
       expect(Array.isArray(response.body.data)).toBe(true);
     });
   });
-  xdescribe('POST /courses/:id/tasks/:taskId/submit', () => {
-    it('should submit a task for a student', async () => {
-      const taskSubmission = mockTaskSubmissionData;
-      const courseId = 'c1';
-      const taskId = 't2';
 
-      const response = await request(app)
-        .post(`/courses/${courseId}/tasks/${taskId}/submissions`)
-        .set('Authorization', `Bearer ${tokenProfessor}`)
-        .send(taskSubmission);
-
-      expect(response.status).toBe(StatusCodes.CREATED);
-      expect(response.body.data).toBeDefined();
-      expect(response.body.data.message).toBe('Entrega registrada exitosamente');
-    });
-    it('should raise an error because of late submission', async () => {
-      // Simulate a late submission (The task 't4' policy does not allow late submissions)
-      const taskSubmission = mockTaskSubmissionData;
-      const courseId = 'c1';
-      const taskId = 't4';
-      
-      const response = await request(app)
-      .post(`/courses/${courseId}/tasks/${taskId}/submissions`)
-      .set('Authorization', `Bearer ${tokenProfessor}`)
-      .send(taskSubmission);
-      
-      expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
-    });
-  });
 
   describe('GET /instructors/:instructorId/tasks', () => {
     it('should retrieve all tasks for an instructor', async () => {
