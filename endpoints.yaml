@@ -8,6 +8,8 @@ paths:
   /courses:
     post:
       summary: Create a new course
+      tags:
+        - Courses
       requestBody:
         required: true
         content:
@@ -33,6 +35,8 @@ paths:
 
     get:
       summary: Retrieve all courses
+      tags:
+        - Courses      
       responses:
         '200':
           description: A list of courses
@@ -49,6 +53,8 @@ paths:
   /courses/{id}:
     get:
       summary: Retrieve a course by ID
+      tags:
+        - Courses      
       parameters:
         - in: path
           name: id
@@ -80,6 +86,8 @@ paths:
     
     delete:
       summary: Delete a course by ID
+      tags:
+        - Courses      
       parameters:
         - in: path
           name: id
@@ -104,6 +112,8 @@ paths:
     
     patch:
       summary: Update a course by ID
+      tags:
+        - Courses
       security:
         - bearerAuth: []
       parameters:
@@ -170,6 +180,8 @@ paths:
   /courses/{id}/modules:
     post:
       summary: Create a new module for a course
+      tags:
+        - Modules
       security:
         - bearerAuth: []
       parameters:
@@ -223,6 +235,8 @@ paths:
     
     get:
       summary: Retrieve all modules for a course
+      tags:
+        - Modules
       parameters:
         - in: path
           name: id
@@ -245,6 +259,8 @@ paths:
   /courses/{id}/modules/order: #Falta definir mejor
     patch:
       summary: Update the order of modules for a course
+      tags:
+        - Modules
       parameters:
         - in: path
           name: id
@@ -281,6 +297,8 @@ paths:
   /courses/{id}/modules/{moduleId}:
     get:
       summary: Retrieve a module by ID
+      tags:
+        - Modules
       parameters:
         - in: path
           name: id
@@ -317,6 +335,8 @@ paths:
     
     delete:
       summary: Delete a module by ID
+      tags:
+        - Modules
       security:
         - bearerAuth: []   
       parameters:
@@ -367,6 +387,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     patch:
       summary: Update a module by ID
+      tags:
+        - Modules
       security:
         - bearerAuth: []      
       parameters:
@@ -438,6 +460,8 @@ paths:
   /courses/{id}/enrollments:
     post:
       summary: Enroll a user in a course
+      tags:
+        - Enrollment
       parameters:
         - in: path
           name: id
@@ -468,6 +492,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     get:
       summary: Get all enrollments by course ID
+      tags:
+        - Enrollment
       parameters:
         - in: path
           name: id
@@ -502,6 +528,8 @@ paths:
   /courses/{id}/enrollments/{userId}:
     get:
       summary: Check if a user is enrolled in a course
+      tags:
+        - Enrollment
       parameters:
         - in: path
           name: id
@@ -539,6 +567,8 @@ paths:
   /users/{userId}/courses:
     get:
       summary: Retrieve all courses for a user
+      tags:
+        - Enrollment
       parameters:
         - in: path
           name: userId
@@ -574,6 +604,8 @@ paths:
     get:
       summary: Check if a user is an instructor in a course
       description: Returns whether the given instructorId is assigned as an instructor to the specified course.
+      tags:
+        - Instructors
       parameters:
         - name: id
           in: path
@@ -606,6 +638,8 @@ paths:
   /instructors/{instructorId}/tasks:
     get:
       summary: List tasks created by an instructor with pagination
+      tags:
+        - Instructors
       parameters:
         - in: path
           name: instructorId
@@ -681,6 +715,8 @@ paths:
   /courses/{id}/instructors/{auxiliarId}:
     post:
       summary: Add an auxiliary instructor to a course
+      tags:
+        - Instructors
       parameters:
         - in: path
           name: id
@@ -746,6 +782,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     delete:
       summary: Remove an auxiliary instructor from a course
+      tags:
+        - Instructors
       parameters:
         - in: path
           name: id
@@ -805,6 +843,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     patch:
       summary: Update permissions for an auxiliary instructor in a course
+      tags:
+        - Instructors
       parameters:
         - in: path
           name: id
@@ -879,6 +919,8 @@ paths:
     get:
       summary: Get instructor permissions in a course
       description: Retrieves the permission flags for an instructor within a specific course.
+      tags:
+        - Instructors
       parameters:
         - in: path
           name: id
@@ -934,6 +976,8 @@ paths:
     get:
       summary: Get all instructors by course ID
       description: Retrieves all instructors (titular and auxiliares) assigned to a specific course.
+      tags:
+        - Instructors
       parameters:
         - in: path
           name: id
@@ -970,6 +1014,8 @@ paths:
     get:
       summary: Get all courses by instructor ID
       description: Retrieves all course IDs where the given instructor is assigned.
+      tags:
+        - Instructors
       parameters:
         - in: path
           name: instructorId
@@ -1003,14 +1049,296 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /courses/{id}/tasks:
+    post:
+      summary: Add a new task to a course
+      tags:
+        - Tasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Course ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (missing or invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: Get all tasks from a course
+      description: Retrieves all tasks associated with a specific course, including any related questions.
+      tags:
+        - Tasks
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the course
+      responses:
+        '200':
+          description: List of tasks for the course retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid course ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 
-
-
-
-
-
-
+  /courses/{id}/tasks/{taskId}:
+    patch:
+      summary: Update an existing task in a course
+      description: Updates a task's data by ID within a specific course. Requires instructor authentication via JWT.
+      tags:
+        - Tasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the course
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: string
+          description: The ID of the task to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Course or Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete a task from a course
+      description: Deletes a task identified by taskId from the specified course. Requires authentication.
+      tags:
+        - Tasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the course
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: string
+          description: The ID of the task to be deleted
+      responses:
+        '204':
+          description: Task successfully deleted, no content returned
+        '400':
+          description: Invalid course or task ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - missing or invalid JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - instructor is not authorized to delete this task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Task or course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: Get a specific task from a course
+      description: Retrieves a task by its ID inside the given course, including its questions.
+      tags:
+        - Tasks
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the course
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: string
+          description: ID of the task
+      responses:
+        '200':
+          description: Task retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Task'
+        '404':
+          description: Task or course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+  /tasks/students/{studentId}:
+    get:
+      summary: Get all published tasks for a student
+      description: Retrieves all published tasks for a student based on their enrolled courses.
+      tags:
+        - Tasks
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: string
+          description: The ID of the student
+      responses:
+        '200':
+          description: List of tasks assigned to the student
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+        '404':
+          description: Student not found or no tasks available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 
 
@@ -1451,3 +1779,100 @@ components:
             submissions:
               type: integer
               example: 1
+
+    CreateTaskRequest:
+      type: object
+      required:
+        - type
+        - title
+        - description
+        - due_date
+        - allow_late
+        - late_policy
+        - has_timer
+        - published
+        - allow_file_upload
+        - answer_format
+      properties:
+        type:
+          type: string
+          enum: [tarea, examen]
+        title:
+          type: string
+        description:
+          type: string
+        file_url:
+          type: string
+          nullable: true
+        due_date:
+          type: string
+          format: date-time
+        allow_late:
+          type: boolean
+        late_policy:
+          type: string
+          enum: [ninguna, descontar, penalizar, aceptar, aceptar_con_descuento, aceptar_con_penalizacion]
+        has_timer:
+          type: boolean
+        time_limit_minutes:
+          type: integer
+          nullable: true
+        published:
+          type: boolean
+        visible_from:
+          type: string
+          format: date-time
+          nullable: true
+        visible_until:
+          type: string
+          format: date-time
+          nullable: true
+        allow_file_upload:
+          type: boolean
+        answer_format:
+          type: string
+          enum: [preguntas_respuestas, archivo]
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskQuestion'
+
+    TaskQuestion:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+        points:
+          type: number
+          nullable: true
+
+    Task:
+      allOf:
+        - $ref: '#/components/schemas/CreateTaskRequest'
+        - type: object
+          properties:
+            id:
+              type: string
+            course_id:
+              type: string
+            created_by:
+              type: string
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+              nullable: true
+            deleted_at:
+              type: string
+              format: date-time
+              nullable: true
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
