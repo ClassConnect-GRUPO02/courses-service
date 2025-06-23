@@ -1340,6 +1340,318 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /courses/{id}/tasks/{taskId}/start-exam:
+    post:
+      summary: Start exam for a student
+      description: Starts an exam by creating an empty submission for the authenticated student. Only works if the task is an exam and not past due date.
+      tags:
+        - Submissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Course ID
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: string
+          description: Task (exam) ID
+      responses:
+        '200':
+          description: Exam started successfully, submission created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      task_id:
+                        type: string
+                        example: "t123"
+                      student_id:
+                        type: string
+                        example: "u456"
+                      started_at:
+                        type: string
+                        format: date-time
+                        example: "2025-06-23T14:00:00Z"
+                      submitted_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                        example: null
+                      status:
+                        type: string
+                        example: "started"
+        '400':
+          description: Bad request, e.g. exam already started or past due date
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized, missing or invalid JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Task or course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /courses/{id}/tasks/{taskId}/submissions:
+    post:
+      summary: Submit task or exam by student
+      description: Student submits answers and optionally a file for a task or exam. Authorization required.
+      tags:
+        - Submissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Course ID
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: string
+          description: Task or exam ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - student_id
+                - answers
+              properties:
+                student_id:
+                  type: string
+                  description: ID of the student submitting the task (must match JWT)
+                  example: "u123"
+                answers:
+                  type: array
+                  description: List of answers to task questions
+                  items:
+                    $ref: '#/components/schemas/AnswerInput'
+                fileUrl:
+                  type: string
+                  nullable: true
+                  description: Optional URL of a file uploaded by the student
+                  example: "https://example.com/uploads/file.pdf"
+      responses:
+        '201':
+          description: Task or exam submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Tarea entregada exitosamente"
+                      submittedAt:
+                        type: string
+                        format: date-time
+                        example: "2025-06-23T15:30:00Z"
+                      status:
+                        type: string
+                        enum: [submitted, late]
+                        example: "submitted"
+        '400':
+          description: Bad request (e.g. late submission not allowed, task not found, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (missing or invalid JWT token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (student_id does not match JWT)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /tasks/{taskId}/submissions/{studentId}:
+    get:
+      summary: Get a student's submission for a specific task
+      description: Retrieve the submission details for a task by the student who submitted it.
+      tags:
+        - Submissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: string
+          description: ID of the task
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: string
+          description: ID of the student who submitted the task
+      responses:
+        '200':
+          description: Submission details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "submission123"
+                      task_id:
+                        type: string
+                        example: "task1"
+                      student_id:
+                        type: string
+                        example: "student5"
+                      started_at:
+                        type: string
+                        format: date-time
+                        example: "2025-06-20T10:00:00Z"
+                      submitted_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                        example: "2025-06-21T11:00:00Z"
+                      status:
+                        type: string
+                        enum: [started, submitted, late]
+                        example: "submitted"
+                      file_url:
+                        type: string
+                        nullable: true
+                        example: "http://task-submission.com/file.pdf"
+                      answers:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            question_id:
+                              type: string
+                              example: "q1"
+                            answer_text:
+                              type: string
+                              example: "Answer 1"
+        '403':
+          description: Forbidden - user not authorized to access this submission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Submission not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /tasks/{taskId}/timer:
+    get:
+      summary: Get remaining time for a task timer
+      description: Retrieves the remaining time (HH:MM:SS) for the authenticated student on a timed task.
+      tags:
+        - Submissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: string
+          description: ID of the task
+      responses:
+        '200':
+          description: Remaining time for the task timer
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: "01:30:45"
+                    description: Remaining time in HH:MM:SS format
+        '401':
+          description: Unauthorized - missing or invalid JWT / student ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Task or task submission not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Task does not have a timer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+
+
+
+
 
 
 
@@ -1870,6 +2182,22 @@ components:
               type: string
               format: date-time
               nullable: true
+    
+    AnswerInput:
+      type: object
+      required:
+        - question_id
+        - answer_text
+      properties:
+        question_id:
+          type: string
+          description: ID of the question being answered
+          example: "q123"
+        answer_text:
+          type: string
+          description: Text answer from student
+          example: "La diferencia es que require es CommonJS y import es ES Modules"
+
 
   securitySchemes:
     bearerAuth:
