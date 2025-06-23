@@ -54,7 +54,7 @@ paths:
           name: id
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         '200':
           description: Course retrieved successfully
@@ -104,6 +104,8 @@ paths:
     
     patch:
       summary: Update a course by ID
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id
@@ -132,6 +134,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized – Missing or invalid JWT
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Missing or invalid token"
+        '403':
+          description: Forbidden – User does not have permission to perform this action
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Access denied"
         '404':
           description: Course not found
           content:
@@ -148,6 +170,8 @@ paths:
   /courses/{id}/modules:
     post:
       summary: Create a new module for a course
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id
@@ -176,6 +200,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized – Missing or invalid JWT
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Missing or invalid token"
+        '403':
+          description: Forbidden – User does not have permission to perform this action
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Access denied"
     
     get:
       summary: Retrieve all modules for a course
@@ -273,6 +317,8 @@ paths:
     
     delete:
       summary: Delete a module by ID
+      security:
+        - bearerAuth: []   
       parameters:
         - in: path
           name: id
@@ -287,6 +333,26 @@ paths:
       responses:
         '204':
           description: Module deleted successfully
+        '401':
+          description: Unauthorized – Missing or invalid JWT
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Missing or invalid token"
+        '403':
+          description: Forbidden – User does not have permission to perform this action
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Access denied"
         '404':
           description: Module not found
           content:
@@ -301,6 +367,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     patch:
       summary: Update a module by ID
+      security:
+        - bearerAuth: []      
       parameters:
         - in: path
           name: id
@@ -334,6 +402,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized – Missing or invalid JWT
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Missing or invalid token"
+        '403':
+          description: Forbidden – User does not have permission to perform this action
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Access denied"
         '404':
           description: Module not found
           content:
@@ -374,6 +462,38 @@ paths:
                     $ref: '#/components/schemas/Enrollment'
         '400':
           description: Bad request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: Get all enrollments by course ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Enrollments for course retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Enrollment'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
           content:
             application/json:
               schema:
@@ -482,7 +602,433 @@ paths:
           description: Course not found
         '500':
           description: Server error
-    
+  
+  /instructors/{instructorId}/tasks:
+    get:
+      summary: List tasks created by an instructor with pagination
+      parameters:
+        - in: path
+          name: instructorId
+          required: true
+          schema:
+            type: string
+          description: The ID of the instructor
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: pageSize
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Number of tasks per page
+      responses:
+        '200':
+          description: List of tasks created by the instructor with pagination info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total number of tasks by the instructor
+                    example: 50
+                  page:
+                    type: integer
+                    description: Current page number
+                    example: 1
+                  pageSize:
+                    type: integer
+                    description: Number of tasks per page
+                    example: 10
+                  totalPages:
+                    type: integer
+                    description: Total number of pages
+                    example: 5
+                  data:
+                    type: array
+                    description: Array of task objects
+                    items:
+                      $ref: '#/components/schemas/TaskSummary'
+        '400':
+          description: Bad request, invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Instructor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /courses/{id}/instructors/{auxiliarId}:
+    post:
+      summary: Add an auxiliary instructor to a course
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the course
+        - in: path
+          name: auxiliarId
+          required: true
+          schema:
+            type: string
+          description: ID of the auxiliary instructor to add
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - titularId
+                - can_create_content
+                - can_grade
+                - can_update_course
+              properties:
+                titularId:
+                  type: string
+                  description: ID of the titular instructor authorizing the addition
+                can_create_content:
+                  type: boolean
+                  description: Permission to create content
+                can_grade:
+                  type: boolean
+                  description: Permission to grade submissions
+                can_update_course:
+                  type: boolean
+                  description: Permission to update course settings
+      responses:
+        '201':
+          description: Auxiliary instructor added successfully
+          content:
+            application/json:
+              schema:
+                type: boolean
+                example: true
+        '400':
+          description: Bad request, invalid input or missing fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Course not found or titular instructor not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Remove an auxiliary instructor from a course
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the course
+        - in: path
+          name: auxiliarId
+          required: true
+          schema:
+            type: string
+          description: ID of the auxiliary instructor to remove
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - titularId
+              properties:
+                titularId:
+                  type: string
+                  description: ID of the titular instructor authorizing the removal
+      responses:
+        '200':
+          description: Auxiliary instructor removed successfully
+          content:
+            application/json:
+              schema:
+                type: boolean
+                example: true
+        '400':
+          description: Bad request or invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Course or instructor not found, or titular instructor not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not authorized (titularId is not titular or missing)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update permissions for an auxiliary instructor in a course
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the course
+        - in: path
+          name: auxiliarId
+          required: true
+          schema:
+            type: string
+          description: ID of the auxiliary instructor to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - titularId
+                - can_create_content
+                - can_grade
+                - can_update_course
+              properties:
+                titularId:
+                  type: string
+                  description: ID of the titular instructor authorizing the update
+                can_create_content:
+                  type: boolean
+                  description: Permission to create content
+                can_grade:
+                  type: boolean
+                  description: Permission to grade tasks
+                can_update_course:
+                  type: boolean
+                  description: Permission to update course details
+      responses:
+        '200':
+          description: Instructor permissions updated successfully
+          content:
+            application/json:
+              schema:
+                type: boolean
+                example: true
+        '400':
+          description: Bad request or invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not authorized (titularId is not titular or missing)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Course or instructor not found, or titular instructor not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /courses/{id}/instructors/{instructorId}/permissions:
+    get:
+      summary: Get instructor permissions in a course
+      description: Retrieves the permission flags for an instructor within a specific course.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the course
+        - in: path
+          name: instructorId
+          required: true
+          schema:
+            type: string
+          description: ID of the instructor
+      responses:
+        '200':
+          description: Instructor permissions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  courseId:
+                    type: string
+                  userId:
+                    type: string
+                  type:
+                    $ref: '#/components/schemas/InstructorType'
+                  can_create_content:
+                    type: boolean
+                    example: true
+                  can_grade:
+                    type: boolean
+                    example: false
+                  can_update_course:
+                    type: boolean
+                    example: true
+        '404':
+          description: Course or instructor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+
+  /courses/{id}/instructors:
+    get:
+      summary: Get all instructors by course ID
+      description: Retrieves all instructors (titular and auxiliares) assigned to a specific course.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the course
+      responses:
+        '200':
+          description: Instructors retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Instructor'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /instructors/{instructorId}/courses:
+    get:
+      summary: Get all courses by instructor ID
+      description: Retrieves all course IDs where the given instructor is assigned.
+      parameters:
+        - in: path
+          name: instructorId
+          required: true
+          schema:
+            type: string
+          description: ID of the instructor
+      responses:
+        '200':
+          description: Courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                      example: "course123"
+        '404':
+          description: Instructor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   /modules/{moduleId}/resources:
     post:
       summary: Create a new resource for a module
@@ -651,8 +1197,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
   
 
-
-
 components:
   schemas:
     Course:
@@ -742,10 +1286,18 @@ components:
     Instructor:
       type: object
       properties:
-        name:
+        id: 
           type: string
-        profile:
+        courseId:
           type: string
+        userId:
+          type: string
+        can_create_content:
+          type: boolean
+        can_grade:
+          type: boolean
+        can_update_course:
+          type: boolean
     
     UpdateCourseRequest:
       type: object
@@ -860,3 +1412,42 @@ components:
       properties:
         userId:
           type: string
+
+    InstructorType:
+      type: string
+      enum:
+        - TITULAR
+        - AUXILIAR
+      example: AUXILIAR
+
+    TaskSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "t1"
+        title:
+          type: string
+          example: "Primer tarea"
+        course:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "Curso de JavaScript"
+        due_date:
+          type: string
+          format: date-time
+          example: "2025-06-19T21:12:52.732Z"
+        published:
+          type: boolean
+          example: true
+        type:
+          type: string
+          example: "tarea"
+        _count:
+          type: object
+          properties:
+            submissions:
+              type: integer
+              example: 1
