@@ -1647,37 +1647,157 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /tasks/{taskId}/submissions/{studentId}/feedback:
+    patch:
+      summary: Add feedback and grade to a student's task submission
+      description: Allows an instructor to provide a grade and written feedback for a student's task or exam submission.
+      tags:
+        - Submissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: string
+          description: ID of the task
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: string
+          description: ID of the student who submitted the task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - grade
+                - feedback
+              properties:
+                grade:
+                  type: number
+                  example: 85
+                feedback:
+                  type: string
+                  example: "Buen trabajo, aunque podrías mejorar la estructura del código."
+      responses:
+        '200':
+          description: Feedback successfully added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TaskSubmission'
+        '401':
+          description: Unauthorized - JWT missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - only instructors can perform this action
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Submission or task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  /courses/{id}/instructors/{instructorId}/tasks/{taskId}/submissions:
+    get:
+      summary: Get all submissions for a task by instructor
+      description: Retrieves all submissions for a specific task in a course. Only accessible by the instructor assigned to the course.
+      tags:
+        - Submissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Course ID
+        - in: path
+          name: instructorId
+          required: true
+          schema:
+            type: string
+          description: Instructor ID
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: string
+          description: Task ID
+      responses:
+        '200':
+          description: List of task submissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TaskSubmission'
+        '401':
+          description: Unauthorized - JWT missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Not an instructor or mismatched instructor ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Course or task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /modules/{moduleId}/resources:
     post:
-      summary: Create a new resource for a module
+      summary: Add a resource to a module
+      description: Adds a new resource to the specified module. Only authenticated instructors can perform this action.
+      tags:
+        - Resources
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: moduleId
           required: true
           schema:
             type: string
+          description: The ID of the module
       requestBody:
         required: true
         content:
@@ -1695,23 +1815,44 @@ paths:
                   data:
                     $ref: '#/components/schemas/Resource'
         '400':
-          description: Bad request error
+          description: Bad request - missing or invalid fields
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+        '401':
+          description: Unauthorized - missing or invalid JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Module not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     get:
-      summary: Retrieve all resources for a module
+      summary: Get all resources from a module
+      description: Retrieves all resources associated with the specified module.
+      tags:
+        - Resources
       parameters:
         - in: path
           name: moduleId
           required: true
           schema:
             type: string
+          description: The ID of the module
       responses:
         '200':
-          description: A list of resources for the module
+          description: List of resources from the module
           content:
             application/json:
               schema:
@@ -1721,26 +1862,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Resource'
-  
-  /modules/{moduleId}/resources/{resourceId}:
-    delete:
-      summary: Delete a resource by ID
-      parameters:
-        - in: path
-          name: moduleId
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: resourceId
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Resource deleted successfully
         '404':
-          description: Resource not found
+          description: Module not found or no resources available
           content:
             application/json:
               schema:
@@ -1751,58 +1874,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  
-    patch:
-      summary: Update a resource by ID
-      parameters:
-        - in: path
-          name: moduleId
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: resourceId
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Resource'
-      responses:
-        '200':
-          description: Resource updated successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Resource'
-        '400':
-          description: Bad request error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Resource not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  
+
   /modules/{moduleId}/resources/order:
     patch:
       summary: Update the order of resources for a module
+      tags:
+        - Resources
       parameters:
         - in: path
           name: moduleId
@@ -1823,6 +1900,13 @@ paths:
       responses:
         '200':
           description: Order updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         '400':
           description: Bad request error
           content:
@@ -1835,6 +1919,140 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+
+  /modules/{moduleId}/resources/{resourceId}:
+    delete:
+      summary: Delete a resource from a module
+      description: Deletes a specific resource from a module. Only instructors are authorized to perform this action.
+      tags:
+        - Resources
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: moduleId
+          required: true
+          schema:
+            type: string
+          description: The ID of the module
+        - in: path
+          name: resourceId
+          required: true
+          schema:
+            type: string
+          description: The ID of the resource to delete
+      responses:
+        '204':
+          description: Resource deleted successfully
+        '400':
+          description: Invalid module or resource ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid instructor token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Instructor not authorized to delete resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Resource or module not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+        summary: Update a resource in a module
+        description: Updates a specific resource in a module. Only instructors are allowed to perform this action.
+        tags:
+          - Resources
+        security:
+          - bearerAuth: []
+        parameters:
+          - in: path
+            name: moduleId
+            required: true
+            schema:
+              type: string
+            description: ID of the module that contains the resource
+          - in: path
+            name: resourceId
+            required: true
+            schema:
+              type: string
+            description: ID of the resource to be updated
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        responses:
+          '200':
+            description: Resource updated successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/Resource'
+          '400':
+            description: Invalid input data
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+          '401':
+            description: Unauthorized - Missing or invalid instructor token
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+          '403':
+            description: Forbidden - Instructor not authorized
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+          '404':
+            description: Resource or module not found
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+          '500':
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+
+
+
+
+
+
+
+
+
+
+
+  
+
   
 
 components:
@@ -2197,6 +2415,52 @@ components:
           type: string
           description: Text answer from student
           example: "La diferencia es que require es CommonJS y import es ES Modules"
+
+    TaskSubmission:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "ts1"
+        task_id:
+          type: string
+          example: "t1"
+        student_id:
+          type: string
+          example: "s1"
+        status:
+          type: string
+          enum: [started, submitted, late]
+          example: "submitted"
+        started_at:
+          type: string
+          format: date-time
+          example: "2025-06-20T18:00:00.000Z"
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-06-20T19:15:00.000Z"
+        file_url:
+          type: string
+          nullable: true
+          example: "https://example.com/submission.pdf"
+        grade:
+          type: number
+          nullable: true
+          example: 85
+        feedback:
+          type: string
+          nullable: true
+          example: "Buen trabajo, pero podés mejorar en la pregunta 2."
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-06-20T20:00:00.000Z"
+        answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnswerInput'
 
 
   securitySchemes:
