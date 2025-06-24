@@ -2041,6 +2041,120 @@ paths:
                 schema:
                   $ref: '#/components/schemas/ErrorResponse'
 
+  /courses/{id}/feedback:
+    post:
+      summary: Submit feedback to a course
+      description: Students can submit a comment and rating (1 to 5) for a course they are enrolled in.
+      tags:
+        - CourseFeedback
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseFeedbackRequest'
+      responses:
+        '201':
+          description: Feedback successfully submitted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CourseFeedback'
+        '400':
+          description: Invalid input or already gave feedback
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Course not found or student not enrolled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: Get all feedback for a course
+      description: Retrieves all feedback submitted by students for the specified course.
+      tags:
+        - CourseFeedback
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the course
+      responses:
+        '200':
+          description: List of feedback entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CourseFeedback'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /courses/{id}/feedback-summary:
+    get:
+      summary: Get summarized course feedback
+      description: Generates a summary based on student feedback for the specified course using AI.
+      tags:
+        - CourseFeedback
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the course
+      responses:
+        '200':
+          description: Feedback summary generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary: 
+                    type: string
+        '404':
+          description: Course not found or no feedback available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Failed to generate summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+
+
+
+
+
 
 
 
@@ -2461,6 +2575,49 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AnswerInput'
+
+    CourseFeedbackRequest:
+      type: object
+      required:
+        - student_id
+        - comment
+        - punctuation
+      properties:
+        student_id:
+          type: string
+          example: "u1"
+        comment:
+          type: string
+          example: "Muy buen curso, aprendí bastante sobre JavaScript."
+        punctuation:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+
+    CourseFeedback:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "cf1"
+        course_id:
+          type: string
+          example: "c1"
+        student_id:
+          type: string
+          example: "u1"
+        comment:
+          type: string
+          example: "Muy buen curso, el profesor explicó con claridad."
+        punctuation:
+          type: number
+          format: float
+          minimum: 1
+          maximum: 5
+          example: 4.5
+
+
 
 
   securitySchemes:
