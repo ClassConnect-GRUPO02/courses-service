@@ -2149,8 +2149,141 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /courses/{courseId}/students/{studentId}/feedback:
+    post:
+      summary: Add feedback to a student in a course
+      description: Allows an instructor to give feedback to a student enrolled in a course.
+      tags:
+        - StudentFeedback
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: string
+          description: The ID of the course
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: string
+          description: The ID of the student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - instructor_id
+                - comment
+                - punctuation
+              properties:
+                instructor_id:
+                  type: string
+                  description: ID of the instructor leaving the feedback
+                comment:
+                  type: string
+                  description: Feedback comment
+                punctuation:
+                  type: number
+                  minimum: 1
+                  maximum: 5
+                  description: Feedback score (1 to 5)
+            example:
+              instructor_id: "i123"
+              comment: "Excelente participación y compromiso durante el curso."
+              punctuation: 5
+      responses:
+        '201':
+          description: Feedback added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/StudentFeedback'
+        '400':
+          description: Invalid input or constraints not met
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: User is not authorized to perform this action
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Course or student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  /students/{studentId}/feedback:
+    get:
+      summary: Get all feedback received by a student
+      description: Retrieves all feedback entries that a student has received from instructors across courses.
+      tags:
+        - StudentFeedback
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: string
+          description: The ID of the student
+      responses:
+        '200':
+          description: List of feedbacks received by the student
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StudentFeedback'
+        '404':
+          description: Student not found or no feedback available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  /students/{studentId}/feedback-summary:
+    get:
+      summary: Get summary of feedback received by a student
+      description: Generates a summarized analysis of the feedback a student has received from instructors, including trends, strengths, and areas for improvement.
+      tags:
+        - StudentFeedback
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: string
+          description: The ID of the student
+      responses:
+        '200':
+          description: Feedback summary generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary:
+                    type: string
+        '404':
+          description: Student has no feedback available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 
 
@@ -2616,6 +2749,29 @@ components:
           minimum: 1
           maximum: 5
           example: 4.5
+
+    StudentFeedback:
+      type: object
+      properties:
+        id:
+          type: string
+        course_id:
+          type: string
+        student_id:
+          type: string
+        instructor_id:
+          type: string
+        comment:
+          type: string
+        punctuation:
+          type: number
+      required:
+        - id
+        - course_id
+        - student_id
+        - instructor_id
+        - comment
+        - punctuation
 
 
 
