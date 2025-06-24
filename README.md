@@ -1,48 +1,114 @@
 # Courses-service
 
-## Run
+## Correr el proyecto
 
-`docker compose up` install dependencies, run the API and the database
+Antes de correr el proyecto se debe contar con las siguientes herramientas:
+- Docker
+- Docker compose
 
-## See database content
+Además se debe configurar un archivo .env con las siguientes variables:
 
-mysql -u root -p
+```dotenv
+HOST=0.0.0.0
+PORT=3000
+DB_USER=root
+DB_PASSWORD=admin
+DB_HOST=mysql
+DB_PORT=3306
+DB_NAME=courses_db
+DATABASE_URL=mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+ENVIRONMENT=development
+# CHATGPT API
+OPENAI_API_KEY=secret_key
+# JWT KEY
+SECRET_KEY=secret_key 
+# Esta clave debe coincidir con la del servicio de usuarios para que funcionen en conjunto
+```
+Esto también se puede encontrar en el archivo [`.env.example`](./.env.example)
 
-USE courses_db;
 
-SHOW TABLES;
+Luego, para correr el proyecto se puede usar docker ejecutando en la terminal:
 
-SELECT * FROM Course;
+```bash
+docker compose up --build # Instala las imágenes, instala las dependencias, corre la API y crea los contenedores junto con el volumen de la base de datos.
+```
 
-## Explanation
+## Correr los tests
 
-When using `docker compose up --build` it builds the image of the container of the app, and the volume for the database. If we use `docker compose down` the containers will be stopped but the database will remain in memory, on the other hand, if we use `docker compose down -v` the containers and the volumes will be deleted (including the db volume).
+Para correr los tests, se puede hacer de 2 formas:
 
-## Using prisma studio with docker
+**Sin usar docker:**
+```bash
+npm install # Se instalan las dependencias
+npm test # Se ejecutan los tests
+```
 
-Run in terminal:
-`docker exec -it cursos-app sh`
+**Accediendo al contenedor de docker:**
 
-`npx prisma studio --hostname 0.0.0.0 --port 5555`
+```bash
+docker exec -it cursos-app sh # Se accede a la terminal del contenedor
+npm test # Se ejecutan los tests
+```
 
-Open in a browser:
+## Acceder a la base de datos:
+
+**Sin gestor de bdd (Usando prisma studio con docker):**
+
+Ejecutar en una terminal:
+```bash
+docker exec -it cursos-app sh
+npx prisma studio --hostname 0.0.0.0 --port 5555
+```
+
+Luego en un navegador abrir:
 `localhost:5555`
 
-## Correr con docker
+**Con un gestor de bdd (Por ejemplo, DBeaver):**
 
-Para correr el servicio con los últimos cambios:
-`docker compose up --build`
+1 - Abrir DBeaver
 
-Para borrar el volúmen con la bdd (OJO! borra la bdd) (es decir, borrar la bdd ya sea por nuevos cambios, etc):
-`docker compose down -v`
+2 - Seleccionar nueva conexión -> MySQL
 
-Para parar los containers sin borrar la bdd:
-`docker compose down`
+3 - Completar los datos con:
+- Host:        localhost
+- Port:        3307 *(esto puede variar si el contenedor expone otro puerto)*
+- Database:    courses_db
+- User:        root
+- Password:    admin
 
-### Usar semilla en la bdd (si borré la bdd y quiero tener datos nuevos)
+*Esto dependiendo de los datos definidos en el archivo .env*
 
-`docker exec -it cursos-app npm run seed`
 
+## Frenar o borrar los contenedores
+
+Para detener los contenedores: 
+
+```bash
+docker compose down
+```
+
+Esto va a generar que los contenedores se detengan pero la base de datos permanezca en el disco (sin poder conectarse a la misma hasta ejecutar nuevamente `docker compose up`)
+
+Para borrar los contenedores y **el volumen de la bdd** (es decir, borrar también la bdd):
+
+```bash
+docker compose down -v
+```
+
+## Usar semilla en la bdd para cargarle datos (Precaución: Borra los datos guardados antes de cargar los de la semilla)
+
+```bash
+docker exec -it cursos-app npm run seed
+```
+
+Esto ejecutará la semilla en el contenedor de la api
+
+
+## Ver documentación de los endpoints
+
+1. Abrir [Swagger Editor](https://editor.swagger.io/)
+2. Copiar el contenido del archivo [`endpoints.yaml`](./endpoints.yaml)
+3. Pegarlo en el editor para visualizar la documentación en formato Swagger
 
 ## Seguridad en las solicitudes
 
