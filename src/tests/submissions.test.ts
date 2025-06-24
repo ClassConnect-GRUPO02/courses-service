@@ -160,8 +160,6 @@ describe('Integration Tests for resources of Courses API', () => {
       const studentId = 'u2';
       const feedback = { grade: 85, feedback: 'Good job!' };
 
-      const SECRET_KEY = Buffer.from(process.env.SECRET_KEY as string, "hex");
-
       const response = await request(app)
         .patch(`/tasks/${taskId}/submissions/${studentId}/feedback`)
         .set('Authorization', `Bearer ${instructorToken}`)
