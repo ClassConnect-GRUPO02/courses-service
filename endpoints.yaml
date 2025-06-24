@@ -2328,7 +2328,7 @@ paths:
     delete:
         summary: Remove a course from a student's list of favorite courses
         tags:
-          - FavouriteCourses
+          - Favourite Courses
         parameters:
           - in: path
             name: studentId
@@ -2354,7 +2354,7 @@ paths:
     get:
         summary: Check if a course is marked as favorite by a student
         tags:
-          - FavouriteCourses
+          - Favourite Courses
         parameters:
           - in: path
             name: studentId
@@ -2389,7 +2389,7 @@ paths:
     get:
       summary: Get all favorite courses of a student
       tags:
-          - FavouriteCourses
+          - Favourite Courses
       parameters:
         - in: path
           name: studentId
@@ -2416,10 +2416,166 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /courses/{id}/activity-log:
+    get:
+      summary: Get course activity log
+      description: Returns the activity log of a course. Only accessible to the titular instructor.
+      tags:
+        - Activity-log
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the course
+      responses:
+        '200':
+          description: Activity log retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CourseActivityLog'
+        '400':
+          description: The user is not the titular instructor of the course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  /chat:
+    post:
+      summary: Send a message in the chat
+      description: Sends a message to the AI assistant. Depending on the user's type (student or instructor), a different logic is applied to generate the response.
+      tags:
+        - Chat
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  example: "¿Cuál es la fecha de entrega?"
+                history:
+                  type: array
+                  description: Optional message history used for context
+                  items:
+                    $ref: '#/components/schemas/ChatMessage'
+              example:
+                message: "Cómo se llama mi perro?"
+                history:
+                  - role: user
+                    content: "Hola, necesito ayuda."
+                  - role: assistant
+                    content: "¡Hola! Soy tu asistente de ClassConnect. ¿En qué puedo ayudarte hoy?"
+                  - role: user
+                    content: "¿Qué modulos tiene el curso de Javascript?"
+                  - role: assistant
+                    content: "Tiene el Módulo 1, el Módulo 2 y el Módulo 3"
+                    useful: true
+      responses:
+        '200':
+          description: Chat message processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: "No tengo información suficiente para responder esa pregunta."
+        '401':
+          description: Unauthorized – Missing or invalid JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  /ia-feedback/{taskSubmissionId}:
+    get:
+      summary: Get AI-generated summary for task submission feedback
+      description: Generates a summary based on the feedback of a task submission. Only instructors can access this endpoint.
+      tags:
+        - AI Feedback Resume
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: taskSubmissionId
+          required: true
+          schema:
+            type: string
+          description: ID of the task submission
+      responses:
+        '200':
+          description: AI feedback summary generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    description: Summary of the feedback
+                    example: |
+                      Tendencias generales:
+                      - Los estudiantes demostraron una comprensión general del tema, pero necesitan mejorar la claridad en las respuestas.
 
+                      Aspectos positivos:
+                      - Las respuestas fueron completas y bien estructuradas.
+                      - La mayoría aplicó correctamente los conceptos aprendidos.
 
+                      Áreas de mejora:
+                      - Mayor precisión en el uso de términos técnicos.
+                      - Algunos estudiantes no justificaron adecuadamente sus elecciones.
+        '401':
+          description: Unauthorized – Missing or invalid JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden – Only instructors can access this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Task submission or feedback not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 
 
@@ -2911,7 +3067,38 @@ components:
         student_id:
           type: string
 
+    CourseActivityLog:
+      type: object
+      properties:
+        id:
+          type: string
+        courseId:
+          type: string
+        userId:
+          type: string
+        action:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
 
+    ChatMessage:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        useful:
+          type: boolean
+          description: Indicates if the assistant's message was helpful (optional)
 
   securitySchemes:
     bearerAuth:
