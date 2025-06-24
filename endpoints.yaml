@@ -2285,8 +2285,136 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /students/{studentId}/favorite-courses/{courseId}:
+    post:
+      summary: Add a course to a student's list of favorite courses
+      tags:
+        - FavouriteCourses
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: string
+          description: ID of the student
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: string
+          description: ID of the course
+      responses:
+        '201':
+          description: Course added to favorites successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/FavoriteCourse'
+        '400':
+          description: Course already favorite
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Course not found or student not enrolled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+        summary: Remove a course from a student's list of favorite courses
+        tags:
+          - FavouriteCourses
+        parameters:
+          - in: path
+            name: studentId
+            required: true
+            schema:
+              type: string
+            description: ID of the student
+          - in: path
+            name: courseId
+            required: true
+            schema:
+              type: string
+            description: ID of the course
+        responses:
+          '204':
+            description: Course removed from favorites successfully
+          '404':
+            description: Course not found, student not enrolled or course not marked as favorite
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+    get:
+        summary: Check if a course is marked as favorite by a student
+        tags:
+          - FavouriteCourses
+        parameters:
+          - in: path
+            name: studentId
+            required: true
+            schema:
+              type: string
+            description: ID of the student
+          - in: path
+            name: courseId
+            required: true
+            schema:
+              type: string
+            description: ID of the course
+        responses:
+          '200':
+            description: Course favorite status retrieved successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    data:
+                      type: boolean
+          '404':
+            description: Student or course not found
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
 
-
+  /students/{studentId}/favorite-courses:
+    get:
+      summary: Get all favorite courses of a student
+      tags:
+          - FavouriteCourses
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: string
+          description: ID of the student
+      responses:
+        '200':
+          description: List of favorite courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FavoriteCourse'
+        '404':
+          description: Student not found or no favorite courses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 
 
@@ -2773,6 +2901,15 @@ components:
         - comment
         - punctuation
 
+    FavoriteCourse:
+      type: object
+      properties:
+        id:
+          type: string
+        course_id:
+          type: string
+        student_id:
+          type: string
 
 
 
