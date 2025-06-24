@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 // Fechas dinamicas utiles
 const now = new Date();
 const dueDate = new Date(now);
@@ -9,7 +11,35 @@ visibleFrom.setDate(now.getDate() - 2); // 2 días atrás
 const visibleUntil = new Date(now);
 visibleUntil.setDate(now.getDate() + 8); // después del due date
 
+const dueDateTask2 = new Date(now);
+dueDateTask2.setDate(now.getDate() + 30); // 30 días en el futuro
 
+const dueDateTask3 = new Date(now);
+dueDateTask3.setDate(now.getDate() + 60); // 60 días en el futuro
+
+const visibleFromTask = new Date(now);
+visibleFromTask.setDate(now.getDate() - 2); // 2 días atrás
+
+const visibleUntilTask = new Date(now);
+visibleUntilTask.setDate(now.getDate() + 8); // después del due date
+
+const dueDateExam = new Date(now);
+dueDateExam.setHours(now.getHours() + 3); // 3 horas en el futuro
+const visibleFromExam = new Date(now);
+const visibleUntilExam = new Date(now);
+visibleUntilExam.setHours(now.getHours() + 4); // 1 hora después del due date
+
+const dueDateTaskOverdue = new Date(now);
+dueDateTaskOverdue.setHours(now.getHours() - 2);
+
+const startDateCourse = new Date(now);
+startDateCourse.setMonth(now.getMonth() - 1); // Un mes atrás
+
+const endDateCourse = new Date(now);
+endDateCourse.setMonth(now.getMonth() + 6); // 6 meses en el futuro
+
+const submissionDateExam = new Date(now);
+submissionDateExam.setHours(now.getHours() + 2); // 2 horas en el futuro
 
 // Simula una base de datos en memoria
 export const mockDB = {
@@ -19,8 +49,8 @@ export const mockDB = {
       name: 'Curso de JavaScript',
       description: 'Aprendé JS desde cero',
       shortDescription: 'JS básico',
-      startDate: new Date('2025-04-01').toISOString(),
-      endDate: new Date('2025-12-01').toISOString(),
+      startDate: startDateCourse.toISOString(),
+      endDate: endDateCourse.toISOString(),
       capacity: 30,
       enrolled: 5,
       category: 'Programación',
@@ -35,8 +65,8 @@ export const mockDB = {
       name: 'Curso de Python',
       description: 'Aprendé Python desde cero',
       shortDescription: 'Python básico',
-      startDate: new Date('2024-05-01').toISOString(),
-      endDate: new Date('2025-12-01').toISOString(),
+      startDate: startDateCourse.toISOString(),
+      endDate: endDateCourse.toISOString(),
       capacity: 30,
       enrolled: 3,
       category: 'Programación',
@@ -90,11 +120,11 @@ export const mockDB = {
       has_timer: false,
       time_limit_minutes: null,
       published: true,
-      visible_from: visibleFrom.toISOString(),
-      visible_until: visibleUntil.toISOString(),
+      visible_from: visibleFromTask.toISOString(),
+      visible_until: visibleUntilTask.toISOString(),
       allow_file_upload: true,
       answer_format: 'archivo',
-      created_at: new Date().toISOString(),
+      created_at: visibleFromTask.toISOString(),
       updated_at: new Date().toISOString(),
       deleted_at: null,
     },
@@ -105,59 +135,59 @@ export const mockDB = {
       type: 'examen',
       title: 'Examen parcial',
       description: 'Examen de mitad de curso',
-      due_date: new Date('3050-08-30').toISOString(),
+      due_date: dueDateExam.toISOString(),
       allow_late: false,
       late_policy: null,
       has_timer: true,
       time_limit_minutes: 60,
       published: true,
-      visible_from: new Date('2024-05-01').toISOString(),
-      visible_until: new Date('2024-05-21').toISOString(),
+      visible_from: visibleFromExam.toISOString(),
+      visible_until: visibleUntilExam.toISOString(),
       allow_file_upload: false,
       answer_format: 'texto',
-      created_at: new Date().toISOString(),
+      created_at: visibleFromExam.toISOString(),
       updated_at: new Date().toISOString(),
       deleted_at: null,
     },
     {
       id: 't3',
       course_id: 'c1',
-      created_by: 'u2',
+      created_by: 'u1',
       type: 'tarea',
-      title: 'Tarea de Python',
+      title: 'Tarea de Javascript',
       description: 'Ejercicio de funciones',
-      due_date: new Date('2024-06-10').toISOString(),
+      due_date: dueDateTask2.toISOString(),
       allow_late: true,
       late_policy: 'aceptar_con_penalizacion',
       has_timer: false,
       time_limit_minutes: null,
       published: true,
-      visible_from: new Date('2024-06-01').toISOString(),
-      visible_until: new Date('2024-06-11').toISOString(),
+      visible_from: visibleFromTask.toISOString(),
+      visible_until: visibleUntilTask.toISOString(),
       allow_file_upload: true,
       answer_format: 'mixto',
-      created_at: new Date().toISOString(),
+      created_at: visibleFrom.toISOString(),
       updated_at: new Date().toISOString(),
       deleted_at: null,
     },
     {
       id: 't4',
       course_id: 'c1',
-      created_by: 'u2',
-      type: 'examen',
-      title: 'Examen de Python',
-      description: 'Examen de mitad de curso de Python',
-      due_date: new Date('2024-06-20').toISOString(),
+      created_by: 'u1',
+      type: 'tarea',
+      title: 'Tarea de Javascript avanzada',
+      description: 'Tarea de javascript',
+      due_date: dueDateTaskOverdue.toISOString(),
       allow_late: false,
       late_policy: null,
       has_timer: true,
       time_limit_minutes: 90,
       published: false,
-      visible_from: new Date('2024-06-01').toISOString(),
-      visible_until: new Date('2024-06-21').toISOString(),
+      visible_from: visibleFromExam.toISOString(),
+      visible_until: visibleUntilExam.toISOString(),
       allow_file_upload: false,
       answer_format: 'opcion_multiple',
-      created_at: new Date().toISOString(),
+      created_at: visibleFromExam.toISOString(),
       updated_at: new Date().toISOString(),
       deleted_at: null,
     },
@@ -209,18 +239,6 @@ export const mockDB = {
       file_url: 'https://example.com/solution1.pdf',
       submitted_at: new Date('2024-05-09').toISOString(),
     },
-    {
-      id: 's2',
-      task_id: 't1',
-      student_id: 'u2',
-      started_at: new Date('2024-05-01').toISOString(),
-      status: 'submitted',
-      grade: 10,
-      feedback: "",
-      time_spent: 45,
-      file_url: 'https://example.com/solution1.pdf',
-      submitted_at: new Date('2024-05-09').toISOString(),
-    }
   ],
 
   favorites: [
@@ -265,16 +283,35 @@ export const mockDB = {
   studentAnswer: [
     {
       id: 'ans1',
-      submission_id: 's2', // Asumiendo que 's2' es una entrega de 't2' (examen)
+      submission_id: 's5', // Asumiendo que 's2' es una entrega de 't2' (examen)
       question_id: 'q1',
-      answer_text: 'Una variable es un contenedor para almacenar datos.'
+      answer_text: 'Una variable es un contenedor para almacenar datos.',
     },
     {
       id: 'ans2',
-      submission_id: 's2',
+      submission_id: 's5',
       question_id: 'q2',
-      answer_text: '`let` permite reasignación, `const` no.'
+      answer_text: '`let` permite reasignación, `const` no.',
     },
   ],
+
+  courseActivityLogs: [
+    {
+      id: 'log1',
+      course_id: 'c1',
+      user_id: 'u1',
+      action: 'created',
+      metadata: { foo: 'bar' },
+      created_at: new Date('2025-06-01T10:00:00Z')
+    },
+    {
+      id: 'log2',
+      course_id: 'c2',
+      user_id: 'u2',
+      action: 'updated',
+      metadata: null,
+      created_at: new Date('2025-06-02T15:00:00Z')
+    }
+  ]
 
 };

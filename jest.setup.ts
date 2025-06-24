@@ -53,6 +53,20 @@ jest.mock('./src/database/course_db', () => ({
     return Promise.resolve(courses)
   }),
 
+  getCourseActivityLog: jest.fn().mockImplementation((courseId: string) => {
+    const logs = mockDB.courseActivityLogs.filter(log => log.course_id === courseId);
+    return Promise.resolve(
+      logs.map(log => ({
+        id: log.id,
+        courseId: log.course_id,
+        userId: log.user_id,
+        action: log.action,
+        metadata: log.metadata,
+        createdAt: log.created_at.toISOString(),
+      }))
+    );
+  }),
+
 }));
 
 jest.mock('./src/database/module_db', () => ({
@@ -492,6 +506,41 @@ jest.mock('./src/database/task_db', () => ({
     const gradedSubmissions = mockDB.taskSubmission.filter(taskSubmission => taskSubmission.task_id === taskId && taskSubmission.grade != null);
     return Promise.resolve(gradedSubmissions);
   }),
+
+  getTaskSubmissions: jest.fn().mockImplementation((taskId: string) => {
+    // Filtra submissions por taskId y estado 'submitted' o 'late'
+    const submissions = mockDB.taskSubmission.filter(
+      sub =>
+        sub.task_id === taskId &&
+        (sub.status === 'submitted' || sub.status === 'late')
+    );
+
+    // Para cada submission, agrega el array de respuestas (answers)
+    return Promise.resolve(
+      submissions.map(sub => ({
+        ...sub,
+        answers: mockDB.studentAnswer
+          .filter(ans => ans.submission_id === sub.id)
+      }))
+    );
+  }),
+
+  getTaskSubmissionStarted: jest.fn().mockImplementation((taskId: string, studentId: string) => {
+    const submission = mockDB.taskSubmission.find(sub =>
+      sub.task_id === taskId &&
+      sub.student_id === studentId &&
+      sub.status === 'started'
+    );
+
+    if (!submission) return Promise.resolve(null);
+
+    const answers = mockDB.studentAnswer.filter(ans => ans.submission_id === submission.id);
+
+    return Promise.resolve({
+      ...submission,
+      answers,
+    });
+    }),
 
 }));
 

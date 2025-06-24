@@ -113,7 +113,7 @@ async function main() {
       { id: 'e3', userId: 'u4', courseId: 'c1', enrollmentDate: new Date() },
       { id: 'e4', userId: 'u5', courseId: 'c1', enrollmentDate: new Date() },
       { id: 'e5', userId: 'u6', courseId: 'c1', enrollmentDate: new Date() },
-      { id: 'e6', userId: 'u7', courseId: 'c2', enrollmentDate: new Date() },
+      { id: 'e6', userId: 'u8', courseId: 'c1', enrollmentDate: new Date() },
       { id: 'e7', userId: 'u8', courseId: 'c2', enrollmentDate: new Date() },
       { id: 'e8', userId: 'u9', courseId: 'c2', enrollmentDate: new Date() },
     ],
